@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
                 UsersSeeder::class,
                 CompetitorBrandSeeder::class,
                 RefusedReasonSeeder::class,
+                OutletsSeeder::class,
             ]
         );
     }
