@@ -47,6 +47,9 @@ Route::prefix('consumer')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ConsumerController::class, 'index']);
         Route::post('create', [ConsumerController::class, 'store']);
+        Route::post('show', [ConsumerController::class, 'show']);
+        Route::post('update', [ConsumerController::class, 'update']);
+        Route::post('delete', [ConsumerController::class, 'destroy']);
     });
 });
 

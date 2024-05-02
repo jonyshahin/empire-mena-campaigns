@@ -14,6 +14,7 @@ class Consumer extends Model
 
     protected $casts = [
         'user_id' => 'integer',
+        'outlet_id' => 'integer',
         'competitor_brand_id' => 'integer',
         'did_he_switch' => 'boolean',
         'packs' => 'integer',
