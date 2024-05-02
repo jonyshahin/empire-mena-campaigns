@@ -37,6 +37,8 @@ class User extends Authenticatable
 
     protected $with = ['roles'];
 
+    protected $guard_name = 'sanctum';
+
     /**
      * The attributes that should be cast.
      *
