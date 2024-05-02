@@ -18,7 +18,13 @@ class ConsumerController extends Controller
             $consumers->where('user_id', $user->id);
         }
 
-        $consumers = $consumers->get();
+        $consumers = $consumers->with(
+            [
+                'promoter',
+                'competitorBrand',
+                'refusedReasons'
+            ]
+        )->get();
 
         return custom_success(200, 'Consumers', $consumers);
     }
