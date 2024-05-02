@@ -28,7 +28,6 @@
     echo "Starting deployment ({{ $release }})"
     cd {{ $new_release_dir }}
     composer install --prefer-dist --no-scripts -q -o
-    php artisan migrate:fresh --seed
     php artisan cache:clear
     php artisan view:clear
     php artisan route:clear
