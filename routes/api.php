@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\OutletController;
+use App\Http\Controllers\API\CompetitorBrandController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +23,13 @@ Route::prefix('outlet')->group(function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
     Route::get('/logout', [AuthController::class, 'logout']);
+});
+
+Route::prefix('competitor-brand')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [CompetitorBrandController::class, 'index']);
+    });
 });
