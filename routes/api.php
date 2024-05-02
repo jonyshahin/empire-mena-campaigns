@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
+use App\Http\Controllers\API\RefusedReasonController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,5 +32,11 @@ Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
 Route::prefix('competitor-brand')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [CompetitorBrandController::class, 'index']);
+    });
+});
+
+Route::prefix('refused-reason')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [RefusedReasonController::class, 'index']);
     });
 });
