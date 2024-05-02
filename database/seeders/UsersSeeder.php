@@ -19,6 +19,6 @@ class UsersSeeder extends Seeder
             'email' => 'super.admin@gmail.com',
             'password' => Hash::make('password'),
         ]);
-        $user->assignRole('super-admin');
+        $user->assignRole('admin');
     }
 }

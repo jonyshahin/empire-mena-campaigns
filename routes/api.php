@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
+use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\RefusedReasonController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,5 +39,12 @@ Route::prefix('competitor-brand')->group(function () {
 Route::prefix('refused-reason')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [RefusedReasonController::class, 'index']);
+    });
+});
+
+Route::prefix('consumer')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [ConsumerController::class, 'index']);
+        Route::post('create', [ConsumerController::class, 'store']);
     });
 });
