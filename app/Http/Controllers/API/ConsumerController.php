@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Consumer;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ConsumerController extends Controller
@@ -40,8 +41,12 @@ class ConsumerController extends Controller
                 'other_refused_reason' => 'nullable|string',
             ]);
 
+            $user = User::find(auth()->id());
+            $outlet_id = $user->attendanceRecords()->latest()->first()->outlet_id;
+
             $consumer = Consumer::create([
                 'user_id' => auth()->id(),
+                'outlet_id' => $outlet_id,
                 'name' => $request->name,
                 'telephone' => $request->telephone,
                 'competitor_brand_id' => $request->competitor_brand_id,
