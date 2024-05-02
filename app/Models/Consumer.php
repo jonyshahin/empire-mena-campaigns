@@ -12,6 +12,15 @@ class Consumer extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'competitor_brand_id' => 'integer',
+        'did_he_switch' => 'boolean',
+        'packs' => 'integer',
+        'age' => 'integer',
+    ];
+
+
     public function promoter(): BelongsTo
     {
         return $this->belongsTo(User::class);
