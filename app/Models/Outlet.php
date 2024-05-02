@@ -12,8 +12,13 @@ class Outlet extends Model
 
     protected $guarded = [];
 
-    public function outlet(): HasMany
+    public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    public function consumers(): HasMany
+    {
+        return $this->hasMany(Consumer::class);
     }
 }

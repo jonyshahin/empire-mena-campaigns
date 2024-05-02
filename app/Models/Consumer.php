@@ -23,7 +23,7 @@ class Consumer extends Model
 
     public function promoter(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function competitorBrand(): BelongsTo
@@ -34,5 +34,10 @@ class Consumer extends Model
     public function refusedReasons()
     {
         return $this->belongsToMany(RefusedReason::class, 'consumer_reason_for_refusal', 'consumer_id', 'refused_reason_id')->withPivot('other_refused_reason');
+    }
+
+    public function outlet(): BelongsTo
+    {
+        return $this->belongsTo(Outlet::class);
     }
 }

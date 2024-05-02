@@ -10,6 +10,7 @@ class ConsumerController extends Controller
 {
     public function index()
     {
+        $per_page = request('per_page', 10);
         $consumers = Consumer::query();
 
         $user = auth()->user();
@@ -22,9 +23,10 @@ class ConsumerController extends Controller
             [
                 'promoter',
                 'competitorBrand',
-                'refusedReasons'
+                'refusedReasons',
+                'outlet'
             ]
-        )->get();
+        )->paginate($per_page);
 
         return custom_success(200, 'Consumers', $consumers);
     }

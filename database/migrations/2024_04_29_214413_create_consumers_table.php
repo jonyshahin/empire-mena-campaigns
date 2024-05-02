@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->bigInteger('outlet_id')->unsigned();
+            $table->foreign('outlet_id')->references('id')->on('outlets')->onUpdate('cascade')->onDelete('cascade');
             $table->string('name');
             $table->string('telephone')->nullable();
             $table->bigInteger('competitor_brand_id')->unsigned();
