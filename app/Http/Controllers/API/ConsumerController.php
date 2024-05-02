@@ -92,7 +92,7 @@ class ConsumerController extends Controller
                     'refusedReasons',
                     'outlet'
                 ]
-            )->get();
+            )->first();
 
             return custom_success(200, 'Consumer retrieved Successfuly', $consumer);
         } catch (\Throwable $th) {
