@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
+use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\RefusedReasonController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,5 +47,14 @@ Route::prefix('consumer')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ConsumerController::class, 'index']);
         Route::post('create', [ConsumerController::class, 'store']);
+    });
+});
+
+Route::prefix('promoter')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', [PromoterController::class, 'index']);
+            Route::post('create', [PromoterController::class, 'store']);
+        });
     });
 });
