@@ -58,6 +58,8 @@ Route::prefix('promoter')->group(function () {
         Route::middleware('role:admin')->group(function () {
             Route::get('/', [PromoterController::class, 'index']);
             Route::post('create', [PromoterController::class, 'store']);
+            Route::post('show', [PromoterController::class, 'show']);
+            Route::post('update', [PromoterController::class, 'update']);
         });
     });
 });

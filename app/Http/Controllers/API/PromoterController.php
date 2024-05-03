@@ -34,4 +34,52 @@ class PromoterController extends Controller
 
         return custom_success(200, 'Promoter created successfully!', $user);
     }
+
+    public function show(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'promoter_id' => 'required|integer',
+            ]);
+
+            $user = User::find($request->promoter_id);
+            if (!$user) {
+                return custom_error(404, 'Promoter not found');
+            }
+
+            return custom_success(200, 'Promoter', $user);
+        } catch (\Throwable $th) {
+            return custom_error(500, 'Something went wrong');
+        }
+    }
+
+    public function update(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'promoter_id' => 'required|integer',
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $request->promoter_id,
+                'password' => 'nullable|string|min:8|confirmed',
+            ]);
+
+            $user = User::query()->where('id', $request->promoter_id)->role('promoter')->first();
+            if (!$user) {
+                return custom_error(404, 'Promoter not found');
+            }
+
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
+
+            if ($validated['password']) {
+                $user->password = bcrypt($validated['password']);
+            }
+
+            $user->save();
+
+            return custom_success(200, 'Promoter updated successfully!', $user);
+        } catch (\Throwable $th) {
+            return custom_error(500, 'Something went wrong');
+        }
+    }
 }
