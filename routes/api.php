@@ -4,8 +4,11 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
+use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\RefusedReasonController;
+use App\Http\Controllers\API\ZoneController;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +63,42 @@ Route::prefix('promoter')->group(function () {
             Route::post('create', [PromoterController::class, 'store']);
             Route::post('show', [PromoterController::class, 'show']);
             Route::post('update', [PromoterController::class, 'update']);
+        });
+    });
+});
+
+Route::prefix('district')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', [DistrictController::class, 'index']);
+            Route::post('create', [DistrictController::class, 'store']);
+            Route::post('show', [DistrictController::class, 'show']);
+            Route::post('update', [DistrictController::class, 'update']);
+            Route::post('delete', [DistrictController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('zone')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', [ZoneController::class, 'index']);
+            Route::post('create', [ZoneController::class, 'store']);
+            Route::post('show', [ZoneController::class, 'show']);
+            Route::post('update', [ZoneController::class, 'update']);
+            Route::post('delete', [ZoneController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('outlet')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', [OutletController::class, 'index']);
+            Route::post('create', [OutletController::class, 'store']);
+            Route::post('show', [OutletController::class, 'show']);
+            Route::post('update', [OutletController::class, 'update']);
+            Route::post('delete', [OutletController::class, 'destroy']);
         });
     });
 });
