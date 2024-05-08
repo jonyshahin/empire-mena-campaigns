@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
                 CompetitorBrandSeeder::class,
                 RefusedReasonSeeder::class,
                 DistrictSeeder::class,
-                OutletsSeeder::class,
+                ZoneSeeder::class,
             ]
         );
     }
