@@ -22,7 +22,6 @@ class OutletController extends Controller
                 'zone_id' => 'required|integer',
                 'name' => 'required|string|max:255',
                 'code' => 'string|max:255',
-                'channel' => 'enum:retail,horeca',
                 'address' => 'string|max:255',
             ]);
 
@@ -69,7 +68,6 @@ class OutletController extends Controller
                 'zone_id' => 'required|integer',
                 'name' => 'required|string|max:255',
                 'code' => 'string|max:255',
-                'channel' => 'enum:retail,horeca',
                 'address' => 'string|max:255',
             ]);
             $outlet = Outlet::find($request->outlet_id);
