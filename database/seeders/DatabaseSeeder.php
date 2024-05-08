@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
                 RefusedReasonSeeder::class,
                 DistrictSeeder::class,
                 ZoneSeeder::class,
+                OutletsSeeder::class,
             ]
         );
     }
