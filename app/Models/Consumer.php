@@ -16,6 +16,7 @@ class Consumer extends Model
         'user_id' => 'integer',
         'outlet_id' => 'integer',
         'competitor_brand_id' => 'integer',
+        'franchise' => 'boolean',
         'did_he_switch' => 'boolean',
         'packs' => 'integer',
         'age' => 'integer',
