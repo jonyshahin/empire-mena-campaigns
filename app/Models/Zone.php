@@ -16,6 +16,8 @@ class Zone extends Model
         'name',
     ];
 
+    protected $with = ['district'];
+
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class);
