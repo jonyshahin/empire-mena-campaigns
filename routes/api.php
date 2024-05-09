@@ -94,7 +94,6 @@ Route::prefix('zone')->group(function () {
 Route::prefix('outlet')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('role:admin')->group(function () {
-            Route::get('/', [OutletController::class, 'index']);
             Route::post('create', [OutletController::class, 'store']);
             Route::post('show', [OutletController::class, 'show']);
             Route::post('update', [OutletController::class, 'update']);
