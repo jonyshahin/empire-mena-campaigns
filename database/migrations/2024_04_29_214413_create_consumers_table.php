@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('telephone')->nullable();
             $table->bigInteger('competitor_brand_id')->unsigned()->nullable();
             $table->foreign('competitor_brand_id')->references('id')->on('competitor_brands')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('other_brand_name')->nullable();
             $table->boolean('franchise')->default(0);
             $table->boolean('did_he_switch')->default(0);
             $table->enum('aspen', ['aspen_menthol_blue', 'aspen_white', 'aspen_blue'])->default('aspen_menthol_blue');
