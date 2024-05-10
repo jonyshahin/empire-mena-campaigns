@@ -19,7 +19,6 @@ class Consumer extends Model
         'franchise' => 'boolean',
         'did_he_switch' => 'boolean',
         'packs' => 'integer',
-        'age' => 'integer',
     ];
 
 

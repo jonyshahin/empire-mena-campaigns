@@ -19,14 +19,14 @@ return new class extends Migration
             $table->foreign('outlet_id')->references('id')->on('outlets')->onUpdate('cascade')->onDelete('cascade');
             $table->string('name');
             $table->string('telephone')->nullable();
-            $table->bigInteger('competitor_brand_id')->unsigned();
+            $table->bigInteger('competitor_brand_id')->unsigned()->nullable();
             $table->foreign('competitor_brand_id')->references('id')->on('competitor_brands')->onUpdate('cascade')->onDelete('cascade');
             $table->boolean('franchise')->default(0);
             $table->boolean('did_he_switch')->default(0);
             $table->enum('aspen', ['aspen_menthol_blue', 'aspen_white', 'aspen_blue'])->default('aspen_menthol_blue');
             $table->integer('packs')->default(1);
             $table->enum('incentives', ['lvl1', 'lvl2'])->default('lvl1');
-            $table->integer('age')->nullable();
+            $table->string('age')->nullable();
             $table->string('nationality')->nullable();
             $table->enum('gender', ['male', 'female'])->default('male');
             $table->timestamps();

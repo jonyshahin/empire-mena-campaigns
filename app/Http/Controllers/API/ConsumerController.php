@@ -49,7 +49,7 @@ class ConsumerController extends Controller
                 'outlet_id' => $outlet_id,
                 'name' => $request->name,
                 'telephone' => $request->telephone,
-                'competitor_brand_id' => $request->competitor_brand_id,
+                'competitor_brand_id' => $request->input('competitor_brand_id'),
                 'franchise' => $request->input('franchise', 0),
                 'did_he_switch' => $request->input('did_he_switch', 0),
                 'aspen' => $request->aspen,
