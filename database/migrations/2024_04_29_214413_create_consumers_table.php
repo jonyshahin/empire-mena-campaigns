@@ -24,11 +24,12 @@ return new class extends Migration
             $table->string('other_brand_name')->nullable();
             $table->boolean('franchise')->default(0);
             $table->boolean('did_he_switch')->default(0);
-            $table->enum('aspen', ['aspen_menthol_blue', 'aspen_white', 'aspen_blue'])->default('aspen_menthol_blue');
+            $table->json('aspen')->nullable();
             $table->integer('packs')->default(1);
-            $table->enum('incentives', ['lvl1', 'lvl2'])->default('lvl1');
+            $table->enum('incentives', ['lvl1', 'lvl2'])->nullable();
             $table->string('age')->nullable();
-            $table->string('nationality')->nullable();
+            $table->bigInteger('nationality_id')->unsigned();
+            $table->foreign('nationality_id')->references('id')->on('nationalities')->onUpdate('cascade')->onDelete('cascade');
             $table->enum('gender', ['male', 'female'])->default('male');
             $table->timestamps();
         });

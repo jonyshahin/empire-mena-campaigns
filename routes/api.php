@@ -5,6 +5,7 @@ use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\DistrictController;
+use App\Http\Controllers\API\NationalityController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\RefusedReasonController;
 use App\Http\Controllers\API\ZoneController;
@@ -75,6 +76,18 @@ Route::prefix('district')->group(function () {
             Route::post('show', [DistrictController::class, 'show']);
             Route::post('update', [DistrictController::class, 'update']);
             Route::post('delete', [DistrictController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('nationality')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [NationalityController::class, 'index']);
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [NationalityController::class, 'store']);
+            Route::post('show', [NationalityController::class, 'show']);
+            Route::post('update', [NationalityController::class, 'update']);
+            Route::post('delete', [NationalityController::class, 'destroy']);
         });
     });
 });

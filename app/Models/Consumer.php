@@ -12,6 +12,8 @@ class Consumer extends Model
 
     protected $guarded = [];
 
+    protected $with = ['promoter', 'competitorBrand', 'refusedReasons', 'outlet', 'nationality'];
+
     protected $casts = [
         'user_id' => 'integer',
         'outlet_id' => 'integer',
@@ -19,6 +21,8 @@ class Consumer extends Model
         'franchise' => 'boolean',
         'did_he_switch' => 'boolean',
         'packs' => 'integer',
+        'aspen' => 'array',
+        'nationality_id' => 'integer',
     ];
 
 
@@ -40,5 +44,10 @@ class Consumer extends Model
     public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class);
+    }
+
+    public function nationality(): BelongsTo
+    {
+        return $this->belongsTo(Nationality::class);
     }
 }

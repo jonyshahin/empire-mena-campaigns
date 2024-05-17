@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Consumer;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ConsumerController extends Controller
 {
@@ -14,20 +15,20 @@ class ConsumerController extends Controller
         $per_page = request('per_page', 10);
         $consumers = Consumer::query();
 
-        $user = auth()->user();
+        $user = Auth::user();
+        $user = User::find($user->id);
 
-        if ($user->role !== 'admin') {
+        if (!$user->hasRole('admin')) {
             $consumers->where('user_id', $user->id);
         }
 
-        $consumers = $consumers->with(
-            [
-                'promoter',
-                'competitorBrand',
-                'refusedReasons',
-                'outlet'
-            ]
-        )->paginate($per_page);
+        if (request('search')) {
+            $consumers->where('name', 'like', '%' . request('search') . '%')
+                ->orWhere('telephone', 'like', '%' . request('search') . '%')
+                ->orWhere('other_brand_name', 'like', '%' . request('search') . '%');
+        }
+
+        $consumers = $consumers->orderBy('created_at', 'desc')->paginate($per_page);
 
         return custom_success(200, 'Consumers', $consumers);
     }
@@ -37,7 +38,7 @@ class ConsumerController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'reason_for_refusal_ids' => 'required|array',
+                'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
             ]);
 
@@ -53,16 +54,19 @@ class ConsumerController extends Controller
                 'other_brand_name' => $request->input('other_brand_name'),
                 'franchise' => $request->input('franchise', 0),
                 'did_he_switch' => $request->input('did_he_switch', 0),
-                'aspen' => $request->aspen,
+                'aspen' => implode(',', $request->aspen),
                 'packs' => $request->packs,
                 'incentives' => $request->incentives,
                 'age' => $request->age,
-                'nationality' => $request->nationality,
+                'nationality_id' => $request->nationality_id,
                 'gender' => $request->gender,
             ]);
 
-            foreach ($request->reason_for_refusal_ids as $reasonId) {
-                $consumer->refusedReasons()->attach($reasonId, ['other_refused_reason' => $request->input('other_refused_reason')]);
+
+            if ($request->filled('reason_for_refusal_ids') && !empty($request->reason_for_refusal_ids)) {
+                foreach ($request->reason_for_refusal_ids as $reasonId) {
+                    $consumer->refusedReasons()->attach($reasonId, ['other_refused_reason' => $request->input('other_refused_reason')]);
+                }
             }
 
             return custom_success(200, 'Consumer created successfully', $consumer);
@@ -78,11 +82,12 @@ class ConsumerController extends Controller
                 'consumer_id' => 'required|integer',
             ]);
 
-            $user = auth()->user();
+            $user = Auth::user();
+            $user = User::find($user->id);
 
             $consumer = Consumer::query()->where('id', $request->consumer_id);
 
-            if ($user->role !== 'admin') {
+            if (!$user->hasRole('admin')) {
                 $consumer->where('user_id', $user->id);
             }
 
@@ -107,7 +112,7 @@ class ConsumerController extends Controller
             $request->validate([
                 'consumer_id' => 'required|integer',
                 'name' => 'required|string|max:255',
-                'reason_for_refusal_ids' => 'required|array',
+                'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
             ]);
             $consumer = Consumer::find($request->consumer_id);
@@ -152,6 +157,8 @@ class ConsumerController extends Controller
             if (!$consumer) {
                 return custom_error(404, 'Consumer not found');
             }
+
+            $consumer->refusedReasons()->detach();
 
             $consumer->delete();
 
