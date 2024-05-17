@@ -215,17 +215,26 @@ class ConsumerController extends Controller
                     'total_packs_in_district' => $district->outlets->sum(function ($outlet) {
                         return $outlet->consumers->sum('packs');
                     }),
+                    'total_incentive_lvl1_in_district' => $district->outlets->sum(function ($outlet) {
+                        return $outlet->consumers->where('incentives', 'lvl1')->count();
+                    }),
+                    'total_incentive_lvl2_in_district' => $district->outlets->sum(function ($outlet) {
+                        return $outlet->consumers->where('incentives', 'lvl2')->count();
+                    }),
                     'outlets' => $district->outlets->map(function ($outlet) use ($timezone) {
                         return [
                             'outlet' => $outlet->name,
                             'consumer_count' => $outlet->consumers->count(),
                             'effective_consumer_count' => $outlet->consumers->where('packs', '>', 0)->count(),
                             'total_packs_in_outlet' => $outlet->consumers->sum('packs'),
+                            'total_incentive_lvl1_in_outlet' => $outlet->consumers->where('incentives', 'lvl1')->count(),
+                            'total_incentive_lvl2_in_outlet' => $outlet->consumers->where('incentives', 'lvl2')->count(),
                             'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
                                 return [
                                     'id' => $consumer->id,
                                     'name' => $consumer->name,
                                     'packs' => $consumer->packs,
+                                    'incentives' => $consumer->incentives,
                                     'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
                                     'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
                                 ];
