@@ -50,4 +50,30 @@ class Consumer extends Model
     {
         return $this->belongsTo(Nationality::class);
     }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'like', "%{$search}%")
+            ->orWhere('telephone', 'like', "%{$search}%")
+            ->orWhere('other_brand_name', 'like', "%{$search}%")
+            ->orWhere('aspen', 'like', "%{$search}%")
+            ->orWhere('packs', 'like', "%{$search}%")
+            ->orWhere('incentives', 'like', "%{$search}%")
+            ->orWhere('age', 'like', "%{$search}%")
+            ->orWhere('gender', 'like', "%{$search}%")
+            ->orWhereHas('promoter', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->orWhereHas('competitorBrand', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->orWhereHas('outlet', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('channel', 'like', "%{$search}%");
+            })
+            ->orWhereHas('nationality', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            });
+    }
 }
