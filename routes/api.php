@@ -54,6 +54,9 @@ Route::prefix('consumer')->group(function () {
         Route::post('show', [ConsumerController::class, 'show']);
         Route::post('update', [ConsumerController::class, 'update']);
         Route::post('delete', [ConsumerController::class, 'destroy']);
+        Route::middleware('role:admin')->group(function () {
+            Route::get('report', [ConsumerController::class, 'report']);
+        });
     });
 });
 

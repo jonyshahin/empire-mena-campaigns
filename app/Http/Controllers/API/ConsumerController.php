@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Consumer;
+use App\Models\District;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -176,5 +177,46 @@ class ConsumerController extends Controller
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
+    }
+
+    public function report()
+    {
+        // Get the current user's timezone
+        $user = Auth::user();
+        // $timezone = $user ? $user->timezone : 'UTC';
+        $timezone = 'Asia/Baghdad';
+
+
+        // Get all districts with their outlets and consumers
+        $districts = District::with(['outlets.consumers' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])->get();
+
+        // Transform data to include time zone conversion
+        $reportData = $districts->map(function ($district) use ($timezone) {
+            return [
+                'district' => $district->name,
+                'outlet_count' => $district->outlets->count(),
+                'total_consumers_in_district' => $district->outlets->sum(function ($outlet) {
+                    return $outlet->consumers->count();
+                }),
+                'outlets' => $district->outlets->map(function ($outlet) use ($timezone) {
+                    return [
+                        'outlet' => $outlet->name,
+                        'consumer_count' => $outlet->consumers->count(),
+                        'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
+                            return [
+                                'id' => $consumer->id,
+                                'name' => $consumer->name,
+                                'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
+                                'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
+        return custom_success(200, 'Report generated successfully', $reportData);
     }
 }

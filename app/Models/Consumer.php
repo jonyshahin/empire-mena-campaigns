@@ -47,6 +47,11 @@ class Consumer extends Model
         return $this->belongsTo(Outlet::class);
     }
 
+    public function district(): BelongsTo
+    {
+        return $this->outlet->district();
+    }
+
     public function nationality(): BelongsTo
     {
         return $this->belongsTo(Nationality::class);
