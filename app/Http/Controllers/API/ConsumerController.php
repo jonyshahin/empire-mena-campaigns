@@ -30,7 +30,21 @@ class ConsumerController extends Controller
                 ->orWhere('packs', 'like', '%' . request('search') . '%')
                 ->orWhere('incentives', 'like', '%' . request('search') . '%')
                 ->orWhere('age', 'like', '%' . request('search') . '%')
-                ->orWhere('gender', 'like', '%' . request('search') . '%');
+                ->orWhere('gender', 'like', '%' . request('search') . '%')
+                ->orWhereHas('promoter', function ($query) {
+                    $query->where('name', 'like', '%' . request('search') . '%');
+                })
+                ->orWhereHas('competitorBrand', function ($query) {
+                    $query->where('name', 'like', '%' . request('search') . '%');
+                })
+                ->orWhereHas('outlet', function ($query) {
+                    $query->where('name', 'like', '%' . request('search') . '%')
+                        ->orWhere('code', 'like', '%' . request('search') . '%')
+                        ->orWhere('channel', 'like', '%' . request('search') . '%');
+                })
+                ->orWhereHas('nationality', function ($query) {
+                    $query->where('name', 'like', '%' . request('search') . '%');
+                });
         }
 
         $consumers = $consumers->orderBy('created_at', 'desc')->paginate($per_page);
