@@ -81,6 +81,9 @@ class Consumer extends Model
             })
             ->orWhereHas('nationality', function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
+            })
+            ->orWhereHas('district', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
             });
     }
 
