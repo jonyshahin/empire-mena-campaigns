@@ -212,15 +212,20 @@ class ConsumerController extends Controller
                     'total_effective_consumers_in_district' => $district->outlets->sum(function ($outlet) {
                         return $outlet->consumers->where('packs', '>', 0)->count();
                     }),
+                    'total_packs_in_district' => $district->outlets->sum(function ($outlet) {
+                        return $outlet->consumers->sum('packs');
+                    }),
                     'outlets' => $district->outlets->map(function ($outlet) use ($timezone) {
                         return [
                             'outlet' => $outlet->name,
                             'consumer_count' => $outlet->consumers->count(),
                             'effective_consumer_count' => $outlet->consumers->where('packs', '>', 0)->count(),
+                            'total_packs_in_outlet' => $outlet->consumers->sum('packs'),
                             'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
                                 return [
                                     'id' => $consumer->id,
                                     'name' => $consumer->name,
+                                    'packs' => $consumer->packs,
                                     'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
                                     'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
                                 ];
