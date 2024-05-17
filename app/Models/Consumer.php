@@ -77,12 +77,12 @@ class Consumer extends Model
             ->orWhereHas('outlet', function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('channel', 'like', "%{$search}%");
+                    ->orWhere('channel', 'like', "%{$search}%")
+                    ->orWhereHas('district', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    });
             })
             ->orWhereHas('nationality', function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
-            ->orWhereHas('district', function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
             });
     }
