@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Consumer;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,6 +32,13 @@ class ConsumerController extends Controller
         }
 
         $consumers = $consumers->orderBy('created_at', 'desc')->paginate($per_page);
+
+        // Convert created_at and updated_at to the user's timezone
+        $consumers->getCollection()->transform(function ($consumer) use ($user) {
+            $consumer->created_at = Carbon::parse($consumer->created_at)->timezone('Asia/Baghdad');
+            $consumer->updated_at = Carbon::parse($consumer->updated_at)->timezone('Asia/Baghdad');
+            return $consumer;
+        });
 
         return custom_success(200, 'Consumers', $consumers);
     }

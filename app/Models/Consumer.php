@@ -82,4 +82,9 @@ class Consumer extends Model
     {
         return Carbon::parse($value)->timezone('Asia/Baghdad');
     }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone('Asia/Baghdad');
+    }
 }
