@@ -67,6 +67,7 @@ class Consumer extends Model
             ->orWhere('incentives', 'like', "%{$search}%")
             ->orWhere('age', 'like', "%{$search}%")
             ->orWhere('gender', 'like', "%{$search}%")
+            ->orWhereDate('created_at', 'like', "%{$search}%")
             ->orWhereHas('promoter', function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
             })
