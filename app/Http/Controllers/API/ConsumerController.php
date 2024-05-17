@@ -209,10 +209,14 @@ class ConsumerController extends Controller
                     'total_consumers_in_district' => $district->outlets->sum(function ($outlet) {
                         return $outlet->consumers->count();
                     }),
+                    'total_effective_consumers_in_district' => $district->outlets->sum(function ($outlet) {
+                        return $outlet->consumers->where('packs', '>', 0)->count();
+                    }),
                     'outlets' => $district->outlets->map(function ($outlet) use ($timezone) {
                         return [
                             'outlet' => $outlet->name,
                             'consumer_count' => $outlet->consumers->count(),
+                            'effective_consumer_count' => $outlet->consumers->where('packs', '>', 0)->count(),
                             'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
                                 return [
                                     'id' => $consumer->id,
