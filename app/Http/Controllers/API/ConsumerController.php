@@ -184,7 +184,7 @@ class ConsumerController extends Controller
         try {
             // Validate the date parameter
             $request->validate([
-                'date' => 'required|date_format:Y-m-d',
+                'date' => 'nullable|date_format:Y-m-d',
                 'district_id' => 'nullable|integer|exists:districts,id',
             ]);
 
@@ -201,7 +201,10 @@ class ConsumerController extends Controller
 
             // Retrieve districts based on the presence of district_id
             $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($date) {
-                $query->whereDate('created_at', $date)->orderBy('created_at', 'desc');
+                if ($date) {
+                    $query->whereDate('created_at', $date);
+                }
+                $query->orderBy('created_at', 'desc');
             }]);
 
             if ($districtId) {
