@@ -185,9 +185,12 @@ class ConsumerController extends Controller
             // Validate the date parameter
             $request->validate([
                 'date' => 'required|date_format:Y-m-d',
+                'district_id' => 'nullable|integer|exists:districts,id',
             ]);
+
             // Get the date from the request
             $date = $request->input('date');
+            $districtId = $request->input('district_id');
 
             // Get the current user's timezone
             $user = Auth::user();
@@ -196,10 +199,16 @@ class ConsumerController extends Controller
             $timezone = 'Asia/Baghdad';
 
 
-            // Get all districts with their outlets and consumers
-            $districts = District::with(['outlets.consumers' => function ($query) use ($date) {
+            // Retrieve districts based on the presence of district_id
+            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($date) {
                 $query->whereDate('created_at', $date)->orderBy('created_at', 'desc');
-            }])->get();
+            }]);
+
+            if ($districtId) {
+                $districtsQuery->where('id', $districtId);
+            }
+
+            $districts = $districtsQuery->get();
 
             // Transform data to include time zone conversion
             $reportData = $districts->map(function ($district) use ($timezone) {
