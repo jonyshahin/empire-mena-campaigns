@@ -25,7 +25,12 @@ class ConsumerController extends Controller
         if (request('search')) {
             $consumers->where('name', 'like', '%' . request('search') . '%')
                 ->orWhere('telephone', 'like', '%' . request('search') . '%')
-                ->orWhere('other_brand_name', 'like', '%' . request('search') . '%');
+                ->orWhere('other_brand_name', 'like', '%' . request('search') . '%')
+                ->orWhere('aspen', 'like', '%' . request('search') . '%')
+                ->orWhere('packs', 'like', '%' . request('search') . '%')
+                ->orWhere('incentives', 'like', '%' . request('search') . '%')
+                ->orWhere('age', 'like', '%' . request('search') . '%')
+                ->orWhere('gender', 'like', '%' . request('search') . '%');
         }
 
         $consumers = $consumers->orderBy('created_at', 'desc')->paginate($per_page);
