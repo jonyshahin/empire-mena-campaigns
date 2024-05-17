@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -75,5 +76,10 @@ class Consumer extends Model
             ->orWhereHas('nationality', function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
             });
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone('Asia/Baghdad');
     }
 }
