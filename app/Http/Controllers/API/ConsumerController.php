@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exports\ConsumersReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Consumer;
 use App\Models\District;
@@ -9,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ConsumerController extends Controller
 {
@@ -249,18 +251,18 @@ class ConsumerController extends Controller
                             'total_incentive_lvl2_in_outlet' => $outlet->consumers->where('incentives', 'lvl2')->count(),
                             'total_franchise_in_outlet' => $outlet->consumers->where('franchise', true)->count(),
                             'total_did_he_switch_in_outlet' => $outlet->consumers->where('did_he_switch', true)->count(),
-                            'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
-                                return [
-                                    'id' => $consumer->id,
-                                    'name' => $consumer->name,
-                                    'packs' => $consumer->packs,
-                                    'incentives' => $consumer->incentives,
-                                    'franchise' => $consumer->franchise,
-                                    'did_he_switch' => $consumer->did_he_switch,
-                                    'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
-                                    'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
-                                ];
-                            }),
+                            // 'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
+                            //     return [
+                            //         'id' => $consumer->id,
+                            //         'name' => $consumer->name,
+                            //         'packs' => $consumer->packs,
+                            //         'incentives' => $consumer->incentives,
+                            //         'franchise' => $consumer->franchise,
+                            //         'did_he_switch' => $consumer->did_he_switch,
+                            //         'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
+                            //         'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
+                            //     ];
+                            // }),
                         ];
                     }),
                 ];
@@ -270,5 +272,19 @@ class ConsumerController extends Controller
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
+    }
+
+    public function export(Request $request)
+    {
+        // Validate the date parameter
+        $request->validate([
+            'date' => 'nullable|date_format:Y-m-d',
+            'district_id' => 'nullable|integer|exists:districts,id',
+        ]);
+
+        $date = $request->input('date');
+        $district_id = $request->input('district_id');
+
+        return Excel::download(new ConsumersReportExport($date, $district_id), 'consumers_report.xlsx');
     }
 }

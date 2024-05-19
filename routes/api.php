@@ -56,6 +56,7 @@ Route::prefix('consumer')->group(function () {
         Route::post('delete', [ConsumerController::class, 'destroy']);
         Route::middleware('role:admin')->group(function () {
             Route::get('report', [ConsumerController::class, 'report']);
+            Route::get('export', [ConsumerController::class, 'export']);
         });
     });
 });
