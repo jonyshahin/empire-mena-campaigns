@@ -300,6 +300,8 @@ class ConsumerController extends Controller
             $date = $request->input('date');
             $districtId = $request->input('district_id');
 
+            $timezone = 'Asia/Baghdad';
+
             // Retrieve consumers grouped by promoter
             $consumersQuery = Consumer::with('promoter', 'outlet.district')
                 ->when($date, function ($query, $date) {
@@ -313,10 +315,10 @@ class ConsumerController extends Controller
                 ->get()
                 ->groupBy('promoter.name');
 
-            $reportData = $consumersQuery->map(function ($consumers, $promoterName) {
+            $reportData = $consumersQuery->map(function ($consumers, $promoterName) use ($timezone) {
                 return [
                     'promoter' => $promoterName,
-                    'consumers' => $consumers->map(function ($consumer) {
+                    'consumers' => $consumers->map(function ($consumer) use ($timezone) {
                         return [
                             'outlet' => $consumer->outlet->name,
                             'district' => $consumer->outlet->district->name,
@@ -325,8 +327,8 @@ class ConsumerController extends Controller
                             'incentives' => $consumer->incentives,
                             'franchise' => $consumer->franchise ? 'Yes' : 'No',
                             'did_he_switch' => $consumer->did_he_switch ? 'Yes' : 'No',
-                            'created_at' => $consumer->created_at->toDateTimeString(),
-                            'updated_at' => $consumer->updated_at->toDateTimeString(),
+                            'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
+                            'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
                         ];
                     }),
                 ];
