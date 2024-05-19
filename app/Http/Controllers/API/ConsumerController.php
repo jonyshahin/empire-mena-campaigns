@@ -287,4 +287,54 @@ class ConsumerController extends Controller
 
         return Excel::download(new ConsumersReportExport($date, $district_id), 'consumers_report.xlsx');
     }
+
+    public function consumersByPromoter(Request $request)
+    {
+        try {
+            // Validate the optional date and district_id parameters
+            $request->validate([
+                'date' => 'nullable|date_format:Y-m-d',
+                'district_id' => 'nullable|integer|exists:districts,id',
+            ]);
+
+            $date = $request->input('date');
+            $districtId = $request->input('district_id');
+
+            // Retrieve consumers grouped by promoter
+            $consumersQuery = Consumer::with('promoter', 'outlet.district')
+                ->when($date, function ($query, $date) {
+                    return $query->whereDate('created_at', $date);
+                })
+                ->when($districtId, function ($query, $districtId) {
+                    return $query->whereHas('outlet', function ($query) use ($districtId) {
+                        $query->where('district_id', $districtId);
+                    });
+                })
+                ->get()
+                ->groupBy('promoter.name');
+
+            $reportData = $consumersQuery->map(function ($consumers, $promoterName) {
+                return [
+                    'promoter' => $promoterName,
+                    'consumers' => $consumers->map(function ($consumer) {
+                        return [
+                            'outlet' => $consumer->outlet->name,
+                            'district' => $consumer->outlet->district->name,
+                            'name' => $consumer->name,
+                            'packs' => $consumer->packs,
+                            'incentives' => $consumer->incentives,
+                            'franchise' => $consumer->franchise ? 'Yes' : 'No',
+                            'did_he_switch' => $consumer->did_he_switch ? 'Yes' : 'No',
+                            'created_at' => $consumer->created_at->toDateTimeString(),
+                            'updated_at' => $consumer->updated_at->toDateTimeString(),
+                        ];
+                    }),
+                ];
+            });
+
+            return custom_success(200, 'Report generated successfully', $reportData);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
 }
