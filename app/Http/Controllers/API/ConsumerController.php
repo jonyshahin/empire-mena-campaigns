@@ -268,7 +268,7 @@ class ConsumerController extends Controller
                 ];
             });
 
-            return custom_success(200, 'Report generated successfully', $reportData);
+            return custom_success(200, 'Report generated successfully', $reportData['outlets']);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }

@@ -100,7 +100,6 @@ class ConsumersReportExport implements FromCollection
                     }),
                 ];
             });
-            $reportData = $reportData['outlets'];
             return $reportData;
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
