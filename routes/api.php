@@ -62,6 +62,7 @@ Route::prefix('consumer')->group(function () {
 });
 
 Route::get('export', [ConsumerController::class, 'export']);
+Route::get('export-consumers-by-promoter', [ConsumerController::class, 'exportConsumersByPromoter']);
 
 Route::prefix('promoter')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {

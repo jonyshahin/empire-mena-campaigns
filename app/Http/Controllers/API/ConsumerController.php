@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exports\ConsumersByPromoterExport;
 use App\Exports\ConsumersReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Consumer;
@@ -338,5 +339,18 @@ class ConsumerController extends Controller
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
+    }
+
+    public function exportConsumersByPromoter(Request $request)
+    {
+        $request->validate([
+            'date' => 'nullable|date_format:Y-m-d',
+            'district_id' => 'nullable|integer|exists:districts,id',
+        ]);
+
+        $date = $request->input('date');
+        $district_id = $request->input('district_id');
+
+        return Excel::download(new ConsumersByPromoterExport($date, $district_id), 'consumers_by_promoter_report.xlsx');
     }
 }
