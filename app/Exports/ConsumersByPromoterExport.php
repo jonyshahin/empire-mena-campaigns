@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Consumer;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -38,7 +39,26 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
             ->get()
             ->groupBy('promoter.name');
 
-        return $consumersQuery;
+        $data = new Collection();
+
+        foreach ($consumersQuery as $promoterName => $consumers) {
+            foreach ($consumers as $consumer) {
+                $data->push([
+                    'Promoter' => $promoterName,
+                    'Outlet' => $consumer->outlet->name,
+                    'District' => $consumer->outlet->district->name,
+                    'Consumer Name' => $consumer->name,
+                    'Packs' => $consumer->packs,
+                    'Incentives' => $consumer->incentives,
+                    'Franchise' => $consumer->franchise ? 'Yes' : 'No',
+                    'Did He Switch' => $consumer->did_he_switch ? 'Yes' : 'No',
+                    'Created At' => $consumer->created_at->toDateTimeString(),
+                    'Updated At' => $consumer->updated_at->toDateTimeString(),
+                ]);
+            }
+        }
+
+        return $data;
     }
 
     public function headings(): array
