@@ -7,8 +7,9 @@ use App\Models\District;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class ConsumersReportExport implements FromCollection
+class ConsumersReportExport implements FromCollection, WithHeadings
 {
     use Exportable;
 
@@ -19,6 +20,20 @@ class ConsumersReportExport implements FromCollection
     {
         $this->date = $date;
         $this->district_id = $district_id;
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Outlet',
+            '# Consumers',
+            '# Effective Consumers',
+            '# Packs',
+            '# Incentive Lvl1',
+            '# Incentive Lvl2',
+            '# Franchise',
+            '# Switch',
+        ];
     }
 
     /**
@@ -100,7 +115,7 @@ class ConsumersReportExport implements FromCollection
                     }),
                 ];
             });
-            return $reportData;
+            return $reportData[0]['outlets'];
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
