@@ -57,12 +57,11 @@ Route::prefix('consumer')->group(function () {
         Route::middleware('role:admin')->group(function () {
             Route::get('report', [ConsumerController::class, 'report']);
             Route::get('consumers-by-promoter', [ConsumerController::class, 'consumersByPromoter']);
+            Route::get('export', [ConsumerController::class, 'export']);
+            Route::get('export-consumers-by-promoter', [ConsumerController::class, 'exportConsumersByPromoter']);
         });
     });
 });
-
-Route::get('export', [ConsumerController::class, 'export']);
-Route::get('export-consumers-by-promoter', [ConsumerController::class, 'exportConsumersByPromoter']);
 
 Route::prefix('promoter')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
