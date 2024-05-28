@@ -357,7 +357,7 @@ class ConsumerController extends Controller
     public function promotersCountByDay(Request $request)
     {
         try {
-            // Validate the optional period and district parameters
+            // Validate the optional period parameters
             $request->validate([
                 'period' => 'nullable|string|in:week,month,last_week,last_month',
                 'district_id' => 'nullable|integer|exists:districts,id',
@@ -388,8 +388,8 @@ class ConsumerController extends Controller
                     break;
             }
 
-            // Retrieve consumers grouped by day for the specified district
-            $consumersQuery = Consumer::with('promoter', 'outlet')
+            // Retrieve consumers grouped by day
+            $consumersQuery = Consumer::with(['promoter', 'outlet.district'])
                 ->when($districtId, function ($query) use ($districtId) {
                     return $query->whereHas('outlet', function ($query) use ($districtId) {
                         $query->where('district_id', $districtId);
@@ -407,7 +407,7 @@ class ConsumerController extends Controller
                 });
 
             $reportData = $consumersQuery->map(function ($consumers, $day) {
-                $uniquePromoters = $consumers->pluck('promoter_id')->unique()->count();
+                $uniquePromoters = $consumers->pluck('user_id')->unique()->count();
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
