@@ -418,8 +418,10 @@ class ConsumerController extends Controller
                 $averageEffectiveContactsPerPromoter = $uniquePromoters > 0 ? $totalEffectiveContacts / $uniquePromoters : 0;
                 $effectiveContactsEfficiency = ($numberOfVisits * 12) > 0 ? ($totalEffectiveContacts / ($numberOfVisits * 12)) * 100 : 0;
                 $trialRate = $totalContacts > 0 ? ($totalEffectiveContacts / $totalContacts) * 100 : 0;
+                $districtName = $consumers->first()->outlet->district->name ?? 'N/A';
                 return [
                     'day' => $day,
+                    'district_name' => $districtName,
                     'promoter_count' => $uniquePromoters,
                     'visit_count' => $numberOfVisits,
                     'total_contacts' => $totalContacts,
