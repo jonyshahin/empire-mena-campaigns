@@ -410,11 +410,13 @@ class ConsumerController extends Controller
                 $uniquePromoters = $consumers->pluck('user_id')->unique()->count();
                 $numberOfVisits = $consumers->count();
                 $totalContacts = $numberOfVisits; // Same as number of visits
+                $averageContactsPerPromoter = $uniquePromoters > 0 ? $totalContacts / $uniquePromoters : 0;
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
                     'visit_count' => $numberOfVisits,
                     'total_contacts' => $totalContacts,
+                    'average_contacts_per_promoter' => $averageContactsPerPromoter,
                 ];
             })->sortBy('day');
 
