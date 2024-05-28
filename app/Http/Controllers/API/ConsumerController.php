@@ -417,6 +417,7 @@ class ConsumerController extends Controller
                 $totalEffectiveContacts = $switchersCount + $franchiseCount;
                 $averageEffectiveContactsPerPromoter = $uniquePromoters > 0 ? $totalEffectiveContacts / $uniquePromoters : 0;
                 $effectiveContactsEfficiency = ($numberOfVisits * 12) > 0 ? ($totalEffectiveContacts / ($numberOfVisits * 12)) * 100 : 0;
+                $trialRate = $totalContacts > 0 ? ($totalEffectiveContacts / $totalContacts) * 100 : 0;
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
@@ -429,6 +430,7 @@ class ConsumerController extends Controller
                     'total_effective_contacts' => $totalEffectiveContacts,
                     'average_effective_contacts_per_promoter' => $averageEffectiveContactsPerPromoter,
                     'effective_contacts_efficiency' => number_format($effectiveContactsEfficiency, 2) . '%',
+                    'trial_rate' => number_format($trialRate, 2) . '%',
                 ];
             })->sortBy('day');
 
