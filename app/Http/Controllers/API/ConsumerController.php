@@ -353,4 +353,63 @@ class ConsumerController extends Controller
 
         return Excel::download(new ConsumersByPromoterExport($date, $district_id), 'consumers_by_promoter_report.xlsx');
     }
+
+    public function promotersCountByDay(Request $request)
+    {
+        try {
+            // Validate the optional period parameters
+            $request->validate([
+                'period' => 'nullable|string|in:week,month,last_week,last_month',
+            ]);
+
+            $period = $request->input('period');
+            $startDate = null;
+            $endDate = null;
+
+            // Determine the start and end dates based on the period
+            switch ($period) {
+                case 'week':
+                    $startDate = Carbon::now()->startOfWeek();
+                    $endDate = Carbon::now()->endOfWeek();
+                    break;
+                case 'month':
+                    $startDate = Carbon::now()->startOfMonth();
+                    $endDate = Carbon::now()->endOfMonth();
+                    break;
+                case 'last_week':
+                    $startDate = Carbon::now()->subWeek()->startOfWeek();
+                    $endDate = Carbon::now()->subWeek()->endOfWeek();
+                    break;
+                case 'last_month':
+                    $startDate = Carbon::now()->subMonth()->startOfMonth();
+                    $endDate = Carbon::now()->subMonth()->endOfMonth();
+                    break;
+            }
+
+            // Retrieve consumers grouped by day
+            $consumersQuery = Consumer::with('promoter')
+                ->when($startDate, function ($query, $startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query, $endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
+                })
+                ->get()
+                ->groupBy(function ($date) {
+                    return Carbon::parse($date->created_at)->format('Y-m-d');
+                });
+
+            $reportData = $consumersQuery->map(function ($consumers, $day) {
+                $promoterCount = $consumers->groupBy('promoter_id')->count();
+                return [
+                    'day' => $day,
+                    'promoter_count' => $promoterCount,
+                ];
+            });
+
+            return custom_success(200, 'Report generated successfully', $reportData->values());
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
 }
