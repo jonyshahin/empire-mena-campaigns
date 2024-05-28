@@ -414,6 +414,7 @@ class ConsumerController extends Controller
                 $contactEfficiency = ($numberOfVisits * 15) > 0 ? ($totalContacts / ($numberOfVisits * 15)) * 100 : 0;
                 $switchersCount = $consumers->where('did_he_switch', true)->count();
                 $franchiseCount = $consumers->where('franchise', true)->count();
+                $totalEffectiveContacts = $switchersCount + $franchiseCount;
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
@@ -423,6 +424,7 @@ class ConsumerController extends Controller
                     'contact_efficiency' => number_format($contactEfficiency, 2) . '%',
                     'switchers_count' => $switchersCount,
                     'franchise_count' => $franchiseCount,
+                    'total_effective_contacts' => $totalEffectiveContacts,
                 ];
             })->sortBy('day');
 
