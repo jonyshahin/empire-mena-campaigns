@@ -415,6 +415,7 @@ class ConsumerController extends Controller
                 $switchersCount = $consumers->where('did_he_switch', true)->count();
                 $franchiseCount = $consumers->where('franchise', true)->count();
                 $totalEffectiveContacts = $switchersCount + $franchiseCount;
+                $averageEffectiveContactsPerPromoter = $uniquePromoters > 0 ? $totalEffectiveContacts / $uniquePromoters : 0;
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
@@ -425,6 +426,7 @@ class ConsumerController extends Controller
                     'switchers_count' => $switchersCount,
                     'franchise_count' => $franchiseCount,
                     'total_effective_contacts' => $totalEffectiveContacts,
+                    'average_effective_contacts_per_promoter' => $averageEffectiveContactsPerPromoter,
                 ];
             })->sortBy('day');
 
