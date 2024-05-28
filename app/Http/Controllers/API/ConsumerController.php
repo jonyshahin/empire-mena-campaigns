@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Exports\ConsumersByPromoterExport;
 use App\Exports\ConsumersReportExport;
+use App\Exports\PromotersCountByDayExport;
 use App\Http\Controllers\Controller;
 use App\Models\Consumer;
 use App\Models\District;
@@ -440,5 +441,39 @@ class ConsumerController extends Controller
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
+    }
+
+    public function exportPromotersCountByDay(Request $request)
+    {
+        $request->validate([
+            'period' => 'nullable|string|in:week,month,last_week,last_month',
+            'district_id' => 'nullable|integer|exists:districts,id',
+        ]);
+
+        $period = $request->input('period');
+        $districtId = $request->input('district_id');
+        $startDate = null;
+        $endDate = null;
+
+        switch ($period) {
+            case 'week':
+                $startDate = Carbon::now()->startOfWeek();
+                $endDate = Carbon::now()->endOfWeek();
+                break;
+            case 'month':
+                $startDate = Carbon::now()->startOfMonth();
+                $endDate = Carbon::now()->endOfMonth();
+                break;
+            case 'last_week':
+                $startDate = Carbon::now()->subWeek()->startOfWeek();
+                $endDate = Carbon::now()->subWeek()->endOfWeek();
+                break;
+            case 'last_month':
+                $startDate = Carbon::now()->subMonth()->startOfMonth();
+                $endDate = Carbon::now()->subMonth()->endOfMonth();
+                break;
+        }
+
+        return Excel::download(new PromotersCountByDayExport($startDate, $endDate, $districtId), 'promoters_count_by_day_report.xlsx');
     }
 }

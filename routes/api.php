@@ -59,7 +59,8 @@ Route::prefix('consumer')->group(function () {
             Route::get('consumers-by-promoter', [ConsumerController::class, 'consumersByPromoter']);
             Route::get('export', [ConsumerController::class, 'export']);
             Route::get('export-consumers-by-promoter', [ConsumerController::class, 'exportConsumersByPromoter']);
-            Route::get('promoters-count-by-day', [ConsumerController::class, 'promotersCountByDay']); // Added promoters count by day route
+            Route::get('promoters-count-by-day', [ConsumerController::class, 'promotersCountByDay']);
+            Route::get('export-promoters-count-by-day', [ConsumerController::class, 'exportPromotersCountByDay']);
         });
     });
 });
