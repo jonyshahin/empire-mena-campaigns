@@ -409,10 +409,12 @@ class ConsumerController extends Controller
             $reportData = $consumersQuery->map(function ($consumers, $day) {
                 $uniquePromoters = $consumers->pluck('user_id')->unique()->count();
                 $numberOfVisits = $consumers->count();
+                $totalContacts = $numberOfVisits; // Same as number of visits
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
                     'visit_count' => $numberOfVisits,
+                    'total_contacts' => $totalContacts,
                 ];
             })->sortBy('day');
 
