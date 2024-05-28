@@ -414,7 +414,7 @@ class ConsumerController extends Controller
                     'promoter_count' => $uniquePromoters,
                     'visit_count' => $numberOfVisits,
                 ];
-            });
+            })->sortBy('day');
 
             return custom_success(200, 'Report generated successfully', $reportData->values());
         } catch (\Throwable $th) {
