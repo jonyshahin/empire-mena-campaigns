@@ -411,12 +411,14 @@ class ConsumerController extends Controller
                 $numberOfVisits = $consumers->count();
                 $totalContacts = $numberOfVisits; // Same as number of visits
                 $averageContactsPerPromoter = $uniquePromoters > 0 ? $totalContacts / $uniquePromoters : 0;
+                $contactEfficiency = ($numberOfVisits * 15) > 0 ? ($totalContacts / ($numberOfVisits * 15)) * 100 : 0;
                 return [
                     'day' => $day,
                     'promoter_count' => $uniquePromoters,
                     'visit_count' => $numberOfVisits,
                     'total_contacts' => $totalContacts,
                     'average_contacts_per_promoter' => $averageContactsPerPromoter,
+                    'contact_efficiency' => number_format($contactEfficiency, 2) . '%',
                 ];
             })->sortBy('day');
 
