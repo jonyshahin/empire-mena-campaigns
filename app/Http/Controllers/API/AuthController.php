@@ -77,8 +77,13 @@ class AuthController extends Controller
             $attendance->last_day_note = $request->input('last_day_note', ' ');
             $attendance->save();
 
+            $fetch_data = [
+                'attendance' => $attendance,
+            ];
+
             $user->tokens()->delete();
-            return custom_success(200, 'User Logged out Successfully', []);
+
+            return custom_success(200, 'User Logged out Successfully', $fetch_data);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
