@@ -57,7 +57,7 @@ class AuthController extends Controller
     }
 
     /** Logout Function */
-    public function logout()
+    public function logout(Request $request)
     {
         try {
             $user = Auth::user();
@@ -67,14 +67,15 @@ class AuthController extends Controller
             }
 
             // Fetch the latest attendance record without a check-out time
-            $attendance = AttendanceRecord::where('user_id', $user->id)
-                ->whereNull('check_out_time')
+            $attendance = AttendanceRecord::query()
+                ->where('user_id', $user->id)
+                ->where('check_out_time', null)
                 ->latest()
                 ->first();
-            if ($attendance) {
-                $attendance->check_out_time = now();
-                $attendance->save();
-            }
+
+            $attendance->check_out_time = now();
+            $attendance->last_day_note = $request->input('last_day_note', ' ');
+            $attendance->save();
 
             $user->tokens()->delete();
             return custom_success(200, 'User Logged out Successfully', []);
