@@ -334,7 +334,7 @@ class ConsumerController extends Controller
                             'incentives' => $consumer->incentives,
                             'franchise' => $consumer->franchise ? 'Yes' : 'No',
                             'did_he_switch' => $consumer->did_he_switch ? 'Yes' : 'No',
-                            'competitor_brand' => $consumer->competitorBrand->name,
+                            'competitor_brand' => $consumer->competitorBrand->name == null ? '' : $consumer->competitorBrand->name,
                             'other_brand_name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
                             'aspen' => $consumer->aspen,
                             'refusal_reasons' => $consumer->refusedReasons->map(function ($reason) {
