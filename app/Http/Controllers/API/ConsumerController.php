@@ -307,7 +307,7 @@ class ConsumerController extends Controller
             $timezone = 'Asia/Baghdad';
 
             // Retrieve consumers grouped by promoter
-            $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand')
+            $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
                 ->when($date, function ($query, $date) {
                     return $query->whereDate('created_at', $date);
                 })
@@ -337,7 +337,12 @@ class ConsumerController extends Controller
                             'competitor_brand' => $consumer->competitorBrand->name,
                             'other_brand_name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
                             'aspen' => $consumer->aspen,
-                            // 'refusal_reasons' => $consumer->refusedReasons,
+                            'refusal_reasons' => $consumer->refusedReasons->map(function ($reason) {
+                                return [
+                                    'reason' => $reason->reason,
+                                    'other_reason' => $reason->pivot->other_refused_reason,
+                                ];
+                            }),
                             'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
                             'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
                         ];
