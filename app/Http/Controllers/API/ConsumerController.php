@@ -337,7 +337,7 @@ class ConsumerController extends Controller
                             'competitor_brand' => $consumer->competitorBrand->name,
                             'other_brand_name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
                             'aspen' => $consumer->aspen,
-                            'refusal_reasons' => $consumer->refusedReasons->name,
+                            // 'refusal_reasons' => $consumer->refusedReasons,
                             'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
                             'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
                         ];

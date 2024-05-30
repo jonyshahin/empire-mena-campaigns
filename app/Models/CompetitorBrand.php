@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CompetitorBrand extends Model
@@ -12,10 +13,21 @@ class CompetitorBrand extends Model
 
     protected $table = 'competitor_brands';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'description',
+    ];
 
-    public function consumer(): HasOne
+    protected $casts = [
+        'id' => 'integer',
+        'name' => 'string',
+        'description' => 'string',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    public function consumers(): HasMany
     {
-        return $this->hasOne(Consumer::class);
+        return $this->hasMany(Consumer::class);
     }
 }
