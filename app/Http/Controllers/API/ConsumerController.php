@@ -297,15 +297,17 @@ class ConsumerController extends Controller
             $request->validate([
                 'date' => 'nullable|date_format:Y-m-d',
                 'district_id' => 'nullable|integer|exists:districts,id',
+                'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id'
             ]);
 
             $date = $request->input('date');
             $districtId = $request->input('district_id');
+            $competitorBrandId = $request->input('competitor_brand_id');
 
             $timezone = 'Asia/Baghdad';
 
             // Retrieve consumers grouped by promoter
-            $consumersQuery = Consumer::with('promoter', 'outlet.district')
+            $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand')
                 ->when($date, function ($query, $date) {
                     return $query->whereDate('created_at', $date);
                 })
@@ -313,6 +315,9 @@ class ConsumerController extends Controller
                     return $query->whereHas('outlet', function ($query) use ($districtId) {
                         $query->where('district_id', $districtId);
                     });
+                })
+                ->when($competitorBrandId, function ($query, $competitorBrandId) {
+                    return $query->where('competitor_brand_id', $competitorBrandId);
                 })
                 ->get()
                 ->groupBy('promoter.name');
