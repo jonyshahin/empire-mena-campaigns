@@ -339,7 +339,7 @@ class ConsumerController extends Controller
                             'aspen' => $consumer->aspen,
                             'refusal_reasons' => $consumer->refusedReasons->map(function ($reason) {
                                 return [
-                                    'reason' => $reason->reason,
+                                    'reason' => $reason->name,
                                     'other_reason' => $reason->pivot->other_refused_reason,
                                 ];
                             }),
