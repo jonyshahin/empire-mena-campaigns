@@ -361,12 +361,14 @@ class ConsumerController extends Controller
         $request->validate([
             'date' => 'nullable|date_format:Y-m-d',
             'district_id' => 'nullable|integer|exists:districts,id',
+            'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id'
         ]);
 
         $date = $request->input('date');
         $district_id = $request->input('district_id');
+        $competitorBrandId = $request->input('competitor_brand_id');
 
-        return Excel::download(new ConsumersByPromoterExport($date, $district_id), 'consumers_by_promoter_report.xlsx');
+        return Excel::download(new ConsumersByPromoterExport($date, $district_id, $competitorBrandId), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)
