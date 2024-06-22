@@ -145,14 +145,16 @@ class ConsumerController extends Controller
                 'packs' => $request->input('packs', $consumer->packs),
                 'incentives' => $request->input('incentives', $consumer->incentives),
                 'age' => $request->input('age', $consumer->age),
-                'nationality' => $request->input('nationality', $consumer->nationality),
+                'nationality_id' => $request->input('nationality_id', $consumer->nationality_id),
                 'gender' => $request->input('gender', $consumer->gender),
             ]);
 
-            $consumer->refusedReasons()->detach();
+            if ($request->filled('reason_for_refusal_ids') && !empty($request->reason_for_refusal_ids)) {
+                $consumer->refusedReasons()->detach();
 
-            foreach ($request->reason_for_refusal_ids as $reasonId) {
-                $consumer->refusedReasons()->attach($reasonId, ['other_refused_reason' => $request->input('other_refused_reason')]);
+                foreach ($request->reason_for_refusal_ids as $reasonId) {
+                    $consumer->refusedReasons()->attach($reasonId, ['other_refused_reason' => $request->input('other_refused_reason')]);
+                }
             }
             return custom_success(200, 'Consumer updated successfully', $consumer);
         } catch (\Throwable $th) {
