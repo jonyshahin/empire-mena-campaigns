@@ -9,14 +9,16 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class ConsumersByPromoterExport implements FromCollection, WithHeadings
 {
-    protected $date;
-    protected $district_id;
+    protected $start_date;
+    protected $end_date;
+    protected $district_ids;
     protected $competitor_brand_id;
 
-    public function __construct($date = null, $district_id = null, $competitorBrandId = null)
+    public function __construct($start_date = null, $end_date = null, $district_ids = null, $competitorBrandId = null)
     {
-        $this->date = $date;
-        $this->district_id = $district_id;
+        $this->start_date = $start_date;
+        $this->end_date = $end_date;
+        $this->district_ids = $district_ids;
         $this->competitor_brand_id = $competitorBrandId;
     }
 
@@ -25,18 +27,22 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        $date = $this->date;
-        $districtId = $this->district_id;
+        $start_date = $this->start_date;
+        $end_date = $this->end_date;
+        $districtIds = $this->district_ids;
         $competitorBrandId = $this->competitor_brand_id;
 
         // Retrieve consumers grouped by promoter
         $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
-            ->when($date, function ($query, $date) {
-                return $query->whereDate('created_at', $date);
+            ->when($start_date, function ($query, $date) {
+                return $query->whereDate('created_at', '>=', $date);
             })
-            ->when($districtId, function ($query, $districtId) {
-                return $query->whereHas('outlet', function ($query) use ($districtId) {
-                    $query->where('district_id', $districtId);
+            ->when($end_date, function ($query, $date) {
+                return $query->whereDate('created_at', '<=', $date);
+            })
+            ->when($districtIds, function ($query, $districtIds) {
+                return $query->whereHas('outlet', function ($query) use ($districtIds) {
+                    $query->whereIn('district_id', $districtIds);
                 });
             })
             ->when($competitorBrandId, function ($query, $competitorBrandId) {
