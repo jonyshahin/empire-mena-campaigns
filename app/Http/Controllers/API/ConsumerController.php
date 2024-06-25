@@ -297,25 +297,31 @@ class ConsumerController extends Controller
         try {
             // Validate the optional date and district_id parameters
             $request->validate([
-                'date' => 'nullable|date_format:Y-m-d',
-                'district_id' => 'nullable|integer|exists:districts,id',
+                'start_date' => 'nullable|date_format:Y-m-d',
+                'end_date' => 'nullable|date_format:Y-m-d',
+                'district_ids' => 'nullable|array',
+                'district_ids.*' => 'integer|exists:districts,id',
                 'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id'
             ]);
 
-            $date = $request->input('date');
-            $districtId = $request->input('district_id');
+            $start_date = $request->input('start_date');
+            $end_date = $request->input('end_date');
+            $districtIds = $request->input('district_ids');
             $competitorBrandId = $request->input('competitor_brand_id');
 
             $timezone = 'Asia/Baghdad';
 
             // Retrieve consumers grouped by promoter
             $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
-                ->when($date, function ($query, $date) {
-                    return $query->whereDate('created_at', $date);
+                ->when($start_date, function ($query, $date) {
+                    return $query->whereDate('created_at', '>=', $date);
                 })
-                ->when($districtId, function ($query, $districtId) {
-                    return $query->whereHas('outlet', function ($query) use ($districtId) {
-                        $query->where('district_id', $districtId);
+                ->when($end_date, function ($query, $date) {
+                    return $query->whereDate('created_at', '<=', $date);
+                })
+                ->when($districtIds, function ($query, $districtIds) {
+                    return $query->whereHas('outlet', function ($query) use ($districtIds) {
+                        $query->whereIn('district_id', $districtIds);
                     });
                 })
                 ->when($competitorBrandId, function ($query, $competitorBrandId) {
