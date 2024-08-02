@@ -38,6 +38,12 @@ Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
 Route::prefix('competitor-brand')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [CompetitorBrandController::class, 'index']);
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [CompetitorBrandController::class, 'create_competitor_brand']);
+            Route::post('show', [CompetitorBrandController::class, 'get_brand']);
+            Route::post('update', [CompetitorBrandController::class, 'update_brand']);
+            Route::post('delete', [CompetitorBrandController::class, 'delete_brand']);
+        });
     });
 });
 
