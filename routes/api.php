@@ -26,6 +26,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('outlet')->group(function () {
     Route::get('/', [OutletController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [OutletController::class, 'store']);
+            Route::post('show', [OutletController::class, 'show']);
+            Route::post('update', [OutletController::class, 'update']);
+            Route::post('delete', [OutletController::class, 'destroy']);
+        });
+    });
 });
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -83,9 +91,9 @@ Route::prefix('promoter')->group(function () {
 });
 
 Route::prefix('district')->group(function () {
+    Route::get('/', [DistrictController::class, 'index']);
     Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('role:admin')->group(function () {
-            Route::get('/', [DistrictController::class, 'index']);
             Route::post('create', [DistrictController::class, 'store']);
             Route::post('show', [DistrictController::class, 'show']);
             Route::post('update', [DistrictController::class, 'update']);
@@ -114,17 +122,6 @@ Route::prefix('zone')->group(function () {
             Route::post('show', [ZoneController::class, 'show']);
             Route::post('update', [ZoneController::class, 'update']);
             Route::post('delete', [ZoneController::class, 'destroy']);
-        });
-    });
-});
-
-Route::prefix('outlet')->group(function () {
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::middleware('role:admin')->group(function () {
-            Route::post('create', [OutletController::class, 'store']);
-            Route::post('show', [OutletController::class, 'show']);
-            Route::post('update', [OutletController::class, 'update']);
-            Route::post('delete', [OutletController::class, 'destroy']);
         });
     });
 });

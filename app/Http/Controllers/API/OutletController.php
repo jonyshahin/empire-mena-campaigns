@@ -8,9 +8,14 @@ use Illuminate\Http\Request;
 
 class OutletController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $outlets = Outlet::all();
+        $district_id = $request->input('district_id');
+        if (isset($district_id)) {
+            $outlets = Outlet::where('district_id', $district_id)->get();
+        } else {
+            $outlets = Outlet::all();
+        }
         return custom_success(200, 'Success', $outlets);
     }
 
