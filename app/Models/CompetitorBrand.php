@@ -30,6 +30,25 @@ class CompetitorBrand extends Model implements HasMedia
         'updated_at' => 'datetime',
     ];
 
+    protected $append = [
+        'logo'
+    ];
+
+    public function getLogoAttribute()
+    {
+        $avatar = $this->getFirstMedia('logo');
+        if (!$avatar) {
+            return null;
+        }
+        return [
+            'id' => $avatar->id,
+            'url' => $avatar->getUrl(),
+            'preview' => $avatar->getUrl('preview'),
+            'hash' => $avatar->getCustomProperty('hash'),
+            'name' => $avatar->file_name,
+        ];
+    }
+
     public function consumers(): HasMany
     {
         return $this->hasMany(Consumer::class);
