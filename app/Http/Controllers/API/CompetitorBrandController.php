@@ -20,7 +20,11 @@ class CompetitorBrandController extends Controller
                     $query->where('name', 'LIKE', "%$search%");
                 });
             }
-            $competitorBrands = $competitorBrands->paginate($per_page);
+            if ($request->perPage == 0) {
+                $competitorBrands = $competitorBrands->get();
+            } else {
+                $competitorBrands = $competitorBrands->paginate($per_page);
+            }
             return custom_success(200, 'CompetitorBrand List', $competitorBrands);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
