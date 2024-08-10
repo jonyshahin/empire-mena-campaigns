@@ -22,6 +22,10 @@ class CompetitorBrand extends Model implements HasMedia
         'description',
     ];
 
+    protected $hidden = [
+        'media',
+    ];
+
     protected $casts = [
         'id' => 'integer',
         'name' => 'string',
