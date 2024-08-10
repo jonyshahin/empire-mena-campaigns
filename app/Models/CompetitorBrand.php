@@ -22,7 +22,7 @@ class CompetitorBrand extends Model implements HasMedia
         'description',
     ];
 
-    protected $hidden = [
+    protected $with = [
         'media',
     ];
 
