@@ -131,10 +131,10 @@ Route::prefix('promoter-tracking')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('create', [PromoterTrackingController::class, 'store']);
         Route::middleware('role:admin')->group(function () {
-            Route::get('/', [ZoneController::class, 'index']);
-            Route::post('show', [ZoneController::class, 'show']);
-            Route::post('update', [ZoneController::class, 'update']);
-            Route::post('delete', [ZoneController::class, 'destroy']);
+            Route::get('/', [PromoterTrackingController::class, 'index']);
+            Route::post('show', [PromoterTrackingController::class, 'show']);
+            Route::post('update', [PromoterTrackingController::class, 'update']);
+            Route::post('delete', [PromoterTrackingController::class, 'destroy']);
         });
     });
 });
