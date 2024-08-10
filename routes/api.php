@@ -7,6 +7,7 @@ use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\NationalityController;
 use App\Http\Controllers\API\PromoterController;
+use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
 use App\Http\Controllers\API\ZoneController;
 use App\Models\Outlet;
@@ -119,6 +120,18 @@ Route::prefix('zone')->group(function () {
         Route::middleware('role:admin')->group(function () {
             Route::get('/', [ZoneController::class, 'index']);
             Route::post('create', [ZoneController::class, 'store']);
+            Route::post('show', [ZoneController::class, 'show']);
+            Route::post('update', [ZoneController::class, 'update']);
+            Route::post('delete', [ZoneController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('promoter-tracking')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('create', [PromoterTrackingController::class, 'store']);
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', [ZoneController::class, 'index']);
             Route::post('show', [ZoneController::class, 'show']);
             Route::post('update', [ZoneController::class, 'update']);
             Route::post('delete', [ZoneController::class, 'destroy']);
