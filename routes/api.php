@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('client')->group(function () {
+Route::prefix('company')->group(function () {
     Route::get('/', [ClientController::class, 'index']);
     Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('role:admin')->group(function () {
