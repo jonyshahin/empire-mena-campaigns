@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
@@ -24,6 +25,18 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::prefix('client')->group(function () {
+    Route::get('/', [ClientController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [ClientController::class, 'store']);
+            Route::post('show', [ClientController::class, 'show']);
+            Route::post('update', [ClientController::class, 'update']);
+            Route::post('delete', [ClientController::class, 'destroy']);
+        });
+    });
+});
 
 Route::prefix('outlet')->group(function () {
     Route::get('/', [OutletController::class, 'index']);

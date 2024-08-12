@@ -16,6 +16,7 @@
         "maatwebsite/excel": "^3.1",
         "spatie/laravel-medialibrary": "^11.8",
         "spatie/laravel-permission": "^6.7",
+        "spatie/laravel-query-builder": "^6.0",
         "takielias/tablar": "^11"
     },
     "require-dev": {
