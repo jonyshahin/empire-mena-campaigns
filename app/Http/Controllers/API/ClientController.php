@@ -73,7 +73,7 @@ class ClientController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->custom_error(422, $validator->errors()->first());
+                return custom_error(422, $validator->errors()->first());
             }
 
             $client = Client::create($request->only([
@@ -95,9 +95,9 @@ class ClientController extends Controller
                 $client->addMedia($request->file('cover_image'))->toMediaCollection('cover_image');
             }
 
-            return $this->custom_success(201, 'Company created successfully', $client);
+            return custom_success(201, 'Company created successfully', $client);
         } catch (\Throwable $th) {
-            return $this->custom_error(500, $th->getMessage());
+            return custom_error(500, $th->getMessage());
         }
     }
 
@@ -115,18 +115,18 @@ class ClientController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->custom_error(422, $validator->errors()->first());
+                return custom_error(422, $validator->errors()->first());
             }
 
             $client = Client::find($request->company_id);
 
             if (!$client) {
-                return $this->custom_error(404, 'Company not found');
+                return custom_error(404, 'Company not found');
             }
 
-            return $this->custom_success(200, 'Company details', $client);
+            return custom_success(200, 'Company details', $client);
         } catch (\Throwable $th) {
-            return $this->custom_error(500, $th->getMessage());
+            return custom_error(500, $th->getMessage());
         }
     }
 
@@ -154,13 +154,13 @@ class ClientController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->custom_error(422, $validator->errors()->first());
+                return custom_error(422, $validator->errors()->first());
             }
 
             $client = Client::find($request->company_id);
 
             if (!$client) {
-                return $this->custom_error(404, 'Company not found');
+                return custom_error(404, 'Company not found');
             }
 
             $client->update($request->only([
@@ -184,9 +184,9 @@ class ClientController extends Controller
                 $client->addMedia($request->file('cover_image'))->toMediaCollection('cover_image');
             }
 
-            return $this->custom_success(200, 'Company updated successfully', $client);
+            return custom_success(200, 'Company updated successfully', $client);
         } catch (\Throwable $th) {
-            return $this->custom_error(500, $th->getMessage());
+            return custom_error(500, $th->getMessage());
         }
     }
 
@@ -204,22 +204,22 @@ class ClientController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->custom_error(422, $validator->errors()->first());
+                return custom_error(422, $validator->errors()->first());
             }
 
             $client = Client::find($request->company_id);
 
             if (!$client) {
-                return $this->custom_error(404, 'Company not found');
+                return custom_error(404, 'Company not found');
             }
 
             $client->clearMediaCollection('logo');
             $client->clearMediaCollection('cover_image');
             $client->delete();
 
-            return $this->custom_success(204, 'Company deleted successfully', null);
+            return custom_success(204, 'Company deleted successfully', null);
         } catch (\Throwable $th) {
-            return $this->custom_error(500, $th->getMessage());
+            return custom_error(500, $th->getMessage());
         }
     }
 }

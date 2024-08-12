@@ -11,8 +11,6 @@ use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
 use App\Http\Controllers\API\ZoneController;
-use App\Models\Outlet;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
