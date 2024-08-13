@@ -181,6 +181,10 @@ class ProductCategoryController extends Controller
                 return validation_error($validator->messages()->all());
             }
 
+            if ($request->product_category_id == $request->parent_id) {
+                return custom_error(422, 'Parent Category cannot be itself');
+            }
+
             $product_category->name = $request->name;
             $product_category->description = $request->input('description', $product_category->description);
             $product_category->parent_id = $request->input('parent_id');
