@@ -173,6 +173,7 @@ class ProductCategoryController extends Controller
                     'image' => 'nullable',
                     'icon' => 'nullable',
                     'parent_id' => 'nullable|exists:product_categories,id',
+                    'is_active' => 'nullable|boolean',
                 ]
             );
 
@@ -183,6 +184,7 @@ class ProductCategoryController extends Controller
             $product_category->name = $request->name;
             $product_category->description = $request->input('description', $product_category->description);
             $product_category->parent_id = $request->input('parent_id');
+            $product_category->is_active = $request->input('is_active', $product_category->is_active);
             $product_category->save();
 
             if ($request->hasFile('image')) {
