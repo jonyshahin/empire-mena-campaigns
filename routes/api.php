@@ -7,6 +7,7 @@ use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\NationalityController;
+use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
@@ -32,6 +33,19 @@ Route::prefix('company')->group(function () {
             Route::post('show', [ClientController::class, 'show']);
             Route::post('update', [ClientController::class, 'update']);
             Route::post('delete', [ClientController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('product-category')->group(function () {
+    Route::get('/', [ProductCategoryController::class, 'get_all']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [ProductCategoryController::class, 'store']);
+            Route::post('show', [ProductCategoryController::class, 'show']);
+            Route::post('update', [ProductCategoryController::class, 'update']);
+            Route::post('delete', [ProductCategoryController::class, 'destroy']);
+            Route::post('toggle-active', [ProductCategoryController::class, 'toggle_active']);
         });
     });
 });
