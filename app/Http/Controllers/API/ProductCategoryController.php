@@ -21,8 +21,6 @@ class ProductCategoryController extends Controller
                 ->allowedFilters([
                     'name',
                     'is_active',
-                    'is_featured',
-                    'status',
                     'parent.name',
                 ])
                 ->defaultSort('-created_at')
@@ -158,10 +156,10 @@ class ProductCategoryController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         try {
-            $product_category = ProductCategory::find($id);
+            $product_category = ProductCategory::find($request->product_category_id);
             if (!$product_category) {
                 return custom_error(404, 'Product Category Not Found');
             }
