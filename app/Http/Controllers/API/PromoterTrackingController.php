@@ -11,8 +11,8 @@ class PromoterTrackingController extends Controller
 {
     public function index()
     {
-        $promoterTrackings = PromoterTracking::all();
-        return custom_success(200, 'Promoter Trackings', $promoterTrackings);
+        $models = PromoterTracking::get();
+        return custom_success(200, 'Promoter Trackings', $models);
     }
 
     public function store(Request $request)

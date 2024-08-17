@@ -12,6 +12,24 @@ class PromoterTracking extends Model
 
     protected $guarded = [];
 
+    protected $with = [
+        'promoter',
+    ];
+
+    protected $appends = [
+        'user_is_active',
+    ];
+
+    public function getUserIsActiveAttribute()
+    {
+        //check if updated_at is less than 20 mins
+        if ($this->updated_at->greaterThan(now()->subMinutes(20))) {
+            return true;
+        }
+        return false;
+    }
+
+
     public function promoter(): BelongsTo
     {
         return $this->belongsTo(User::class);
