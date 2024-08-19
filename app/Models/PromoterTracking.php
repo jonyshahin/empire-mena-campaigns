@@ -24,9 +24,9 @@ class PromoterTracking extends Model
     {
         //check if updated_at is less than 15 mins
         if ($this->updated_at->greaterThan(now()->subMinutes(15))) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
 
