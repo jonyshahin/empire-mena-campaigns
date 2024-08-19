@@ -22,11 +22,11 @@ class PromoterTracking extends Model
 
     public function getUserIsActiveAttribute()
     {
-        //check if updated_at is less than 20 mins
-        if ($this->updated_at->greaterThan(now()->subMinutes(20))) {
-            return true;
+        //check if updated_at is less than 15 mins
+        if ($this->updated_at->greaterThan(now()->subMinutes(15))) {
+            return false;
         }
-        return false;
+        return true;
     }
 
 
