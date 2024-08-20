@@ -72,9 +72,11 @@ class ProductController extends Controller
 
             $model = Product::create([
                 'name' => $request->name,
-                'parent_id' => $request->input('parent_id'),
                 'description' => $request->input('description'),
-                'is_active' => $request->input('is_active', true),
+                'price' => $request->input('price'),
+                'stock' => $request->input('stock'),
+                'sku' => $request->input('sku'),
+                'product_category_id' => $request->input('product_category_id'),
             ]);
 
             if ($request->hasFile('main_image')) {
@@ -83,10 +85,13 @@ class ProductController extends Controller
                     ->toMediaCollection('main_image');
             }
 
-            if ($request->hasFile('icon')) {
-                $model->addMediaFromRequest('images')
-                    ->withCustomProperties(['hash' => BlurHash::encode($request->icon)])
-                    ->toMediaCollection('images');
+            //check if images array is not empty add media to media collection
+            if ($request->has('images')) {
+                foreach ($request->file('images') as $image) {
+                    $model->addMedia($image)
+                        ->withCustomProperties(['hash' => BlurHash::encode($image)])
+                        ->toMediaCollection('images');
+                }
             }
 
             return custom_success(200, 'Product Created Successfully', $model);
