@@ -8,6 +8,7 @@ use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\NationalityController;
 use App\Http\Controllers\API\ProductCategoryController;
+use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
@@ -160,6 +161,19 @@ Route::prefix('promoter-tracking')->group(function () {
             Route::post('show', [PromoterTrackingController::class, 'show']);
             Route::post('update', [PromoterTrackingController::class, 'update']);
             Route::post('delete', [PromoterTrackingController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('products')->group(function () {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [ProductController::class, 'store']);
+            Route::post('show', [ProductController::class, 'show']);
+            Route::post('update', [ProductController::class, 'update']);
+            Route::post('delete', [ProductController::class, 'destroy']);
+            Route::post('toggle-active', [ProductController::class, 'toggle_active']);
         });
     });
 });
