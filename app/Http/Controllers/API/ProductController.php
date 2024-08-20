@@ -62,7 +62,7 @@ class ProductController extends Controller
             $model = Product::create([
                 'name' => $request->name,
                 'description' => $request->input('description'),
-                'price' => $request->input('price'),
+                'price' => $request->input('price', 0),
                 'stock' => $request->input('stock'),
                 'sku' => $request->input('sku'),
                 'product_category_id' => $request->input('product_category_id'),
@@ -70,7 +70,7 @@ class ProductController extends Controller
 
             if ($request->hasFile('main_image')) {
                 $model->addMediaFromRequest('main_image')
-                    ->withCustomProperties(['hash' => BlurHash::encode($request->image)])
+                    ->withCustomProperties(['hash' => BlurHash::encode($request->main_image)])
                     ->toMediaCollection('main_image');
             }
 
@@ -140,7 +140,7 @@ class ProductController extends Controller
 
             if ($request->hasFile('main_image')) {
                 $model->addMediaFromRequest('main_image')
-                    ->withCustomProperties(['hash' => BlurHash::encode($request->image)])
+                    ->withCustomProperties(['hash' => BlurHash::encode($request->main_image)])
                     ->toMediaCollection('main_image');
             }
 
