@@ -58,7 +58,9 @@ class User extends Authenticatable
     {
         //check if updated_at is less than 15 mins
         $promoter_point = $this->promoterPoint;
-        if ($promoter_point->updated_at->greaterThan(now()->subMinutes(15))) {
+        if (!$promoter_point) {
+            return false;
+        } elseif ($promoter_point->updated_at->greaterThan(now()->subMinutes(15))) {
             return true;
         }
         return false;
