@@ -13,7 +13,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $per_page = $request->perPage ?? 10;
