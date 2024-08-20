@@ -173,7 +173,6 @@ Route::prefix('products')->group(function () {
             Route::post('show', [ProductController::class, 'show']);
             Route::post('update', [ProductController::class, 'update']);
             Route::post('delete', [ProductController::class, 'destroy']);
-            Route::post('toggle-active', [ProductController::class, 'toggle_active']);
         });
     });
 });

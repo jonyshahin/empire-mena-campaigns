@@ -116,7 +116,7 @@ class ProductController extends Controller
     public function update(Request $request)
     {
         try {
-            $model = Product::find($request->model);
+            $model = Product::find($request->product_id);
             if (!$model) {
                 return custom_error(404, 'Product Not Found');
             }
