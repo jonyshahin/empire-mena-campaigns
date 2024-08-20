@@ -62,7 +62,7 @@ class ProductController extends Controller
             $model = Product::create([
                 'name' => $request->name,
                 'description' => $request->input('description'),
-                'price' => $request->input('price', 0),
+                'price' => isset($request->price) ? $request->price : 0,
                 'stock' => $request->input('stock'),
                 'sku' => $request->input('sku'),
                 'product_category_id' => $request->input('product_category_id'),
