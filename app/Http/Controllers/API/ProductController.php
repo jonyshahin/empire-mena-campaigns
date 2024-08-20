@@ -8,6 +8,7 @@ use Bepsvpt\Blurhash\Facades\BlurHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class ProductController extends Controller
@@ -20,14 +21,20 @@ class ProductController extends Controller
             $models = QueryBuilder::for(Product::class)
                 ->allowedFilters([
                     'name',
-                    'is_active',
-                    'parent.name',
+                    'description',
+                    'price',
+                    'stock',
+                    'sku',
+                    AllowedFilter::exact('product_category_id'),
                 ])
                 ->defaultSort('-created_at')
                 ->allowedSorts([
                     'name',
-                    'created_at',
-                    'order',
+                    'description',
+                    'price',
+                    'stock',
+                    'sku',
+                    'product_category_id',
                 ])
                 ->paginate($per_page);
 
