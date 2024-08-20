@@ -14,16 +14,10 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
-
-        return response()->json([
-            'success' => true,
-            'data' => $products,
-        ], Response::HTTP_OK);
         try {
             $per_page = $request->perPage ?? 10;
 
-            $product_categories = QueryBuilder::for(Product::class)
+            $models = QueryBuilder::for(Product::class)
                 ->allowedFilters([
                     'name',
                     'is_active',
@@ -37,12 +31,7 @@ class ProductController extends Controller
                 ])
                 ->paginate($per_page);
 
-            $data = [
-                'total' => $product_categories->total(),
-                'data' => $product_categories->items(),
-            ];
-
-            return custom_success(200, 'Product Category List', $data);
+            return custom_success(200, 'Product List', $models);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
@@ -132,6 +121,8 @@ class ProductController extends Controller
                     'product_category_id' => 'nullable|exists:product_categories,id',
                     'main_image' => 'nullable',
                     'images' => 'nullable|array',
+                    'deleted_image_ids' => 'nullable|array',
+                    'deleted_image_ids.*' => 'nullable|exists:media,id'
                 ]
             );
 
@@ -152,6 +143,14 @@ class ProductController extends Controller
                     ->withCustomProperties(['hash' => BlurHash::encode($request->image)])
                     ->toMediaCollection('main_image');
             }
+
+            //Delete extra images
+            if ($request->filled('deleted_image_ids')) {
+                foreach ($request->deleted_image_ids as $deleted_image_id) {
+                    $model->deleteMedia($deleted_image_id);
+                }
+            }
+            //end delete extra images
 
             if ($request->has('images')) {
                 foreach ($request->file('images') as $image) {
