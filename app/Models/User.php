@@ -50,6 +50,20 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    protected $appends = [
+        'user_is_active',
+    ];
+
+    public function getUserIsActiveAttribute()
+    {
+        //check if updated_at is less than 15 mins
+        $promoter_point = $this->promoterPoint;
+        if ($promoter_point->updated_at->greaterThan(now()->subMinutes(15))) {
+            return true;
+        }
+        return false;
+    }
+
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);

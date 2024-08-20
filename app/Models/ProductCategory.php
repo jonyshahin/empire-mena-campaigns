@@ -137,4 +137,9 @@ class ProductCategory extends Model implements HasMedia
                 $query->without('children'); // Load parent without children to avoid loops
             }]);
     }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
 }
