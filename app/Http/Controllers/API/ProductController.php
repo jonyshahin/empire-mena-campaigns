@@ -55,7 +55,7 @@ class ProductController extends Controller
             $validator = Validator::make(
                 $data,
                 [
-                    'name' => 'required|string|unique:product_categories,name',
+                    'name' => 'required|string|unique:products,name',
                     'description' => 'nullable|string',
                     'price' => 'nullable|numeric',
                     'stock' => 'nullable|integer',
@@ -85,7 +85,6 @@ class ProductController extends Controller
                     ->toMediaCollection('main_image');
             }
 
-            //check if images array is not empty add media to media collection
             if ($request->has('images')) {
                 foreach ($request->file('images') as $image) {
                     $model->addMedia($image)
@@ -95,6 +94,90 @@ class ProductController extends Controller
             }
 
             return custom_success(200, 'Product Created Successfully', $model);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function show(Request $request)
+    {
+        try {
+            $model = Product::find($request->product_id);
+            if (!$model) {
+                return custom_error(404, 'Product Not Found');
+            }
+
+            return custom_success(200, 'Product Details', $model);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function update(Request $request)
+    {
+        try {
+            $model = Product::find($request->model);
+            if (!$model) {
+                return custom_error(404, 'Product Not Found');
+            }
+
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'name' => 'required|string|unique:products,name,' . $model->id,
+                    'description' => 'nullable|string',
+                    'price' => 'nullable|numeric',
+                    'stock' => 'nullable|integer',
+                    'sku' => 'nullable|string|unique:products,sku,' . $model->id,
+                    'product_category_id' => 'nullable|exists:product_categories,id',
+                    'main_image' => 'nullable',
+                    'images' => 'nullable|array',
+                ]
+            );
+
+            if ($validator->fails()) {
+                return validation_error($validator->messages()->all());
+            }
+
+            $model->name = $request->name;
+            $model->description = $request->input('description', $model->description);
+            $model->price = $request->input('price', $model->price);
+            $model->stock = $request->input('stock', $model->stock);
+            $model->sku = $request->input('sku', $model->sku);
+            $model->product_category_id = $request->input('product_category_id', $model->product_category_id);
+            $model->save();
+
+            if ($request->hasFile('main_image')) {
+                $model->addMediaFromRequest('main_image')
+                    ->withCustomProperties(['hash' => BlurHash::encode($request->image)])
+                    ->toMediaCollection('main_image');
+            }
+
+            if ($request->has('images')) {
+                foreach ($request->file('images') as $image) {
+                    $model->addMedia($image)
+                        ->withCustomProperties(['hash' => BlurHash::encode($image)])
+                        ->toMediaCollection('images');
+                }
+            }
+
+            return custom_success(200, 'Product Updated Successfully', $model);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        try {
+            $model = Product::find($request->product_id);
+            if (!$model) {
+                return custom_error(404, 'Product Not Found');
+            }
+            //delete product category
+            $model->delete();
+
+            return custom_success(200, 'Product Deleted Successfully', $model);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
