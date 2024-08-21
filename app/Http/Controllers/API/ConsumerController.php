@@ -192,11 +192,13 @@ class ConsumerController extends Controller
             $request->validate([
                 'date' => 'nullable|date_format:Y-m-d',
                 'district_id' => 'nullable|integer|exists:districts,id',
+                'outlet_id' => 'nullable|integer|exists:outlets,id',
             ]);
 
             // Get the date from the request
             $date = $request->input('date');
             $districtId = $request->input('district_id');
+            $outletId = $request->input('outlet_id');
 
             // Get the current user's timezone
             $user = Auth::user();
@@ -215,6 +217,12 @@ class ConsumerController extends Controller
 
             if ($districtId) {
                 $districtsQuery->where('id', $districtId);
+            }
+
+            if ($outletId) {
+                $districtsQuery->whereHas('outlets', function ($query) use ($outletId) {
+                    $query->where('id', $outletId);
+                });
             }
 
             $districts = $districtsQuery->get();
@@ -284,12 +292,14 @@ class ConsumerController extends Controller
         $request->validate([
             'date' => 'nullable|date_format:Y-m-d',
             'district_id' => 'nullable|integer|exists:districts,id',
+            'outlet_id' => 'nullable|integer|exists:outlets,id',
         ]);
 
         $date = $request->input('date');
         $district_id = $request->input('district_id');
+        $outlet_id = $request->input('outlet_id');
 
-        return Excel::download(new ConsumersReportExport($date, $district_id), 'consumers_report.xlsx');
+        return Excel::download(new ConsumersReportExport($date, $district_id, $outlet_id), 'consumers_report.xlsx');
     }
 
     public function consumersByPromoter(Request $request)

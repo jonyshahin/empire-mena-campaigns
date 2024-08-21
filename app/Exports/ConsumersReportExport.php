@@ -15,11 +15,13 @@ class ConsumersReportExport implements FromCollection, WithHeadings
 
     protected $date;
     protected $district_id;
+    protected $outlet_id;
 
-    public function __construct($date = null, $district_id = null)
+    public function __construct($date = null, $district_id = null, $outlet_id = null)
     {
         $this->date = $date;
         $this->district_id = $district_id;
+        $this->outlet_id = $outlet_id;
     }
 
     public function headings(): array
@@ -44,6 +46,7 @@ class ConsumersReportExport implements FromCollection, WithHeadings
         try {
             $date = $this->date;
             $districtId = $this->district_id;
+            $outletId = $this->outlet_id;
 
             // $timezone = $user ? $user->timezone : 'UTC';
             $timezone = 'Asia/Baghdad';
@@ -59,6 +62,12 @@ class ConsumersReportExport implements FromCollection, WithHeadings
 
             if ($districtId) {
                 $districtsQuery->where('id', $districtId);
+            }
+
+            if ($outletId) {
+                $districtsQuery->whereHas('outlets', function ($query) use ($outletId) {
+                    $query->where('id', $outletId);
+                });
             }
 
             $districts = $districtsQuery->get();
