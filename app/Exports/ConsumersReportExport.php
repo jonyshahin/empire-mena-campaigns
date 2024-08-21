@@ -73,32 +73,41 @@ class ConsumersReportExport implements FromCollection, WithHeadings
             $districts = $districtsQuery->get();
 
             // Transform data to include time zone conversion
-            $reportData = $districts->map(function ($district) use ($timezone) {
+            $reportData = $districts->map(function ($district) use ($outletId, $timezone) {
+                $outlets = $district->outlets;
+
+                // If outlet_id is provided, filter the outlets collection to include only the specific outlet
+                if ($outletId) {
+                    $outlets = $outlets->filter(function ($outlet) use ($outletId) {
+                        return $outlet->id == $outletId;
+                    });
+                }
+
                 return [
                     'district' => $district->name,
-                    'outlet_count' => $district->outlets->count(),
-                    'total_consumers_in_district' => $district->outlets->sum(function ($outlet) {
+                    'outlet_count' => $outlets->count(),
+                    'total_consumers_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->count();
                     }),
-                    'total_effective_consumers_in_district' => $district->outlets->sum(function ($outlet) {
+                    'total_effective_consumers_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->where('packs', '>', 0)->count();
                     }),
-                    'total_packs_in_district' => $district->outlets->sum(function ($outlet) {
+                    'total_packs_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->sum('packs');
                     }),
-                    'total_incentive_lvl1_in_district' => $district->outlets->sum(function ($outlet) {
+                    'total_incentive_lvl1_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->where('incentives', 'lvl1')->count();
                     }),
-                    'total_incentive_lvl2_in_district' => $district->outlets->sum(function ($outlet) {
+                    'total_incentive_lvl2_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->where('incentives', 'lvl2')->count();
                     }),
-                    'total_franchise_in_district' => $district->outlets->sum(function ($outlet) {
+                    'total_franchise_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->where('franchise', true)->count();
                     }),
-                    'total_did_he_switch_in_district' => $district->outlets->sum(function ($outlet) {
+                    'total_did_he_switch_in_district' => $outlets->sum(function ($outlet) {
                         return $outlet->consumers->where('did_he_switch', true)->count();
                     }),
-                    'outlets' => $district->outlets->map(function ($outlet) use ($timezone) {
+                    'outlets' => $outlets->map(function ($outlet) use ($timezone) {
                         return [
                             'outlet' => $outlet->name,
                             'consumer_count' => $outlet->consumers->count(),
@@ -108,18 +117,6 @@ class ConsumersReportExport implements FromCollection, WithHeadings
                             'total_incentive_lvl2_in_outlet' => $outlet->consumers->where('incentives', 'lvl2')->count(),
                             'total_franchise_in_outlet' => $outlet->consumers->where('franchise', true)->count(),
                             'total_did_he_switch_in_outlet' => $outlet->consumers->where('did_he_switch', true)->count(),
-                            // 'consumers' => $outlet->consumers->map(function ($consumer) use ($timezone) {
-                            //     return [
-                            //         'id' => $consumer->id,
-                            //         'name' => $consumer->name,
-                            //         'packs' => $consumer->packs,
-                            //         'incentives' => $consumer->incentives,
-                            //         'franchise' => $consumer->franchise,
-                            //         'did_he_switch' => $consumer->did_he_switch,
-                            //         'created_at' => Carbon::parse($consumer->created_at)->timezone($timezone)->toDateTimeString(),
-                            //         'updated_at' => Carbon::parse($consumer->updated_at)->timezone($timezone)->toDateTimeString(),
-                            //     ];
-                            // }),
                         ];
                     }),
                 ];
