@@ -16,12 +16,15 @@ class ConsumersReportExport implements FromCollection, WithHeadings
     protected $date;
     protected $district_id;
     protected $outlet_id;
+    protected $start_date;
+    protected $end_date;
 
-    public function __construct($date = null, $district_id = null, $outlet_id = null)
+    public function __construct($start_date = null, $end_date = null, $district_id = null, $outlet_id = null)
     {
-        $this->date = $date;
         $this->district_id = $district_id;
         $this->outlet_id = $outlet_id;
+        $this->start_date = $start_date;
+        $this->end_date = $end_date;
     }
 
     public function headings(): array
@@ -44,7 +47,8 @@ class ConsumersReportExport implements FromCollection, WithHeadings
     public function collection()
     {
         try {
-            $date = $this->date;
+            $start_date = $this->start_date;
+            $end_date = $this->end_date;
             $districtId = $this->district_id;
             $outletId = $this->outlet_id;
 
@@ -53,9 +57,12 @@ class ConsumersReportExport implements FromCollection, WithHeadings
 
 
             // Retrieve districts based on the presence of district_id
-            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($date) {
-                if ($date) {
-                    $query->whereDate('created_at', $date);
+            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($start_date, $end_date) {
+                if ($start_date) {
+                    $query->whereDate('created_at', '>=', $start_date);
+                }
+                if ($end_date) {
+                    $query->whereDate('created_at', '<=', $end_date);
                 }
                 $query->orderBy('created_at', 'desc');
             }]);
