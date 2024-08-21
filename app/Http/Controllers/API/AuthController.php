@@ -135,8 +135,6 @@ class AuthController extends Controller
             $user->name = $request->input('name', $user->name);
             $user->save();
 
-            $user->load();
-
             return custom_success(200, 'User Logged In Successfully', $user);
         } catch (\Throwable $th) {
             return custom_error('500', $th->getMessage());
