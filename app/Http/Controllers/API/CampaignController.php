@@ -23,7 +23,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
-                    AllowedFilter::exact('client_id'),
+                    AllowedFilter::exact('company_id'),
                 ])
                 ->defaultSort('-created_at')
                 ->allowedSorts([
@@ -32,7 +32,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
-                    'client_id',
+                    'company_id',
                     'created_at'
                 ])
                 ->paginate($per_page);
@@ -54,7 +54,7 @@ class CampaignController extends Controller
                     'start_date' => 'nullable|date',
                     'end_date' => 'nullable|date',
                     'budget' => 'nullable|numeric',
-                    'client_id' => 'nullable|exists:clients,id',
+                    'company_id' => 'nullable|exists:clients,id',
                 ]
             );
 
@@ -68,7 +68,7 @@ class CampaignController extends Controller
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
                 'budget' => $request->input('budget'),
-                'client_id' => $request->input('client_id'),
+                'company_id' => $request->input('company_id'),
             ]);
 
             return custom_success(200, 'Campaign Created Successfully', $model);
@@ -107,7 +107,7 @@ class CampaignController extends Controller
                     'start_date' => 'nullable|date',
                     'end_date' => 'nullable|date',
                     'budget' => 'nullable|numeric',
-                    'client_id' => 'nullable|exists:clients,id',
+                    'company_id' => 'nullable|exists:clients,id',
                 ]
             );
 
@@ -120,7 +120,7 @@ class CampaignController extends Controller
             $model->start_date = $request->input('start_date', $model->start_date);
             $model->end_date = $request->input('end_date', $model->end_date);
             $model->budget = $request->input('budget', $model->budget);
-            $model->client_id = $request->input('client_id', $model->client_id);
+            $model->company_id = $request->input('company_id', $model->company_id);
             $model->save();
 
             return custom_success(200, 'Campaign Updated Successfully', $model);

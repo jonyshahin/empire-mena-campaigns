@@ -16,10 +16,12 @@ class Campaign extends Model
         'end_date',
         'budget',
         'client_id',
+        'company_id',
     ];
 
     protected $hidden = [
         'client_id',
+        'company_id'
     ];
 
     protected $casts = [
@@ -27,11 +29,17 @@ class Campaign extends Model
         'end_date' => 'datetime',
         'budget' => 'decimal:2',
         'client_id' => 'integer',
+        'company_id' => 'integer',
     ];
 
-    protected $with = ['client'];
+    protected $with = ['company'];
 
     public function client()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function company()
     {
         return $this->belongsTo(Client::class);
     }
