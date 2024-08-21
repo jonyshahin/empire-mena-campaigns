@@ -69,6 +69,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
     Route::get('/logout', [AuthController::class, 'logout']);
+    Route::middleware('role:admin')->group(function () {
+        Route::get('get-profile', [AuthController::class, 'get_profile']);
+        Route::post('update-profile', [AuthController::class, 'update_profile']);
+        Route::post('change-password', [AuthController::class, 'change_password']);
+    });
 });
 
 Route::prefix('competitor-brand')->group(function () {

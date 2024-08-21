@@ -7,6 +7,7 @@ use App\Models\AttendanceRecord;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -102,6 +103,74 @@ class AuthController extends Controller
             return custom_success(200, 'User Verified', $user);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function get_profile()
+    {
+        try {
+            $user = Auth::user();
+            return custom_success(200, 'User Profile', $user);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function update_profile(Request $request)
+    {
+        try {
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'name' => 'nullable|string',
+                ]
+            );
+
+            if ($validator->fails()) {
+                return validation_error($validator->messages()->all());
+            }
+
+            $user = User::find(Auth::user()->id);
+
+            $user->name = $request->input('name', $user->name);
+            $user->save();
+
+            $user->load();
+
+            return custom_success(200, 'User Logged In Successfully', $user);
+        } catch (\Throwable $th) {
+            return custom_error('500', $th->getMessage());
+        }
+    }
+
+    public function change_password(Request $request)
+    {
+        try {
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'current_password' => 'required',
+                    'new_password' => 'required|string|min:8|confirmed',
+                ]
+            );
+
+            if ($validator->fails()) {
+                return validation_error($validator->messages()->all());
+            }
+
+            // Check if the current password matches
+            if (!Hash::check($request->current_password, $request->user()->password)) {
+                return custom_error(400, 'Current password is incorrect');
+            }
+
+            // Update the user's password
+            $request->user()->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+
+            return custom_success(200, 'Password successfully changed', $request->user());
+        } catch (\Throwable $th) {
+            return custom_error('500', $th->getMessage());
         }
     }
 }
