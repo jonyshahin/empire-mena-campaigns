@@ -18,7 +18,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         try {
-            $per_page = $request->perPage ?? 10;
+            $per_page = isset($request->perPage) ? $request->perPage : 10;
 
             $clients = QueryBuilder::for(Client::class)
                 ->allowedFilters([
@@ -41,8 +41,14 @@ class ClientController extends Controller
                     'hq_map_name',
                     'hq_map_url',
                     'industry',
-                ])
-                ->paginate($per_page);
+                ]);
+
+            if ($per_page == 0) {
+                $clients = $clients->get();
+            }
+            if ($per_page > 0) {
+                $clients = $clients->paginate($per_page);
+            }
 
             return custom_success(200, 'Companies List', $clients);
         } catch (\Throwable $th) {

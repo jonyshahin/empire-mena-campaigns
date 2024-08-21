@@ -67,7 +67,7 @@ class CampaignController extends Controller
                 'description' => $request->input('description'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
-                'budget' => $request->input('budget'),
+                'budget' => isset($request->budget) ? $request->budget : 0.00,
                 'company_id' => $request->input('company_id'),
             ]);
 
