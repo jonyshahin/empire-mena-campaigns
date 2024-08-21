@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\CampaignController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
@@ -173,6 +174,18 @@ Route::prefix('products')->group(function () {
             Route::post('show', [ProductController::class, 'show']);
             Route::post('update', [ProductController::class, 'update']);
             Route::post('delete', [ProductController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('campaigns')->group(function () {
+    Route::get('/', [CampaignController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [CampaignController::class, 'store']);
+            Route::post('show', [CampaignController::class, 'show']);
+            Route::post('update', [CampaignController::class, 'update']);
+            Route::post('delete', [CampaignController::class, 'destroy']);
         });
     });
 });

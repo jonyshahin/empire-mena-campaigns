@@ -90,4 +90,9 @@ class Client extends Model implements HasMedia
         $this->addMediaCollection('logo')->singleFile();
         $this->addMediaCollection('cover_image')->singleFile();
     }
+
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class);
+    }
 }
