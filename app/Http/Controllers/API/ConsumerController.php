@@ -308,6 +308,7 @@ class ConsumerController extends Controller
             $end_date = $request->input('end_date');
             $districtIds = $request->input('district_ids');
             $competitorBrandId = $request->input('competitor_brand_id');
+            $promoterId = $request->input('promoter_id');
 
             $timezone = 'Asia/Baghdad';
 
@@ -326,6 +327,9 @@ class ConsumerController extends Controller
                 })
                 ->when($competitorBrandId, function ($query, $competitorBrandId) {
                     return $query->where('competitor_brand_id', $competitorBrandId);
+                })
+                ->when($promoterId, function ($query, $promoterId) {
+                    return $query->where('user_id', $promoterId);
                 })
                 ->get()
                 ->groupBy('promoter.name');
@@ -378,8 +382,9 @@ class ConsumerController extends Controller
         $end_date = $request->input('end_date');
         $districtIds = $request->input('district_ids');
         $competitorBrandId = $request->input('competitor_brand_id');
+        $promoterId = $request->input('promoter_id');
 
-        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitorBrandId), 'consumers_by_promoter_report.xlsx');
+        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitorBrandId, $promoterId), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)
