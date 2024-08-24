@@ -7,6 +7,7 @@ use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\DistrictController;
+use App\Http\Controllers\API\IndustryController;
 use App\Http\Controllers\API\NationalityController;
 use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\ProductController;
@@ -191,6 +192,18 @@ Route::prefix('campaigns')->group(function () {
             Route::post('show', [CampaignController::class, 'show']);
             Route::post('update', [CampaignController::class, 'update']);
             Route::post('delete', [CampaignController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('industries')->group(function () {
+    Route::get('/', [IndustryController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [IndustryController::class, 'store']);
+            Route::post('show', [IndustryController::class, 'show']);
+            Route::post('update', [IndustryController::class, 'update']);
+            Route::post('delete', [IndustryController::class, 'destroy']);
         });
     });
 });
