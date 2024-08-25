@@ -23,8 +23,12 @@ class IndustryController extends Controller
                 ->allowedSorts([
                     'name',
                     'created_at'
-                ])
-                ->paginate($per_page);
+                ]);
+            if ($request->perPage == 0) {
+                $models = $models->get();
+            } else {
+                $models = $models->paginate($per_page);
+            }
 
             return custom_success(200, 'Industry List', $models);
         } catch (\Throwable $th) {
