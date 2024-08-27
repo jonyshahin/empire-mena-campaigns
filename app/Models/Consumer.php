@@ -24,6 +24,7 @@ class Consumer extends Model
         'packs' => 'integer',
         'aspen' => 'array',
         'nationality_id' => 'integer',
+        'campaign_id' => 'integer',
     ];
 
 
@@ -98,5 +99,10 @@ class Consumer extends Model
     public function getUpdatedAtAttribute($value)
     {
         return Carbon::parse($value)->timezone('Asia/Baghdad');
+    }
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class);
     }
 }

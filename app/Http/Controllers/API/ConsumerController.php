@@ -55,6 +55,7 @@ class ConsumerController extends Controller
                 'name' => 'required|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
+                'campaign_id' => 'required|integer|exists:campaigns,id',
             ]);
 
             $user = User::find(auth()->id());
@@ -75,6 +76,7 @@ class ConsumerController extends Controller
                 'age' => $request->age,
                 'nationality_id' => $request->nationality_id,
                 'gender' => $request->gender,
+                'campaign_id' => $request->campaign_id,
             ]);
 
 
@@ -129,6 +131,7 @@ class ConsumerController extends Controller
                 'name' => 'required|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
+                'campaign_id' => 'required|integer|exists:campaigns,id',
             ]);
             $consumer = Consumer::find($request->consumer_id);
             if (!$consumer) {
@@ -147,6 +150,7 @@ class ConsumerController extends Controller
                 'age' => $request->input('age', $consumer->age),
                 'nationality_id' => $request->input('nationality_id', $consumer->nationality_id),
                 'gender' => $request->input('gender', $consumer->gender),
+                'campaign_id' => $request->input('campaign_id', $consumer->campaign_id),
             ]);
 
             if ($request->filled('reason_for_refusal_ids') && !empty($request->reason_for_refusal_ids)) {

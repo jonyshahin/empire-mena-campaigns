@@ -43,4 +43,9 @@ class Campaign extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function consumers()
+    {
+        return $this->hasMany(Consumer::class);
+    }
 }
