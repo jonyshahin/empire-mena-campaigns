@@ -25,7 +25,6 @@ class Client extends Model implements HasMedia
         'address',
         'hq_map_name',
         'hq_map_url',
-        'industry',
     ];
 
     /**
@@ -40,6 +39,7 @@ class Client extends Model implements HasMedia
 
     protected $with = [
         'media',
+        'industries',
     ];
 
     protected $append = [
@@ -94,5 +94,10 @@ class Client extends Model implements HasMedia
     public function campaigns()
     {
         return $this->hasMany(Campaign::class);
+    }
+
+    public function industries()
+    {
+        return $this->belongsToMany(Industry::class, 'client_industry');
     }
 }

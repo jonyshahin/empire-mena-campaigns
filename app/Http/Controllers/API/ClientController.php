@@ -29,7 +29,6 @@ class ClientController extends Controller
                     'address',
                     'hq_map_name',
                     'hq_map_url',
-                    'industry',
                 ])
                 ->defaultSort('-created_at')
                 ->allowedSorts([
@@ -40,7 +39,6 @@ class ClientController extends Controller
                     'address',
                     'hq_map_name',
                     'hq_map_url',
-                    'industry',
                 ]);
 
             if ($per_page == 0) {
@@ -73,7 +71,8 @@ class ClientController extends Controller
                 'address' => 'nullable|string|max:255',
                 'hq_map_name' => 'nullable|string|max:255',
                 'hq_map_url' => 'nullable|url|max:255',
-                'industry' => 'nullable|string|max:255',
+                'industry_ids' => 'nullable|array',
+                'industry_ids.*' => 'nullable|integer|exists:industries,id',
                 'logo' => 'nullable|image|max:2048',
                 'cover_image' => 'nullable|image|max:2048',
             ]);
@@ -90,7 +89,6 @@ class ClientController extends Controller
                 'address',
                 'hq_map_name',
                 'hq_map_url',
-                'industry',
             ]));
 
             if ($request->hasFile('logo')) {
@@ -99,6 +97,11 @@ class ClientController extends Controller
 
             if ($request->hasFile('cover_image')) {
                 $client->addMedia($request->file('cover_image'))->toMediaCollection('cover_image');
+            }
+
+            // check if industry_ids is an array
+            if (is_array($request->industry_ids)) {
+                $client->industries()->sync($request->industry_ids);
             }
 
             return custom_success(201, 'Company created successfully', $client);
@@ -154,7 +157,8 @@ class ClientController extends Controller
                 'address' => 'nullable|string|max:255',
                 'hq_map_name' => 'nullable|string|max:255',
                 'hq_map_url' => 'nullable|url|max:255',
-                'industry' => 'nullable|string|max:255',
+                'industry_ids' => 'nullable|array',
+                'industry_ids.*' => 'nullable|integer|exists:industries,id',
                 'logo' => 'nullable|image|max:2048',
                 'cover_image' => 'nullable|image|max:2048',
             ]);
@@ -177,7 +181,6 @@ class ClientController extends Controller
                 'address',
                 'hq_map_name',
                 'hq_map_url',
-                'industry',
             ]));
 
             if ($request->hasFile('logo')) {
@@ -188,6 +191,10 @@ class ClientController extends Controller
             if ($request->hasFile('cover_image')) {
                 $client->clearMediaCollection('cover_image');
                 $client->addMedia($request->file('cover_image'))->toMediaCollection('cover_image');
+            }
+
+            if (is_array($request->industry_ids)) {
+                $client->industries()->sync($request->industry_ids);
             }
 
             return custom_success(200, 'Company updated successfully', $client);
@@ -219,6 +226,7 @@ class ClientController extends Controller
                 return custom_error(404, 'Company not found');
             }
 
+            $client->industries()->detach();
             $client->clearMediaCollection('logo');
             $client->clearMediaCollection('cover_image');
             $client->delete();
