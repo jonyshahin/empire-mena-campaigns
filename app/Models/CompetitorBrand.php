@@ -72,4 +72,9 @@ class CompetitorBrand extends Model implements HasMedia
             ->addMediaCollection('logo')
             ->singleFile();
     }
+
+    public function clients()
+    {
+        return $this->belongsToMany(Client::class, 'brand_client', 'brand_id', 'client_id');
+    }
 }

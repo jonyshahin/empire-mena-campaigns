@@ -73,6 +73,8 @@ class ClientController extends Controller
                 'hq_map_url' => 'nullable|url|max:255',
                 'industry_ids' => 'nullable|array',
                 'industry_ids.*' => 'nullable|integer|exists:industries,id',
+                'brand_ids' => 'nullable|array',
+                'brand_ids.*' => 'nullable|integer|exists:competitor_brands,id',
                 'logo' => 'nullable|image|max:2048',
                 'cover_image' => 'nullable|image|max:2048',
             ]);
@@ -103,6 +105,11 @@ class ClientController extends Controller
             if (is_array($request->industry_ids)) {
                 $client->industries()->sync($request->industry_ids);
             }
+
+            if (is_array($request->brand_ids)) {
+                $client->brands()->sync($request->brand_ids);
+            }
+
 
             return custom_success(201, 'Company created successfully', $client);
         } catch (\Throwable $th) {
@@ -159,6 +166,8 @@ class ClientController extends Controller
                 'hq_map_url' => 'nullable|url|max:255',
                 'industry_ids' => 'nullable|array',
                 'industry_ids.*' => 'nullable|integer|exists:industries,id',
+                'brand_ids' => 'nullable|array',
+                'brand_ids.*' => 'nullable|integer|exists:competitor_brands,id',
                 'logo' => 'nullable|image|max:2048',
                 'cover_image' => 'nullable|image|max:2048',
             ]);
@@ -197,6 +206,10 @@ class ClientController extends Controller
                 $client->industries()->sync($request->industry_ids);
             }
 
+            if (is_array($request->brand_ids)) {
+                $client->industries()->sync($request->brand_ids);
+            }
+
             return custom_success(200, 'Company updated successfully', $client);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
@@ -227,6 +240,7 @@ class ClientController extends Controller
             }
 
             $client->industries()->detach();
+            $client->brands()->detach();
             $client->clearMediaCollection('logo');
             $client->clearMediaCollection('cover_image');
             $client->delete();

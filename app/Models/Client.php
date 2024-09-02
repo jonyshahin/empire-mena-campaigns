@@ -40,6 +40,7 @@ class Client extends Model implements HasMedia
     protected $with = [
         'media',
         'industries',
+        'brands',
     ];
 
     protected $append = [
@@ -99,5 +100,10 @@ class Client extends Model implements HasMedia
     public function industries()
     {
         return $this->belongsToMany(Industry::class, 'client_industry');
+    }
+
+    public function brands()
+    {
+        return $this->belongsToMany(CompetitorBrand::class, 'brand_client', 'client_id', 'brand_id');
     }
 }
