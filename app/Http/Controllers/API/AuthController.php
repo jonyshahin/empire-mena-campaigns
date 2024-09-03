@@ -12,7 +12,44 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login_admin(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $validator = Validator::make(
+                $data,
+                [
+                    'email' => 'required|email',
+                    'password' => 'required',
+                ]
+            );
+            if ($validator->fails()) {
+                return validation_error($validator->messages()->all());
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user == null) {
+                return custom_error('401', 'User does not exist, please contact admin');
+            }
+
+
+            if (!Auth::attempt($request->only(['email', 'password']))) {
+                return custom_error('400', 'Email & Password does not match with our record.');
+            }
+
+            $data = [
+                'user' => $user,
+                'token' => $user->createToken("my-app-token")->plainTextToken,
+            ];
+
+            return custom_success(200, 'User Logged In Successfully', $data);
+        } catch (\Throwable $th) {
+            return custom_error('500', $th->getMessage());
+        }
+    }
+
+    public function login_promoter(Request $request)
     {
         try {
             $data = $request->all();
@@ -54,6 +91,48 @@ class AuthController extends Controller
             return custom_success(200, 'User Logged In Successfully', $data);
         } catch (\Throwable $th) {
             return custom_error('500', $th->getMessage());
+        }
+    }
+
+    public function setCampaign(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $user = User::find($user->id);
+            if ($user == null) {
+                return custom_error(404, 'User not found');
+            }
+
+            $data = $request->all();
+            $validator = Validator::make(
+                $data,
+                [
+                    'campaign_id' => 'required|exists:campaigns,id',
+                ]
+            );
+            if ($validator->fails()) {
+                return validation_error($validator->messages()->all());
+            }
+
+            // Fetch the latest attendance record without a check-out time
+            $attendance = AttendanceRecord::query()
+                ->where('user_id', $user->id)
+                ->where('check_out_time', null)
+                ->latest()
+                ->first();
+
+            $attendance->campaign_id = $request->campaign_id;
+            $attendance->save();
+
+            $fetch_data = [
+                'user' => $user,
+                'attendance' => $attendance,
+            ];
+
+
+            return custom_success(200, 'User Selected Camapign Successfully', $fetch_data);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
         }
     }
 

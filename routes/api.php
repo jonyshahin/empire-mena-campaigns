@@ -65,10 +65,12 @@ Route::prefix('outlet')->group(function () {
     });
 });
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login/promoter', [AuthController::class, 'login_promoter']);
+Route::post('/login/admin', [AuthController::class, 'login_admin']);
 
 Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
+    Route::get('/set-campaign', [AuthController::class, 'setCampaign']);
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::middleware('role:admin')->group(function () {
         Route::get('get-profile', [AuthController::class, 'get_profile']);
