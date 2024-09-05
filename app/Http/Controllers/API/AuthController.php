@@ -33,6 +33,10 @@ class AuthController extends Controller
                 return custom_error('401', 'User does not exist, please contact admin');
             }
 
+            if (!$user->hasRole('admin')) {
+                return custom_error('422', 'User does not have admin role');
+            }
+
 
             if (!Auth::attempt($request->only(['email', 'password']))) {
                 return custom_error('400', 'Email & Password does not match with our record.');
@@ -69,6 +73,10 @@ class AuthController extends Controller
 
             if ($user == null) {
                 return custom_error('401', 'User does not exist, please contact admin');
+            }
+
+            if (!$user->hasRole('promoter')) {
+                return custom_error('422', 'User does not have promoter role');
             }
 
 
