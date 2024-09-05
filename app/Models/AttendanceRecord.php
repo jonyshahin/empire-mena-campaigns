@@ -20,6 +20,7 @@ class AttendanceRecord extends Model
         'check_out_time' => 'datetime',
         'outlet_id' => 'integer',
         'last_day_note' => 'string',
+        'campaign_id' => 'integer',
     ];
 
     public function user(): BelongsTo
@@ -30,5 +31,10 @@ class AttendanceRecord extends Model
     public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class);
+    }
+
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(Campaign::class);
     }
 }
