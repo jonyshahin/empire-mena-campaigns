@@ -55,11 +55,16 @@ class ConsumerController extends Controller
                 'name' => 'required|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
-                'campaign_id' => 'required|integer|exists:campaigns,id',
             ]);
 
             $user = User::find(auth()->id());
+
+            if (!$user->hasRole('promoter')) {
+                return custom_error('422', 'Not Authorized to create consumer form');
+            }
+
             $outlet_id = $user->attendanceRecords()->latest()->first()->outlet_id;
+            $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
 
             $consumer = Consumer::create([
                 'user_id' => auth()->id(),
@@ -76,7 +81,7 @@ class ConsumerController extends Controller
                 'age' => $request->age,
                 'nationality_id' => $request->nationality_id,
                 'gender' => $request->gender,
-                'campaign_id' => $request->campaign_id,
+                'campaign_id' => $campaign_id,
             ]);
 
 
