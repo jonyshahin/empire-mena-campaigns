@@ -135,6 +135,7 @@ class AuthController extends Controller
             $fetch_data = [
                 'user' => $user,
                 'attendance' => $attendance,
+                'campaign' => $attendance->campaign,
             ];
 
 
