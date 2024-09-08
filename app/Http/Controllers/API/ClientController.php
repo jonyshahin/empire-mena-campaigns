@@ -255,8 +255,17 @@ class ClientController extends Controller
 
     public function get_clients(Request $request)
     {
-        $clients = Client::where('id', $request->company_id)->with('companyUsers')->get();
-        return custom_success(200, 'Clients', $clients);
+        $validator = Validator::make($request->all(), [
+            'company_id' => 'required|integer|exists:clients,id'
+        ]);
+        if ($validator->fails()) {
+            return custom_error(422, $validator->errors()->first());
+        }
+        $client = Client::find($request->company_id);
+        if (!$client) {
+            return custom_error(404, 'Company not found');
+        }
+        return custom_success(200, 'Clients', $client);
     }
 
     public function store_client(Request $request)

@@ -41,6 +41,7 @@ class Client extends Model implements HasMedia
         'media',
         'industries',
         'brands',
+        'companyUsers',
     ];
 
     protected $append = [
