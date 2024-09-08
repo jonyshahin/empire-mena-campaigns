@@ -129,7 +129,7 @@ Route::prefix('promoter')->group(function () {
 Route::prefix('client')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('role:admin')->group(function () {
-            Route::post('/', [ClientController::class, 'get_clients']);
+            Route::get('/', [ClientController::class, 'get_clients']);
             Route::post('create', [ClientController::class, 'store_client']);
             Route::post('show', [ClientController::class, 'show_client']);
             Route::post('update', [ClientController::class, 'update_client']);
