@@ -255,7 +255,7 @@ class ClientController extends Controller
 
     public function get_clients(Request $request)
     {
-        $clients = Client::where('id', $request->client_id)->with('companyUsers')->get();
+        $clients = Client::where('id', $request->company_id)->with('companyUsers')->get();
         return custom_success(200, 'Clients', $clients);
     }
 
