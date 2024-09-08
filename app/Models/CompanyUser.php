@@ -24,7 +24,7 @@ class CompanyUser extends Model
         'user_id',
     ];
 
-    protected $with = ['client', 'user'];
+    protected $with = ['user'];
 
 
     public function client()
