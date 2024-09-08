@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\CompanyUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -77,8 +78,6 @@ class ClientController extends Controller
                 'industry_ids.*' => 'nullable|integer|exists:industries,id',
                 'brand_ids' => 'nullable|array',
                 'brand_ids.*' => 'nullable|integer|exists:competitor_brands,id',
-                'user_ids' => 'nullable|array',
-                'user_ids.*' => 'nullable|integer|exists:users,id',
                 'logo' => 'nullable|image|max:2048',
                 'cover_image' => 'nullable|image|max:2048',
             ]);
@@ -113,11 +112,6 @@ class ClientController extends Controller
             if (is_array($request->brand_ids)) {
                 $client->brands()->sync($request->brand_ids);
             }
-
-            if (is_array($request->user_ids)) {
-                $client->users()->sync($request->user_ids);
-            }
-
 
             return custom_success(201, 'Company created successfully', $client);
         } catch (\Throwable $th) {
@@ -259,9 +253,9 @@ class ClientController extends Controller
         }
     }
 
-    public function get_clients()
+    public function get_clients(Request $request)
     {
-        $clients = User::role('client')->get();
+        $clients = Client::where('id', $request->client_id)->with('companyUsers')->get();
         return custom_success(200, 'Clients', $clients);
     }
 
@@ -271,6 +265,7 @@ class ClientController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'company_id' => 'required|integer',
         ]);
 
         $user = User::create([
@@ -278,9 +273,13 @@ class ClientController extends Controller
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
         ]);
-
         $role = Role::findByName('client');
         $user->assignRole($role);
+
+        $company_user = CompanyUser::create([
+            'user_id' => $user->id,
+            'client_id' => $validated['company_id'],
+        ]);
 
         return custom_success(200, 'Client created successfully!', $user);
     }

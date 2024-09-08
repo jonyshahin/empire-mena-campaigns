@@ -107,8 +107,8 @@ class Client extends Model implements HasMedia
         return $this->belongsToMany(CompetitorBrand::class, 'brand_client', 'client_id', 'brand_id');
     }
 
-    public function users()
+    public function companyUsers()
     {
-        return $this->belongsToMany(User::class, 'client_user', 'client_id', 'user_id');
+        return $this->hasMany(CompanyUser::class);
     }
 }
