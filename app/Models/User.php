@@ -83,6 +83,6 @@ class User extends Authenticatable
 
     public function company()
     {
-        return $this->hasOneThrough(Client::class, CompanyUser::class);
+        return $this->hasOneThrough(Client::class, CompanyUser::class, 'user_id', 'id', 'id', 'client_id');
     }
 }
