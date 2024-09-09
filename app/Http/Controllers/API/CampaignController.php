@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -17,6 +19,44 @@ class CampaignController extends Controller
             $per_page = $request->perPage ?? 10;
 
             $models = QueryBuilder::for(Campaign::class)
+                ->allowedFilters([
+                    'name',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'budget',
+                    AllowedFilter::exact('company_id'),
+                ])
+                ->defaultSort('-created_at')
+                ->allowedSorts([
+                    'name',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'budget',
+                    'company_id',
+                    'created_at'
+                ])
+                ->paginate($per_page);
+
+            return custom_success(200, 'Campaign List', $models);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function client_campaigns(Request $request)
+    {
+        try {
+            $per_page = $request->perPage ?? 10;
+
+            $user = Auth::user();
+            $user = User::find($user->id);
+
+            $company = $user->company;
+
+            $models = QueryBuilder::for(Campaign::class)
+                ->where('company_id', $company->id)
                 ->allowedFilters([
                     'name',
                     'description',

@@ -202,6 +202,7 @@ Route::prefix('products')->group(function () {
 Route::prefix('campaigns')->group(function () {
     Route::get('/', [CampaignController::class, 'index']);
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/client', [CampaignController::class, 'client_campaigns']);
         Route::middleware('role:admin')->group(function () {
             Route::post('create', [CampaignController::class, 'store']);
             Route::post('show', [CampaignController::class, 'show']);

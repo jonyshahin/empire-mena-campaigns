@@ -34,7 +34,7 @@ class ConsumerController extends Controller
         }
 
         if ($user->hasRole('client')) {
-            $campaign_ids = $user->company()->campaings()->pluck('id');
+            $campaign_ids = $user->company()->campaings()->pluck('id')->get();
             $consumers->whereIn('campaign_id', $campaign_ids);
         }
 
