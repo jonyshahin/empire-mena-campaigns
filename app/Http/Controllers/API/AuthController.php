@@ -200,20 +200,27 @@ class AuthController extends Controller
                 return custom_error(404, 'User not found');
             }
 
-            // Fetch the latest attendance record without a check-out time
-            $attendance = AttendanceRecord::query()
-                ->where('user_id', $user->id)
-                ->where('check_out_time', null)
-                ->latest()
-                ->first();
+            if ($user->hasRole('promoter')) {
 
-            $attendance->check_out_time = now();
-            $attendance->last_day_note = $request->input('last_day_note', ' ');
-            $attendance->save();
+                // Fetch the latest attendance record without a check-out time
+                $attendance = AttendanceRecord::query()
+                    ->where('user_id', $user->id)
+                    ->where('check_out_time', null)
+                    ->latest()
+                    ->first();
 
-            $fetch_data = [
-                'attendance' => $attendance,
-            ];
+                $attendance->check_out_time = now();
+                $attendance->last_day_note = $request->input('last_day_note', ' ');
+                $attendance->save();
+
+                $fetch_data = [
+                    'attendance' => $attendance,
+                ];
+            } else {
+                $fetch_data = [
+                    'user' => $user,
+                ];
+            }
 
             $user->tokens()->delete();
 
