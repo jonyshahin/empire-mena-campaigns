@@ -120,7 +120,17 @@ class CampaignController extends Controller
     public function show(Request $request)
     {
         try {
-            $model = Campaign::find($request->campaign_id);
+            $model = Campaign::query();
+
+            $user = Auth::user();
+            $user = User::find($user->id);
+
+            if ($user->hasRole('client')) {
+                $company = $user->company;
+                $model->where('company_id', $company->id);
+            }
+
+            $model = $model->find($request->campaign_id);
             if (!$model) {
                 return custom_error(404, 'Campaign Not Found');
             }

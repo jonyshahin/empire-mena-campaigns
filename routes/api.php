@@ -205,9 +205,11 @@ Route::prefix('campaigns')->group(function () {
         Route::get('/client', [CampaignController::class, 'client_campaigns']);
         Route::middleware('role:admin')->group(function () {
             Route::post('create', [CampaignController::class, 'store']);
-            Route::post('show', [CampaignController::class, 'show']);
             Route::post('update', [CampaignController::class, 'update']);
             Route::post('delete', [CampaignController::class, 'destroy']);
+        });
+        Route::middleware('role:client|admin')->group(function () {
+            Route::post('show', [CampaignController::class, 'show']);
         });
     });
 });
