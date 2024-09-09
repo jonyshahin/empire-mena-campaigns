@@ -36,6 +36,7 @@ class ConsumerController extends Controller
         if ($user->hasRole('client')) {
             $company = $user->company;
             $campaign_ids = $company->campaigns->pluck('id');
+            return $campaign_ids;
             $consumers->whereIn('campaign_id', $campaign_ids);
         }
 
