@@ -83,9 +83,13 @@ class AuthController extends Controller
                 return custom_error('400', 'Email & Password does not match with our record.');
             }
 
+            $company = $user->companyUsers->client;
+
+
             $data = [
                 'user' => $user,
                 'token' => $user->createToken("my-app-token")->plainTextToken,
+                'company' => $company,
             ];
 
             return custom_success(200, 'User Logged In Successfully', $data);
