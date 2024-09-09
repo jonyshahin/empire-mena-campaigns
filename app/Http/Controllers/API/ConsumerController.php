@@ -24,19 +24,15 @@ class ConsumerController extends Controller
         $user = Auth::user();
         $user = User::find($user->id);
 
-        if (!$user->hasRole('admin')) {
+        if ($user->hasRole('promoter')) {
             $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
             $consumers->where('user_id', $user->id)->where('campaign_id', $campaign_id);
-        }
-
-        if ($user->hasRole('promoter')) {
             $consumers->whereDate('created_at', now()->toDateString());
         }
 
         if ($user->hasRole('client')) {
             $company = $user->company;
             $campaign_ids = $company->campaigns->pluck('id');
-            return $campaign_ids;
             $consumers->whereIn('campaign_id', $campaign_ids);
         }
 
