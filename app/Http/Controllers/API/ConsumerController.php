@@ -33,6 +33,11 @@ class ConsumerController extends Controller
             $consumers->whereDate('created_at', now()->toDateString());
         }
 
+        if ($user->hasRole('client')) {
+            $campaign_ids = $user->company()->campaings()->pluck('id');
+            $consumers->whereIn('campaign_id', $campaign_ids);
+        }
+
         if ($search = request('search')) {
             $consumers->search($search);
         }
