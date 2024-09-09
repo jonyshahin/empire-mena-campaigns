@@ -83,7 +83,7 @@ class AuthController extends Controller
                 return custom_error('400', 'Email & Password does not match with our record.');
             }
 
-            $company = $user->companyUsers->client();
+            $company = $user->company;
 
 
             $data = [

@@ -81,8 +81,8 @@ class User extends Authenticatable
         return $this->hasOne(PromoterTracking::class);
     }
 
-    public function companyUsers()
+    public function company()
     {
-        return $this->hasMany(CompanyUser::class);
+        return $this->hasOneThrough(Client::class, CompanyUser::class);
     }
 }
