@@ -340,4 +340,24 @@ class ClientController extends Controller
             return custom_error(500, 'Something went wrong');
         }
     }
+
+    public function destroy_client(Request $request)
+    {
+        try {
+            $request->validate([
+                'client_id' => 'required|integer|exists:users,id',
+            ]);
+
+            $user = User::query()->where('id', $request->client_id)->role('client')->first();
+            if (!$user) {
+                return custom_error(404, 'Client not found');
+            }
+
+            $user->delete();
+
+            return custom_success(200, 'Client deleted successfully', []);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
 }

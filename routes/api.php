@@ -134,6 +134,7 @@ Route::prefix('client')->group(function () {
             Route::post('create', [ClientController::class, 'store_client']);
             Route::post('show', [ClientController::class, 'show_client']);
             Route::post('update', [ClientController::class, 'update_client']);
+            Route::post('delete', [ClientController::class, 'destroy_client']);
         });
     });
 });
