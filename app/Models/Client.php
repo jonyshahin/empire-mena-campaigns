@@ -95,7 +95,7 @@ class Client extends Model implements HasMedia
 
     public function campaigns()
     {
-        return $this->hasMany(Campaign::class);
+        return $this->hasMany(Campaign::class, 'company_id');
     }
 
     public function industries()
