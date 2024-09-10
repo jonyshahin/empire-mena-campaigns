@@ -113,8 +113,14 @@ class ConsumerController extends Controller
 
             $consumer = Consumer::query()->where('id', $request->consumer_id);
 
-            if (!$user->hasRole('admin')) {
+            if ($user->hasRole('promoter')) {
                 $consumer->where('user_id', $user->id);
+            }
+
+            if ($user->hasRole('client')) {
+                $company = $user->company;
+                $campaign_ids = $company->campaigns->pluck('id');
+                $consumer->whereIn('campaign_id', $campaign_ids);
             }
 
             $consumer = $consumer->with(
