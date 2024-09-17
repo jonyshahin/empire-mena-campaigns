@@ -80,7 +80,7 @@ class ConsumerController extends Controller
                 'other_brand_name' => $request->input('other_brand_name'),
                 'franchise' => $request->input('franchise', 0),
                 'did_he_switch' => $request->input('did_he_switch', 0),
-                'aspen' => implode(',', $request->aspen),
+                'aspen' => $request->has('aspen') ? implode(',', $request->aspen) : null,
                 'packs' => $request->packs,
                 'incentives' => $request->incentives,
                 'age' => $request->age,
