@@ -25,6 +25,9 @@ class Consumer extends Model
         'aspen' => 'array',
         'nationality_id' => 'integer',
         'campaign_id' => 'integer',
+        'selected_products' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
 

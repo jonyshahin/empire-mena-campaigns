@@ -59,7 +59,7 @@ class ConsumerController extends Controller
                 'name' => 'required|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
-                'aspen' => 'nullable|array',
+                'selected_products' => 'nullable|array',
             ]);
 
             $user = User::find(auth()->id());
@@ -80,13 +80,14 @@ class ConsumerController extends Controller
                 'other_brand_name' => $request->input('other_brand_name'),
                 'franchise' => $request->input('franchise', 0),
                 'did_he_switch' => $request->input('did_he_switch', 0),
-                'aspen' => $request->input('aspen'),
+                'aspen' => implode(',', $request->aspen),
                 'packs' => $request->packs,
                 'incentives' => $request->incentives,
                 'age' => $request->age,
                 'nationality_id' => $request->nationality_id,
                 'gender' => $request->gender,
                 'campaign_id' => $campaign_id,
+                'selected_products' => $request->input('selected_products'),
             ]);
 
 
@@ -148,6 +149,7 @@ class ConsumerController extends Controller
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
                 'campaign_id' => 'required|integer|exists:campaigns,id',
+                'selected_products' => 'nullable|array'
             ]);
             $consumer = Consumer::find($request->consumer_id);
             if (!$consumer) {
@@ -167,6 +169,7 @@ class ConsumerController extends Controller
                 'nationality_id' => $request->input('nationality_id', $consumer->nationality_id),
                 'gender' => $request->input('gender', $consumer->gender),
                 'campaign_id' => $request->input('campaign_id', $consumer->campaign_id),
+                'selected_products' => $request->input('selected_products', $consumer->selected_products),
             ]);
 
             if ($request->filled('reason_for_refusal_ids') && !empty($request->reason_for_refusal_ids)) {
