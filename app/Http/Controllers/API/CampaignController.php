@@ -95,6 +95,7 @@ class CampaignController extends Controller
                     'end_date' => 'nullable|date',
                     'budget' => 'nullable|numeric',
                     'company_id' => 'nullable|exists:clients,id',
+                    'product_ids' => 'nullable|array|exists:products,id'
                 ]
             );
 
@@ -110,6 +111,12 @@ class CampaignController extends Controller
                 'budget' => isset($request->budget) ? $request->budget : 0.00,
                 'company_id' => $request->input('company_id'),
             ]);
+
+            if ($request->has('product_ids')) {
+                $model->products()->sync($request->product_ids);
+            }
+
+            $model->load(['products', 'company']);
 
             return custom_success(200, 'Campaign Created Successfully', $model);
         } catch (\Throwable $th) {
@@ -158,6 +165,7 @@ class CampaignController extends Controller
                     'end_date' => 'nullable|date',
                     'budget' => 'nullable|numeric',
                     'company_id' => 'nullable|exists:clients,id',
+                    'product_ids' => 'nullable|array|exists:products,id'
                 ]
             );
 
@@ -172,6 +180,12 @@ class CampaignController extends Controller
             $model->budget = $request->input('budget', $model->budget);
             $model->company_id = $request->input('company_id', $model->company_id);
             $model->save();
+
+            if ($request->has('product_ids')) {
+                $model->products()->sync($request->product_ids);
+            }
+
+            $model->load(['products', 'company']);
 
             return custom_success(200, 'Campaign Updated Successfully', $model);
         } catch (\Throwable $th) {

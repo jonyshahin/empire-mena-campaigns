@@ -85,4 +85,9 @@ class Product extends Model implements HasMedia
         $this->addMediaCollection('main_image')->singleFile();
         $this->addMediaCollection('images')->onlyKeepLatest(5);
     }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'campaign_product');
+    }
 }
