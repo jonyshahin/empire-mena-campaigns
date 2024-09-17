@@ -32,7 +32,10 @@ class Campaign extends Model
         'company_id' => 'integer',
     ];
 
-    protected $with = ['company'];
+    protected $with = [
+        'company',
+        'products',
+    ];
 
     public function client()
     {
