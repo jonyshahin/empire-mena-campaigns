@@ -59,6 +59,7 @@ class ConsumerController extends Controller
                 'name' => 'required|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
+                'aspen' => 'nullable|array',
             ]);
 
             $user = User::find(auth()->id());
@@ -79,7 +80,7 @@ class ConsumerController extends Controller
                 'other_brand_name' => $request->input('other_brand_name'),
                 'franchise' => $request->input('franchise', 0),
                 'did_he_switch' => $request->input('did_he_switch', 0),
-                'aspen' => implode(',', $request->aspen),
+                'aspen' => $request->input('aspen'),
                 'packs' => $request->packs,
                 'incentives' => $request->incentives,
                 'age' => $request->age,
