@@ -209,7 +209,7 @@ class ClientController extends Controller
             }
 
             if (is_array($request->brand_ids)) {
-                $client->industries()->sync($request->brand_ids);
+                $client->brands()->sync($request->brand_ids);
             }
 
             return custom_success(200, 'Company updated successfully', $client);
