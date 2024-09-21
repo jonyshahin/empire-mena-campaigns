@@ -59,6 +59,7 @@ class ProductController extends Controller
                     'product_category_id' => 'nullable|exists:product_categories,id',
                     'main_image' => 'nullable',
                     'images' => 'nullable|array',
+                    'brand_id' => 'nullable|exists:competitor_brands,id',
                 ]
             );
 
@@ -67,6 +68,7 @@ class ProductController extends Controller
             }
 
             $model = Product::create([
+                'brand_id' => $request->input('brand_id'),
                 'name' => $request->name,
                 'description' => $request->input('description'),
                 'price' => isset($request->price) ? $request->price : 0.00,
@@ -129,7 +131,8 @@ class ProductController extends Controller
                     'main_image' => 'nullable',
                     'images' => 'nullable|array',
                     'deleted_image_ids' => 'nullable|array',
-                    'deleted_image_ids.*' => 'nullable|exists:media,id'
+                    'deleted_image_ids.*' => 'nullable|exists:media,id',
+                    'brand_id' => 'nullable|exists:competitor_brands,id',
                 ]
             );
 
@@ -137,6 +140,7 @@ class ProductController extends Controller
                 return validation_error($validator->messages()->all());
             }
 
+            $model->brand_id = $request->input('brand_id', $model->brand_id);
             $model->name = $request->name;
             $model->description = $request->input('description', $model->description);
             $model->price = $request->input('price', $model->price);

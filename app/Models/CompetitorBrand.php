@@ -24,6 +24,7 @@ class CompetitorBrand extends Model implements HasMedia
 
     protected $with = [
         'media',
+        'products',
     ];
 
     protected $casts = [
@@ -76,5 +77,10 @@ class CompetitorBrand extends Model implements HasMedia
     public function clients()
     {
         return $this->belongsToMany(Client::class, 'brand_client', 'brand_id', 'client_id');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'brand_id')->without(['brand']);
     }
 }

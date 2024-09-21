@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -20,11 +21,13 @@ class Product extends Model implements HasMedia
         'stock',
         'sku',
         'product_category_id',
+        'brand_id',
     ];
 
     protected $hidden = [
         'product_category_id',
         'media',
+        'brand_id',
     ];
 
     protected $casts = [
@@ -32,7 +35,10 @@ class Product extends Model implements HasMedia
         'stock' => 'integer',
     ];
 
-    protected $with = ['productCategory'];
+    protected $with = [
+        'productCategory',
+        'brand',
+    ];
 
     protected $appends = [
         'main_image',
@@ -89,5 +95,10 @@ class Product extends Model implements HasMedia
     public function campaigns()
     {
         return $this->belongsToMany(Campaign::class, 'campaign_product');
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(CompetitorBrand::class, 'brand_id')->without(['products']);
     }
 }
