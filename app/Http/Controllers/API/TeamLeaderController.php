@@ -59,7 +59,7 @@ class TeamLeaderController extends Controller
             $validated = $request->validate([
                 'team_leader_id' => 'required|integer',
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $request->promoter_id,
+                'email' => 'required|string|email|max:255|unique:users,email,' . $request->team_leader_id,
                 'password' => 'nullable|string|min:8|confirmed',
             ]);
 
