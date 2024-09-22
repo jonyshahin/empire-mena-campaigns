@@ -13,7 +13,14 @@ class Consumer extends Model
 
     protected $guarded = [];
 
-    protected $with = ['promoter', 'competitorBrand', 'refusedReasons', 'outlet', 'nationality', 'campaign'];
+    protected $with = [
+        'promoter',
+        'competitorBrand',
+        'refusedReasons',
+        'outlet',
+        'nationality',
+        'campaign'
+    ];
 
     protected $casts = [
         'user_id' => 'integer',

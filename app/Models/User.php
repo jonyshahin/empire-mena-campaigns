@@ -89,6 +89,6 @@ class User extends Authenticatable
 
     public function campaigns(): BelongsToMany
     {
-        return $this->belongsToMany(Campaign::class, 'campaing_promoter', 'user_id', 'campaign_id')->without(['promoters']);
+        return $this->belongsToMany(Campaign::class, 'campaing_promoter')->without(['promoters']);
     }
 }
