@@ -140,6 +140,7 @@ class CampaignController extends Controller
                     'company_id' => 'nullable|exists:clients,id',
                     'product_ids' => 'nullable|array|exists:products,id',
                     'promoter_ids' => 'nullable|array|exists:users,id',
+                    'team_leader_ids' => 'nullable|array|exists:users,id'
                 ]
             );
 
@@ -164,7 +165,11 @@ class CampaignController extends Controller
                 $model->promoters()->sync($request->promoter_ids);
             }
 
-            $model->load(['products', 'company', 'promoters']);
+            if ($request->has('team_leader_ids')) {
+                $model->team_leader_ids()->sync($request->team_leader_ids);
+            }
+
+            $model->load(['products', 'company', 'promoters', 'team_leaders']);
 
             return custom_success(200, 'Campaign Created Successfully', $model);
         } catch (\Throwable $th) {
@@ -215,6 +220,7 @@ class CampaignController extends Controller
                     'company_id' => 'nullable|exists:clients,id',
                     'product_ids' => 'nullable|array|exists:products,id',
                     'promoter_ids' => 'nullable|array|exists:users,id',
+                    'team_leader_ids' => 'nullable|array|exists:users,id',
                 ]
             );
 
@@ -238,7 +244,11 @@ class CampaignController extends Controller
                 $model->promoters()->sync($request->promoter_ids);
             }
 
-            $model->load(['products', 'company', 'promoters']);
+            if ($request->has('team_leader_ids')) {
+                $model->promoters()->sync($request->team_leader_ids);
+            }
+
+            $model->load(['products', 'company', 'promoters', 'team_leaders']);
 
             return custom_success(200, 'Campaign Updated Successfully', $model);
         } catch (\Throwable $th) {

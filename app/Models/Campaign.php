@@ -39,6 +39,7 @@ class Campaign extends Model
         'company',
         'products',
         'promoters',
+        'team_leaders',
     ];
 
     public function client(): BelongsTo
@@ -64,5 +65,10 @@ class Campaign extends Model
     public function promoters(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'campaign_promoter')->without(['campaigns']);
+    }
+
+    public function team_leaders(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'campaign_team_leader')->without(['campaigns']);
     }
 }
