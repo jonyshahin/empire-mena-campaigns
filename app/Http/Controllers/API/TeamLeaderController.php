@@ -82,4 +82,24 @@ class TeamLeaderController extends Controller
             return custom_error(500, 'Something went wrong');
         }
     }
+
+    public function destroy(Request $request)
+    {
+        try {
+            $request->validate([
+                'team_leader_id' => 'required|integer|exists:users,id',
+            ]);
+
+            $user = User::query()->where('id', $request->team_leader_id)->role('team_leader')->first();
+            if (!$user) {
+                return custom_error(404, 'Team Leader not found');
+            }
+
+            $user->delete();
+
+            return custom_success(200, 'Team Leader deleted successfully', []);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
 }

@@ -135,6 +135,7 @@ Route::prefix('team-leader')->group(function () {
             Route::post('create', [TeamLeaderController::class, 'store']);
             Route::post('show', [TeamLeaderController::class, 'show']);
             Route::post('update', [TeamLeaderController::class, 'update']);
+            Route::post('delete', [TeamLeaderController::class, 'destroy']);
         });
     });
 });
