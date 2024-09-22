@@ -94,6 +94,6 @@ class User extends Authenticatable
 
     public function team_leader_campaigns(): BelongsToMany
     {
-        return $this->belongsToMany(Campaign::class, 'campaign_team_leader')->without(['team_leaders']);
+        return $this->belongsToMany(Campaign::class, 'campaign_team_leader', 'team_leader_id', 'campaign_id')->without(['team_leaders']);
     }
 }

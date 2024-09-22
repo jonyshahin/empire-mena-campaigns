@@ -69,6 +69,6 @@ class Campaign extends Model
 
     public function team_leaders(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'campaign_team_leader')->without(['campaigns']);
+        return $this->belongsToMany(User::class, 'campaign_team_leader', 'campaign_id', 'team_leader_id')->without(['campaigns']);
     }
 }
