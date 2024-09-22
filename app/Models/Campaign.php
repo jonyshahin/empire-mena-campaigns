@@ -63,6 +63,6 @@ class Campaign extends Model
 
     public function promoters(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'campaing_promoter')->without(['campaigns']);
+        return $this->belongsToMany(User::class, 'campaign_promoter')->without(['campaigns']);
     }
 }
