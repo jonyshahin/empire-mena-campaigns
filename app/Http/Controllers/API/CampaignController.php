@@ -166,7 +166,7 @@ class CampaignController extends Controller
             }
 
             if ($request->has('team_leader_ids')) {
-                $model->team_leader_ids()->sync($request->team_leader_ids);
+                $model->team_leaders()->sync($request->team_leader_ids);
             }
 
             $model->load(['products', 'company', 'promoters', 'team_leaders']);
@@ -245,7 +245,7 @@ class CampaignController extends Controller
             }
 
             if ($request->has('team_leader_ids')) {
-                $model->promoters()->sync($request->team_leader_ids);
+                $model->team_leaders()->sync($request->team_leader_ids);
             }
 
             $model->load(['products', 'company', 'promoters', 'team_leaders']);
