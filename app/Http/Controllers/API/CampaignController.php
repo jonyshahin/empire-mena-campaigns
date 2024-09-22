@@ -83,6 +83,49 @@ class CampaignController extends Controller
         }
     }
 
+    public function promoter_campaigns(Request $request)
+    {
+        try {
+            $per_page = $request->perPage ?? 10;
+
+            $user = Auth::user();
+            $user = User::find($user->id);
+
+            //check if user has role promoter
+            if (!$user->hasRole('promoter')) {
+                return custom_error(403, 'You are not authorized to access this resource');
+            }
+
+            $campaigns = $user->campaigns()->pluck('id');
+
+            $models = QueryBuilder::for(Campaign::class)
+                ->whereIn('id', $campaigns)
+                ->allowedFilters([
+                    'name',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'budget',
+                    AllowedFilter::exact('company_id'),
+                ])
+                ->defaultSort('-created_at')
+                ->allowedSorts([
+                    'name',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'budget',
+                    'company_id',
+                    'created_at'
+                ])
+                ->paginate($per_page);
+
+            return custom_success(200, 'Campaign List', $models);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
     public function store(Request $request)
     {
         try {
@@ -95,7 +138,8 @@ class CampaignController extends Controller
                     'end_date' => 'nullable|date',
                     'budget' => 'nullable|numeric',
                     'company_id' => 'nullable|exists:clients,id',
-                    'product_ids' => 'nullable|array|exists:products,id'
+                    'product_ids' => 'nullable|array|exists:products,id',
+                    'promoter_ids' => 'nullable|array|exists:users,id',
                 ]
             );
 
@@ -116,7 +160,11 @@ class CampaignController extends Controller
                 $model->products()->sync($request->product_ids);
             }
 
-            $model->load(['products', 'company']);
+            if ($request->has('promoter_ids')) {
+                $model->promoters()->sync($request->promoter_ids);
+            }
+
+            $model->load(['products', 'company', 'promoters']);
 
             return custom_success(200, 'Campaign Created Successfully', $model);
         } catch (\Throwable $th) {
@@ -165,7 +213,8 @@ class CampaignController extends Controller
                     'end_date' => 'nullable|date',
                     'budget' => 'nullable|numeric',
                     'company_id' => 'nullable|exists:clients,id',
-                    'product_ids' => 'nullable|array|exists:products,id'
+                    'product_ids' => 'nullable|array|exists:products,id',
+                    'promoter_ids' => 'nullable|array|exists:users,id',
                 ]
             );
 
@@ -185,7 +234,11 @@ class CampaignController extends Controller
                 $model->products()->sync($request->product_ids);
             }
 
-            $model->load(['products', 'company']);
+            if ($request->has('promoter_ids')) {
+                $model->promoters()->sync($request->promoter_ids);
+            }
+
+            $model->load(['products', 'company', 'promoters']);
 
             return custom_success(200, 'Campaign Updated Successfully', $model);
         } catch (\Throwable $th) {

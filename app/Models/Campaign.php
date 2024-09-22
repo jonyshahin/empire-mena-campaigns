@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Campaign extends Model
 {
@@ -35,25 +38,31 @@ class Campaign extends Model
     protected $with = [
         'company',
         'products',
+        'promoters',
     ];
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    public function consumers()
+    public function consumers(): HasMany
     {
         return $this->hasMany(Consumer::class);
     }
 
-    public function products()
+    public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'campaign_product');
+    }
+
+    public function promoters(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'campaing_promoter', 'campaign_id', 'user_id')->without(['campaigns']);
     }
 }

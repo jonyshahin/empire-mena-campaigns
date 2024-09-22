@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -84,5 +85,10 @@ class User extends Authenticatable
     public function company()
     {
         return $this->hasOneThrough(Client::class, CompanyUser::class, 'user_id', 'id', 'id', 'client_id');
+    }
+
+    public function campaigns(): BelongsToMany
+    {
+        return $this->belongsToMany(Campaign::class, 'campaing_promoter', 'user_id', 'campaign_id')->without(['promoters']);
     }
 }
