@@ -18,10 +18,12 @@ class RolesSeeder extends Seeder
         Role::create(['name' => 'promoter', 'guard_name' => 'sanctum']);
         Role::create(['name' => 'user', 'guard_name' => 'sanctum']);
         Role::create(['name' => 'client', 'guard_name' => 'sanctum']);
+        Role::create(['name' => 'team_leader', 'guard_name' => 'sanctum']);
         Role::create(['name' => 'super-admin', 'guard_name' => 'web']);
         Role::create(['name' => 'admin', 'guard_name' => 'web']);
         Role::create(['name' => 'promoter', 'guard_name' => 'web']);
         Role::create(['name' => 'user', 'guard_name' => 'web']);
         Role::create(['name' => 'client', 'guard_name' => 'web']);
+        Role::create(['name' => 'team_leader', 'guard_name' => 'web']);
     }
 }

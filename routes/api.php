@@ -14,6 +14,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
+use App\Http\Controllers\API\TeamLeaderController;
 use App\Http\Controllers\API\ZoneController;
 use Illuminate\Support\Facades\Route;
 
@@ -123,6 +124,17 @@ Route::prefix('promoter')->group(function () {
             Route::post('create', [PromoterController::class, 'store']);
             Route::post('show', [PromoterController::class, 'show']);
             Route::post('update', [PromoterController::class, 'update']);
+        });
+    });
+});
+
+Route::prefix('team-leader')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', [TeamLeaderController::class, 'index']);
+            Route::post('create', [TeamLeaderController::class, 'store']);
+            Route::post('show', [TeamLeaderController::class, 'show']);
+            Route::post('update', [TeamLeaderController::class, 'update']);
         });
     });
 });
