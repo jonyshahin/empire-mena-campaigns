@@ -214,11 +214,11 @@ Route::prefix('products')->group(function () {
 
 Route::prefix('campaigns')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [CampaignController::class, 'index']);
         Route::get('/promoter', [CampaignController::class, 'promoter_campaigns']);
         Route::get('/client', [CampaignController::class, 'client_campaigns']);
         Route::get('/team-leader', [CampaignController::class, 'team_leader_campaigns']);
         Route::middleware('role:admin')->group(function () {
-            Route::get('/', [CampaignController::class, 'index']);
             Route::post('create', [CampaignController::class, 'store']);
             Route::post('update', [CampaignController::class, 'update']);
             Route::post('delete', [CampaignController::class, 'destroy']);

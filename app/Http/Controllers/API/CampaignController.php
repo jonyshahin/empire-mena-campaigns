@@ -18,15 +18,26 @@ class CampaignController extends Controller
         try {
             $per_page = $request->perPage ?? 10;
 
-            $models = QueryBuilder::for(Campaign::class)
-                ->allowedFilters([
-                    'name',
-                    'description',
-                    'start_date',
-                    'end_date',
-                    'budget',
-                    AllowedFilter::exact('company_id'),
-                ])
+            $user = Auth::user();
+            $user = User::find($user->id);
+
+            $models = QueryBuilder::for(Campaign::class);
+
+            if ($user->hasRole('promoter')) {
+                $campaigns = $user->campaigns()->pluck('campaign_id');
+                $models->whereIn('id', $campaigns);
+            }
+            $per_page = $request->perPage ?? 10;
+
+
+            $models = $models->allowedFilters([
+                'name',
+                'description',
+                'start_date',
+                'end_date',
+                'budget',
+                AllowedFilter::exact('company_id'),
+            ])
                 ->defaultSort('-created_at')
                 ->allowedSorts([
                     'name',
