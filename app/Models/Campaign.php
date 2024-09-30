@@ -40,6 +40,7 @@ class Campaign extends Model
         'products',
         'promoters',
         'team_leaders',
+        'competitor_products',
     ];
 
     public function client(): BelongsTo
@@ -59,7 +60,7 @@ class Campaign extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'campaign_product');
+        return $this->belongsToMany(Product::class, 'campaign_product')->without(['campaigns']);
     }
 
     public function promoters(): BelongsToMany
@@ -70,5 +71,10 @@ class Campaign extends Model
     public function team_leaders(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'campaign_team_leader', 'campaign_id', 'team_leader_id')->without(['campaigns']);
+    }
+
+    public function competitor_products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'campaign_competitor_product', 'campaign_id', 'competitor_product_id');
     }
 }

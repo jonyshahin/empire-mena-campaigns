@@ -151,7 +151,8 @@ class CampaignController extends Controller
                     'company_id' => 'nullable|exists:clients,id',
                     'product_ids' => 'nullable|array|exists:products,id',
                     'promoter_ids' => 'nullable|array|exists:users,id',
-                    'team_leader_ids' => 'nullable|array|exists:users,id'
+                    'team_leader_ids' => 'nullable|array|exists:users,id',
+                    'competitor_product_ids' => 'nullable|array|exists:products,id',
                 ]
             );
 
@@ -170,6 +171,10 @@ class CampaignController extends Controller
 
             if ($request->has('product_ids')) {
                 $model->products()->sync($request->product_ids);
+            }
+
+            if ($request->has('competitor_product_ids')) {
+                $model->competitor_products()->sync($request->competitor_product_ids);
             }
 
             if ($request->has('promoter_ids')) {
@@ -232,6 +237,7 @@ class CampaignController extends Controller
                     'product_ids' => 'nullable|array|exists:products,id',
                     'promoter_ids' => 'nullable|array|exists:users,id',
                     'team_leader_ids' => 'nullable|array|exists:users,id',
+                    'competitor_product_ids' => 'nullable|array|exists:products,id',
                 ]
             );
 
@@ -249,6 +255,10 @@ class CampaignController extends Controller
 
             if ($request->has('product_ids')) {
                 $model->products()->sync($request->product_ids);
+            }
+
+            if ($request->has('competitor_product_ids')) {
+                $model->competitor_products()->sync($request->competitor_product_ids);
             }
 
             if ($request->has('promoter_ids')) {
