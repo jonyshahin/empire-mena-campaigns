@@ -185,7 +185,7 @@ class CampaignController extends Controller
                 $model->team_leaders()->sync($request->team_leader_ids);
             }
 
-            $model->load(['products', 'company', 'promoters', 'team_leaders']);
+            $model = Campaign::find($model->id);
 
             return custom_success(200, 'Campaign Created Successfully', $model);
         } catch (\Throwable $th) {
@@ -269,7 +269,7 @@ class CampaignController extends Controller
                 $model->team_leaders()->sync($request->team_leader_ids);
             }
 
-            $model->load(['products', 'company', 'promoters', 'team_leaders']);
+            $model = Campaign::find($request->campaign_id);
 
             return custom_success(200, 'Campaign Updated Successfully', $model);
         } catch (\Throwable $th) {
