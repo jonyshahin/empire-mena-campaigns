@@ -60,6 +60,7 @@ class ConsumerController extends Controller
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
                 'selected_products' => 'nullable|array',
+                'competitor_product_id' => 'nullable|integer',
             ]);
 
             $user = User::find(auth()->id());
@@ -88,6 +89,7 @@ class ConsumerController extends Controller
                 'gender' => $request->gender,
                 'campaign_id' => $campaign_id,
                 'selected_products' => $request->input('selected_products'),
+                'competitor_product_id' => $request->input('competitor_product_id'),
             ]);
 
 
@@ -149,7 +151,8 @@ class ConsumerController extends Controller
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
                 'campaign_id' => 'required|integer|exists:campaigns,id',
-                'selected_products' => 'nullable|array'
+                'selected_products' => 'nullable|array',
+                'competitor_product_id' => 'nullable|integer',
             ]);
             $consumer = Consumer::find($request->consumer_id);
             if (!$consumer) {
@@ -170,6 +173,7 @@ class ConsumerController extends Controller
                 'gender' => $request->input('gender', $consumer->gender),
                 'campaign_id' => $request->input('campaign_id', $consumer->campaign_id),
                 'selected_products' => $request->input('selected_products', $consumer->selected_products),
+                'competitor_product_id' => $request->input('competitor_product_id', $consumer->competitor_product_id),
             ]);
 
             if ($request->filled('reason_for_refusal_ids') && !empty($request->reason_for_refusal_ids)) {

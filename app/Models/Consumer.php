@@ -19,7 +19,8 @@ class Consumer extends Model
         'refusedReasons',
         'outlet',
         'nationality',
-        'campaign'
+        'campaign',
+        'competitor_product',
     ];
 
     protected $casts = [
@@ -114,5 +115,10 @@ class Consumer extends Model
     public function campaign()
     {
         return $this->belongsTo(Campaign::class);
+    }
+
+    public function competitor_product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'competitor_product_id', 'id');
     }
 }
