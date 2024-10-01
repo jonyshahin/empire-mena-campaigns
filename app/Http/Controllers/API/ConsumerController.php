@@ -57,11 +57,24 @@ class ConsumerController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
+                'telephone' => 'required|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
                 'selected_products' => 'nullable|array',
                 'competitor_product_id' => 'nullable|integer',
             ]);
+
+            $otp_code = rand(100000, 999999);
+            $otp_expired_at = Carbon::now()->addMinutes(15);
+
+            /*************** Send WhatsApp code********************/
+            $phone = $request->telephone;
+            $whatsapp_data = whatsapp_message($phone, $otp_code);
+
+            if ($whatsapp_data['code'] == 0) {
+                return custom_error(400, $whatsapp_data['data']);
+            }
+            /******************************************************/
 
             $user = User::find(auth()->id());
 
@@ -100,6 +113,27 @@ class ConsumerController extends Controller
             }
 
             return custom_success(200, 'Consumer created successfully', $consumer);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function send_otp(Request $request)
+    {
+        try {
+            $otp_code = rand(100000, 999999);
+            $otp_expired_at = Carbon::now()->addMinutes(15);
+
+            /*************** Send WhatsApp code********************/
+            $phone = $request->telephone;
+            $whatsapp_data = whatsapp_message($phone, $otp_code);
+
+            if ($whatsapp_data['code'] == 0) {
+                return custom_error(400, $whatsapp_data['data']);
+            }
+            /******************************************************/
+
+            return custom_success(200, 'OTP sent successfully', $otp_code);
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }

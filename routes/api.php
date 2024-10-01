@@ -100,6 +100,7 @@ Route::prefix('refused-reason')->group(function () {
 });
 
 Route::prefix('consumer')->group(function () {
+    Route::post('send-otp', [ConsumerController::class, 'send_otp']);
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ConsumerController::class, 'index']);
         Route::post('create', [ConsumerController::class, 'store']);
