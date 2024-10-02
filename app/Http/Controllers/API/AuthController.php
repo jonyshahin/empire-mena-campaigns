@@ -147,6 +147,46 @@ class AuthController extends Controller
         }
     }
 
+    public function login_team_leader(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $validator = Validator::make(
+                $data,
+                [
+                    'email' => 'required|email',
+                    'password' => 'required',
+                ]
+            );
+            if ($validator->fails()) {
+                return validation_error($validator->messages()->all());
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user == null) {
+                return custom_error('401', 'User does not exist, please contact admin');
+            }
+
+            if (!$user->hasRole('team_leader')) {
+                return custom_error('422', 'User does not have team leader role');
+            }
+
+            if (!Auth::attempt($request->only(['email', 'password']))) {
+                return custom_error('400', 'Email & Password does not match with our record.');
+            }
+
+            $data = [
+                'user' => $user,
+                'token' => $user->createToken("my-app-token")->plainTextToken,
+            ];
+
+            return custom_success(200, 'Team Leader Logged In Successfully', $data);
+        } catch (\Throwable $th) {
+            return custom_error('500', $th->getMessage());
+        }
+    }
+
     public function setCampaign(Request $request)
     {
         try {

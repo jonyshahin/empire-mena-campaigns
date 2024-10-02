@@ -69,6 +69,7 @@ Route::prefix('outlet')->group(function () {
 Route::post('/login/promoter', [AuthController::class, 'login_promoter']);
 Route::post('/login/admin', [AuthController::class, 'login_admin']);
 Route::post('/login/client', [AuthController::class, 'login_client']);
+Route::post('/login/team-leader', [AuthController::class, 'login_team_leader']);
 
 Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
