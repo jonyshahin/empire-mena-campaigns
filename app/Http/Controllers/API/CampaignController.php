@@ -154,7 +154,7 @@ class CampaignController extends Controller
                 return custom_error(403, 'You are not authorized to access this resource');
             }
 
-            $campaigns = $user->campaigns()->pluck('campaign_id');
+            $campaigns = $user->team_leader_campaigns()->pluck('campaign_id');
 
             $models = QueryBuilder::for(Campaign::class)
                 ->whereIn('id', $campaigns)
