@@ -176,6 +176,14 @@ class AuthController extends Controller
                 return custom_error('400', 'Email & Password does not match with our record.');
             }
 
+            //check in time
+            AttendanceRecord::create(
+                [
+                    'user_id' => $user->id,
+                    'check_in_time' => now(),
+                ]
+            );
+
             $data = [
                 'user' => $user,
                 'token' => $user->createToken("my-app-token")->plainTextToken,
