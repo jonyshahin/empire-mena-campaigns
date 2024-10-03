@@ -27,6 +27,10 @@ class CampaignController extends Controller
                 $campaigns = $user->campaigns()->pluck('campaign_id');
                 $models->whereIn('id', $campaigns);
             }
+            if ($user->hasRole('team_leader')) {
+                $campaigns = $user->campaigns()->pluck('campaign_id');
+                $models->whereIn('id', $campaigns);
+            }
             $per_page = $request->perPage ?? 10;
 
 
