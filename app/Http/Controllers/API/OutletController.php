@@ -26,7 +26,7 @@ class OutletController extends Controller
                 'district_id' => 'required|integer',
                 'zone_id' => 'required|integer',
                 'name' => 'required|string|max:255',
-                'code' => 'string|max:255',
+                'code' => 'nullable|string|max:255',
                 'address' => 'string|max:255',
             ]);
 
@@ -34,7 +34,7 @@ class OutletController extends Controller
                 'district_id' => $request->district_id,
                 'zone_id' => $request->zone_id,
                 'name' => $request->name,
-                'code' => $request->code,
+                'code' => $request->input('code'),
                 'channel' => $request->channel,
                 'address' => $request->address,
             ]);
@@ -72,7 +72,7 @@ class OutletController extends Controller
                 'district_id' => 'required|integer',
                 'zone_id' => 'required|integer',
                 'name' => 'required|string|max:255',
-                'code' => 'string|max:255',
+                'code' => 'nullable|string|max:255',
                 'address' => 'string|max:255',
             ]);
             $outlet = Outlet::find($request->outlet_id);
