@@ -137,6 +137,49 @@ class CampaignController extends Controller
         }
     }
 
+    public function team_leader_campaigns(Request $request)
+    {
+        try {
+            $per_page = $request->perPage ?? 10;
+
+            $user = Auth::user();
+            $user = User::find($user->id);
+
+            //check if user has role promoter
+            if (!$user->hasRole('team_leader')) {
+                return custom_error(403, 'You are not authorized to access this resource');
+            }
+
+            $campaigns = $user->campaigns()->pluck('campaign_id');
+
+            $models = QueryBuilder::for(Campaign::class)
+                ->whereIn('id', $campaigns)
+                ->allowedFilters([
+                    'name',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'budget',
+                    AllowedFilter::exact('company_id'),
+                ])
+                ->defaultSort('-created_at')
+                ->allowedSorts([
+                    'name',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'budget',
+                    'company_id',
+                    'created_at'
+                ])
+                ->paginate($per_page);
+
+            return custom_success(200, 'Campaign List', $models);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
     public function store(Request $request)
     {
         try {

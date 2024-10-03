@@ -199,6 +199,9 @@ Route::prefix('promoter-tracking')->group(function () {
             Route::post('update', [PromoterTrackingController::class, 'update']);
             Route::post('delete', [PromoterTrackingController::class, 'destroy']);
         });
+        Route::middleware('role:team_leader')->group(function () {
+            Route::get('/campaign', [PromoterTrackingController::class, 'campaign_promoter_tracking']);
+        });
     });
 });
 
@@ -218,6 +221,7 @@ Route::prefix('campaigns')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [CampaignController::class, 'index']);
         Route::get('/promoter', [CampaignController::class, 'promoter_campaigns']);
+        Route::get('/team-leader', [CampaignController::class, 'team_leader_campaigns']);
         Route::get('/client', [CampaignController::class, 'client_campaigns']);
         Route::get('/team-leader', [CampaignController::class, 'team_leader_campaigns']);
         Route::middleware('role:admin')->group(function () {
