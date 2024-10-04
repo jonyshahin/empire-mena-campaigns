@@ -108,7 +108,7 @@ Route::prefix('consumer')->group(function () {
         Route::post('show', [ConsumerController::class, 'show']);
         Route::post('update', [ConsumerController::class, 'update']);
         Route::post('delete', [ConsumerController::class, 'destroy']);
-        Route::middleware('role:admin')->group(function () {
+        Route::middleware('role:admin|team_leader')->group(function () {
             Route::get('report', [ConsumerController::class, 'report']);
             Route::get('consumers-by-promoter', [ConsumerController::class, 'consumersByPromoter']);
             Route::get('export', [ConsumerController::class, 'export']);
@@ -121,7 +121,7 @@ Route::prefix('consumer')->group(function () {
 
 Route::prefix('promoter')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
-        Route::middleware('role:admin')->group(function () {
+        Route::middleware('role:admin|team_leader')->group(function () {
             Route::get('/', [PromoterController::class, 'index']);
             Route::post('create', [PromoterController::class, 'store']);
             Route::post('show', [PromoterController::class, 'show']);
