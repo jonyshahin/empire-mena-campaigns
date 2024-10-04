@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PromoterTracking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class PromoterTrackingController extends Controller
 {
@@ -13,6 +14,11 @@ class PromoterTrackingController extends Controller
     {
         $models = PromoterTracking::get();
         return custom_success(200, 'Promoter Trackings', $models);
+    }
+
+    public function campaign_promoter_tracking()
+    {
+        $models = QueryBuilder::for(PromoterTracking::class);
     }
 
     public function store(Request $request)

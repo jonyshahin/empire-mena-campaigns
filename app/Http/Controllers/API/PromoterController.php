@@ -16,7 +16,7 @@ class PromoterController extends Controller
         $user = User::find(Auth::user()->id);
         if ($user->hasRole('team_leader')) {
             $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
-            $promoters = Campaign::find($campaign_id)->promoters();
+            $promoters = Campaign::find($campaign_id)->promoters;
             return custom_success(200, 'Promoters', $promoters);
         }
         $promoters = User::query()->role('promoter')->get();
