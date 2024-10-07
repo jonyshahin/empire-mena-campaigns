@@ -41,14 +41,15 @@ class Consumer extends Model
 
     protected function packs(): Attribute
     {
-        $selected_products = $this->selected_products;
-        $packs = 0;
-        foreach ($selected_products as $product) {
-            $packs += $product['packs'];
-        }
-
         return Attribute::make(
-            get: fn(string $value) => $packs,
+            get: function () {
+                $selected_products = $this->selected_products;
+                $packs = 0;
+                foreach ($selected_products as $product) {
+                    $packs += $product['packs'];
+                }
+                return $packs;
+            },
         );
     }
 
