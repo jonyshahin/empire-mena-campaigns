@@ -34,7 +34,7 @@ class CampaignController extends Controller
             $per_page = $request->perPage ?? 10;
 
 
-            $models = $models->allowedFilters([
+            $models->allowedFilters([
                 'name',
                 'description',
                 'start_date',
@@ -51,8 +51,12 @@ class CampaignController extends Controller
                     'budget',
                     'company_id',
                     'created_at'
-                ])
-                ->paginate($per_page);
+                ]);
+            if ($per_page != 0) {
+                $models = $models->paginate($per_page);
+            } else {
+                $models = $models->get();
+            }
 
             return custom_success(200, 'Campaign List', $models);
         } catch (\Throwable $th) {
