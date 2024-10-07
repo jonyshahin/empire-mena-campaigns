@@ -264,7 +264,7 @@ class ConsumerController extends Controller
             $outletId = $request->input('outlet_id');
 
             // Get the current user's timezone
-            $user = Auth::user();
+            $user = User::find(Auth::user()->id);
 
             // $timezone = $user ? $user->timezone : 'UTC';
             $timezone = 'Asia/Baghdad';
@@ -382,11 +382,20 @@ class ConsumerController extends Controller
             $districtIds = $request->input('district_ids');
             $competitorBrandId = $request->input('competitor_brand_id');
             $promoterId = $request->input('promoter_id');
+            $user = User::find(Auth::user()->id);
+            $campaign_id = null;
+
+            if ($user->hasRole('team_leader')) {
+                $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
+            }
 
             $timezone = 'Asia/Baghdad';
 
             // Retrieve consumers grouped by promoter
             $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
+                ->when($campaign_id, function ($query, $campaign_id) {
+                    return $query->where('campaign_id', $campaign_id);
+                })
                 ->when($start_date, function ($query, $date) {
                     return $query->whereDate('created_at', '>=', $date);
                 })
