@@ -374,7 +374,8 @@ class ConsumerController extends Controller
                 'end_date' => 'nullable|date_format:Y-m-d',
                 'district_ids' => 'nullable|array',
                 'district_ids.*' => 'integer|exists:districts,id',
-                'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id'
+                'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id',
+                'campaign_id' => 'nullable|integer|exists:campaigns,id',
             ]);
 
             $start_date = $request->input('start_date');
@@ -383,7 +384,7 @@ class ConsumerController extends Controller
             $competitorBrandId = $request->input('competitor_brand_id');
             $promoterId = $request->input('promoter_id');
             $user = User::find(Auth::user()->id);
-            $campaign_id = null;
+            $campaign_id = $request->input('campaign_id');
 
             if ($user->hasRole('team_leader')) {
                 $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
@@ -457,7 +458,8 @@ class ConsumerController extends Controller
             'end_date' => 'nullable|date_format:Y-m-d',
             'district_ids' => 'nullable|array',
             'district_ids.*' => 'integer|exists:districts,id',
-            'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id'
+            'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id',
+            'campaign_id' => 'nullable|integer|exists:campaigns,id',
         ]);
 
         $start_date = $request->input('start_date');
@@ -465,8 +467,9 @@ class ConsumerController extends Controller
         $districtIds = $request->input('district_ids');
         $competitorBrandId = $request->input('competitor_brand_id');
         $promoterId = $request->input('promoter_id');
+        $campaign_id = $request->input('campaign_id');
 
-        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitorBrandId, $promoterId), 'consumers_by_promoter_report.xlsx');
+        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitorBrandId, $promoterId, $campaign_id), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)

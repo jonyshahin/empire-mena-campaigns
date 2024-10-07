@@ -14,14 +14,17 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
     protected $district_ids;
     protected $competitor_brand_id;
     protected $promoter_id;
+    protected $campaign_id;
 
-    public function __construct($start_date = null, $end_date = null, $district_ids = null, $competitorBrandId = null, $promoterId = null)
+
+    public function __construct($start_date = null, $end_date = null, $district_ids = null, $competitorBrandId = null, $promoterId = null, $campaign_id = null)
     {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->district_ids = $district_ids;
         $this->competitor_brand_id = $competitorBrandId;
         $this->promoter_id = $promoterId;
+        $this->campaign_id = $campaign_id;
     }
 
     /**
@@ -34,9 +37,14 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
         $districtIds = $this->district_ids;
         $competitorBrandId = $this->competitor_brand_id;
         $promoterId = $this->promoter_id;
+        $campaign_id = $this->campaign_id;
+
 
         // Retrieve consumers grouped by promoter
         $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
+            ->when($campaign_id, function ($query, $campaign_id) {
+                return $query->where('campaign_id', $campaign_id);
+            })
             ->when($start_date, function ($query, $date) {
                 return $query->whereDate('created_at', '>=', $date);
             })
