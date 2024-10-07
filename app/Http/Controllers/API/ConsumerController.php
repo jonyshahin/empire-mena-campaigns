@@ -57,7 +57,7 @@ class ConsumerController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'telephone' => 'required|string|max:255',
+                'telephone' => 'nullable|string|max:255',
                 'reason_for_refusal_ids' => 'nullable|array',
                 'other_refused_reason' => 'nullable|string',
                 'selected_products' => 'nullable|array',
@@ -68,11 +68,13 @@ class ConsumerController extends Controller
             $otp_expired_at = Carbon::now()->addMinutes(15);
 
             /*************** Send WhatsApp code********************/
-            $phone = $request->telephone;
-            $whatsapp_data = whatsapp_message($phone, $otp_code);
+            if ($request->has('telephone')) {
+                $phone = $request->telephone;
+                $whatsapp_data = whatsapp_message($phone, $otp_code);
 
-            if ($whatsapp_data['code'] == 0) {
-                return custom_error(400, $whatsapp_data['data']);
+                if ($whatsapp_data['code'] == 0) {
+                    return custom_error(400, $whatsapp_data['data']);
+                }
             }
             /******************************************************/
 
@@ -89,7 +91,7 @@ class ConsumerController extends Controller
                 'user_id' => auth()->id(),
                 'outlet_id' => $outlet_id,
                 'name' => $request->name,
-                'telephone' => $request->telephone,
+                'telephone' => $request->input('telephone'),
                 'competitor_brand_id' => $request->input('competitor_brand_id'),
                 'other_brand_name' => $request->input('other_brand_name'),
                 'franchise' => $request->input('franchise', 0),
@@ -125,11 +127,13 @@ class ConsumerController extends Controller
             $otp_expired_at = Carbon::now()->addMinutes(15);
 
             /*************** Send WhatsApp code********************/
-            $phone = $request->telephone;
-            $whatsapp_data = whatsapp_message($phone, $otp_code);
+            if ($request->has('telephone')) {
+                $phone = $request->telephone;
+                $whatsapp_data = whatsapp_message($phone, $otp_code);
 
-            if ($whatsapp_data['code'] == 0) {
-                return custom_error(400, $whatsapp_data['data']);
+                if ($whatsapp_data['code'] == 0) {
+                    return custom_error(400, $whatsapp_data['data']);
+                }
             }
             /******************************************************/
 
@@ -187,11 +191,24 @@ class ConsumerController extends Controller
                 'campaign_id' => 'required|integer|exists:campaigns,id',
                 'selected_products' => 'nullable|array',
                 'competitor_product_id' => 'nullable|integer',
+                'telephone' => 'nullable|string|max:255',
             ]);
             $consumer = Consumer::find($request->consumer_id);
             if (!$consumer) {
                 return custom_error(404, 'Consumer not found');
             }
+            $otp_code = rand(100000, 999999);
+            $otp_expired_at = Carbon::now()->addMinutes(15);
+            /*************** Send WhatsApp code********************/
+            if ($request->has('telephone')) {
+                $phone = $request->telephone;
+                $whatsapp_data = whatsapp_message($phone, $otp_code);
+
+                if ($whatsapp_data['code'] == 0) {
+                    return custom_error(400, $whatsapp_data['data']);
+                }
+            }
+            /******************************************************/
             $consumer->update([
                 'name' => $request->input('name', $consumer->name),
                 'telephone' => $request->input('telephone', $consumer->telephone),
