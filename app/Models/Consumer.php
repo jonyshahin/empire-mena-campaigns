@@ -44,7 +44,7 @@ class Consumer extends Model
         $selected_products = $this->selected_products;
         $packs = 0;
         foreach ($selected_products as $product) {
-            $packs += $product->packs;
+            $packs += $product['packs'];
         }
 
         return Attribute::make(
