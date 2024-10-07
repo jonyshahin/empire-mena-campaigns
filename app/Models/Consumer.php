@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,6 +39,18 @@ class Consumer extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected function packs(): Attribute
+    {
+        $selected_products = $this->selected_products;
+        $packs = 0;
+        foreach ($selected_products as $product) {
+            $packs += $product->packs;
+        }
+
+        return Attribute::make(
+            get: fn(string $value) => $packs,
+        );
+    }
 
     public function promoter(): BelongsTo
     {
