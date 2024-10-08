@@ -78,7 +78,7 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
                     'Incentives' => $consumer->incentives,
                     'Franchise' => $consumer->franchise ? 'Yes' : 'No',
                     'Did He Switch' => $consumer->did_he_switch ? 'Yes' : 'No',
-                    'Competitor Product' => optional($consumer->competitor_product_id)->name,
+                    'Competitor Product' => optional($consumer->competitor_product)->name,
                     // 'Other Brand Name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
                     'Aspen' => $consumer->aspen,
                     'Refusal Reasons' => $consumer->refusedReasons->map(function ($reason) {
