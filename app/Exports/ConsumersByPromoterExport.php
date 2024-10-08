@@ -80,7 +80,7 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
                     'Did He Switch' => $consumer->did_he_switch ? 'Yes' : 'No',
                     'Competitor Product' => optional($consumer->competitor_product)->name,
                     // 'Other Brand Name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
-                    'Aspen' => $consumer->aspen,
+                    'Products' => $consumer->selected_products,
                     'Refusal Reasons' => $consumer->refusedReasons->map(function ($reason) {
                         return [
                             'reason' => $reason->name,
@@ -108,7 +108,7 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
             'Franchise',
             'Did He Switch',
             'Competitor Product',
-            'Aspen',
+            'Products',
             'Refusal Reasons',
             'Created At',
             'Updated At',
