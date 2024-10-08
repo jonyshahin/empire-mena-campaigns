@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Traversable;
 
 class Consumer extends Model
 {
@@ -45,9 +46,11 @@ class Consumer extends Model
             get: function () {
                 $selected_products = $this->selected_products;
                 $packs = 0;
-                foreach ($selected_products as $product) {
-                    if (array_key_exists('packs', $product)) {
-                        $packs += intval($product['packs']);
+                if (is_array($selected_products) || $selected_products instanceof Traversable) {
+                    foreach ($selected_products as $product) {
+                        if (array_key_exists('packs', $product)) {
+                            $packs += intval($product['packs']);
+                        }
                     }
                 }
                 return $packs;
