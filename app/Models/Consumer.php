@@ -48,7 +48,7 @@ class Consumer extends Model
                 $packs = 0;
                 if (is_array($selected_products) || $selected_products instanceof Traversable) {
                     foreach ($selected_products as $product) {
-                        if (array_key_exists('packs', $product)) {
+                        if (is_array($product) && array_key_exists('packs', $product)) {
                             $packs += intval($product['packs']);
                         }
                     }
