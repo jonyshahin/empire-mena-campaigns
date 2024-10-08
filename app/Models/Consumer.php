@@ -46,7 +46,9 @@ class Consumer extends Model
                 $selected_products = $this->selected_products;
                 $packs = 0;
                 foreach ($selected_products as $product) {
-                    $packs += intval($product['packs']);
+                    if (array_key_exists('packs', $product)) {
+                        $packs += intval($product['packs']);
+                    }
                 }
                 return $packs;
             },
