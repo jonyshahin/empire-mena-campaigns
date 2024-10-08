@@ -12,17 +12,17 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
     protected $start_date;
     protected $end_date;
     protected $district_ids;
-    protected $competitor_brand_id;
+    protected $competitor_product_id;
     protected $promoter_id;
     protected $campaign_id;
 
 
-    public function __construct($start_date = null, $end_date = null, $district_ids = null, $competitorBrandId = null, $promoterId = null, $campaign_id = null)
+    public function __construct($start_date = null, $end_date = null, $district_ids = null, $competitor_product_id = null, $promoterId = null, $campaign_id = null)
     {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->district_ids = $district_ids;
-        $this->competitor_brand_id = $competitorBrandId;
+        $this->competitor_product_id = $competitor_product_id;
         $this->promoter_id = $promoterId;
         $this->campaign_id = $campaign_id;
     }
@@ -35,7 +35,7 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
         $start_date = $this->start_date;
         $end_date = $this->end_date;
         $districtIds = $this->district_ids;
-        $competitorBrandId = $this->competitor_brand_id;
+        $competitor_product_id = $this->competitor_product_id;
         $promoterId = $this->promoter_id;
         $campaign_id = $this->campaign_id;
 
@@ -56,8 +56,8 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
                     $query->whereIn('district_id', $districtIds);
                 });
             })
-            ->when($competitorBrandId, function ($query, $competitorBrandId) {
-                return $query->where('competitor_brand_id', $competitorBrandId);
+            ->when($competitor_product_id, function ($query, $competitor_product_id) {
+                return $query->where('competitor_product_id', $competitor_product_id);
             })
             ->when($promoterId, function ($query, $promoterId) {
                 return $query->where('user_id', $promoterId);
@@ -78,8 +78,8 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
                     'Incentives' => $consumer->incentives,
                     'Franchise' => $consumer->franchise ? 'Yes' : 'No',
                     'Did He Switch' => $consumer->did_he_switch ? 'Yes' : 'No',
-                    'Competitor Brand' => optional($consumer->competitorBrand)->name,
-                    'Other Brand Name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
+                    'Competitor Product' => optional($consumer->competitor_product_id)->name,
+                    // 'Other Brand Name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
                     'Aspen' => $consumer->aspen,
                     'Refusal Reasons' => $consumer->refusedReasons->map(function ($reason) {
                         return [
@@ -107,8 +107,7 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
             'Incentives',
             'Franchise',
             'Did He Switch',
-            'Competitor Brand',
-            'Other Brand Name',
+            'Competitor Product',
             'Aspen',
             'Refusal Reasons',
             'Created At',

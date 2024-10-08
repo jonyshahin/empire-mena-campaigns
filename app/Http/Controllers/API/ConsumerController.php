@@ -475,18 +475,18 @@ class ConsumerController extends Controller
             'end_date' => 'nullable|date_format:Y-m-d',
             'district_ids' => 'nullable|array',
             'district_ids.*' => 'integer|exists:districts,id',
-            'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id',
+            'competitor_product_id' => 'nullable|integer',
             'campaign_id' => 'nullable|integer|exists:campaigns,id',
         ]);
 
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
         $districtIds = $request->input('district_ids');
-        $competitorBrandId = $request->input('competitor_brand_id');
+        $competitor_product_id = $request->input('competitor_product_id');
         $promoterId = $request->input('promoter_id');
         $campaign_id = $request->input('campaign_id');
 
-        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitorBrandId, $promoterId, $campaign_id), 'consumers_by_promoter_report.xlsx');
+        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitor_product_id, $promoterId, $campaign_id), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)
