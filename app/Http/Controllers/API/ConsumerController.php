@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Traversable;
 
 class ConsumerController extends Controller
 {
@@ -87,6 +88,17 @@ class ConsumerController extends Controller
             $outlet_id = $user->attendanceRecords()->latest()->first()->outlet_id;
             $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
 
+            $packs = 0;
+            $selected_products = $request->input('selected_products');
+
+            if (is_array($selected_products) || $selected_products instanceof Traversable) {
+                foreach ($selected_products as $product) {
+                    if (is_array($product) && array_key_exists('packs', $product)) {
+                        $packs += intval($product['packs']);
+                    }
+                }
+            }
+
             $consumer = Consumer::create([
                 'user_id' => auth()->id(),
                 'outlet_id' => $outlet_id,
@@ -97,7 +109,7 @@ class ConsumerController extends Controller
                 'franchise' => $request->input('franchise', 0),
                 'did_he_switch' => $request->input('did_he_switch', 0),
                 'aspen' => $request->has('aspen') ? implode(',', $request->aspen) : null,
-                'packs' => $request->packs,
+                'packs' => $packs,
                 'incentives' => $request->incentives,
                 'age' => $request->age,
                 'nationality_id' => $request->nationality_id,
@@ -209,6 +221,18 @@ class ConsumerController extends Controller
                 }
             }
             /******************************************************/
+
+            $packs = 0;
+            $selected_products = $request->input('selected_products');
+
+            if (is_array($selected_products) || $selected_products instanceof Traversable) {
+                foreach ($selected_products as $product) {
+                    if (is_array($product) && array_key_exists('packs', $product)) {
+                        $packs += intval($product['packs']);
+                    }
+                }
+            }
+
             $consumer->update([
                 'name' => $request->input('name', $consumer->name),
                 'telephone' => $request->input('telephone', $consumer->telephone),
