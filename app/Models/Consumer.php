@@ -54,6 +54,9 @@ class Consumer extends Model
                     }
                 }
 
+                $this->packs = $packs;
+                $this->save();
+
                 return $packs;
             },
         );
