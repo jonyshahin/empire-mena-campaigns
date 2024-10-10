@@ -20,6 +20,7 @@ class Campaign extends Model
         'budget',
         'client_id',
         'company_id',
+        'target',
     ];
 
     protected $hidden = [
@@ -33,6 +34,7 @@ class Campaign extends Model
         'budget' => 'decimal:2',
         'client_id' => 'integer',
         'company_id' => 'integer',
+        'target' => 'integer',
     ];
 
     protected $with = [

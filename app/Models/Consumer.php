@@ -53,6 +53,7 @@ class Consumer extends Model
                         }
                     }
                 }
+
                 return $packs;
             },
         );

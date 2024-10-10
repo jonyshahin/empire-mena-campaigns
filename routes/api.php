@@ -6,6 +6,7 @@ use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
+use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\IndustryController;
 use App\Http\Controllers\API\NationalityController;
@@ -243,6 +244,15 @@ Route::prefix('industries')->group(function () {
             Route::post('show', [IndustryController::class, 'show']);
             Route::post('update', [IndustryController::class, 'update']);
             Route::post('delete', [IndustryController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('dashboard')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin|client')->group(function () {
+            Route::get('/', [DashboardController::class, 'index']);
+            Route::post('show', [DashboardController::class, 'show']);
         });
     });
 });

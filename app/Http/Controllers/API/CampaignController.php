@@ -41,6 +41,7 @@ class CampaignController extends Controller
                 'end_date',
                 'budget',
                 AllowedFilter::exact('company_id'),
+                'target',
             ])
                 ->defaultSort('-created_at')
                 ->allowedSorts([
@@ -50,6 +51,7 @@ class CampaignController extends Controller
                     'end_date',
                     'budget',
                     'company_id',
+                    'target',
                     'created_at'
                 ]);
             if ($per_page != 0) {
@@ -82,6 +84,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
+                    'target',
                     AllowedFilter::exact('company_id'),
                 ])
                 ->defaultSort('-created_at')
@@ -92,6 +95,7 @@ class CampaignController extends Controller
                     'end_date',
                     'budget',
                     'company_id',
+                    'target',
                     'created_at'
                 ])
                 ->paginate($per_page);
@@ -125,6 +129,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
+                    'target',
                     AllowedFilter::exact('company_id'),
                 ])
                 ->defaultSort('-created_at')
@@ -134,6 +139,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
+                    'target',
                     'company_id',
                     'created_at'
                 ])
@@ -168,6 +174,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
+                    'target',
                     AllowedFilter::exact('company_id'),
                 ])
                 ->defaultSort('-created_at')
@@ -177,6 +184,7 @@ class CampaignController extends Controller
                     'start_date',
                     'end_date',
                     'budget',
+                    'target',
                     'company_id',
                     'created_at'
                 ])
@@ -204,6 +212,7 @@ class CampaignController extends Controller
                     'promoter_ids' => 'nullable|array|exists:users,id',
                     'team_leader_ids' => 'nullable|array|exists:users,id',
                     'competitor_product_ids' => 'nullable|array|exists:products,id',
+                    'target' => 'nullable|integer',
                 ]
             );
 
@@ -218,6 +227,7 @@ class CampaignController extends Controller
                 'end_date' => $request->input('end_date'),
                 'budget' => isset($request->budget) ? $request->budget : 0.00,
                 'company_id' => $request->input('company_id'),
+                'target' => $request->input('target', 1),
             ]);
 
             if ($request->has('product_ids')) {
@@ -289,6 +299,7 @@ class CampaignController extends Controller
                     'promoter_ids' => 'nullable|array|exists:users,id',
                     'team_leader_ids' => 'nullable|array|exists:users,id',
                     'competitor_product_ids' => 'nullable|array|exists:products,id',
+                    'target' => 'nullable|integer',
                 ]
             );
 
@@ -302,6 +313,7 @@ class CampaignController extends Controller
             $model->end_date = $request->input('end_date', $model->end_date);
             $model->budget = $request->input('budget', $model->budget);
             $model->company_id = $request->input('company_id', $model->company_id);
+            $model->target = $request->input('target', $model->target);
             $model->save();
 
             if ($request->has('product_ids')) {
