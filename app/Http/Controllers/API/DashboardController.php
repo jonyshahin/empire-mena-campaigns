@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\Consumer;
 use Illuminate\Http\Request;
+use Traversable;
 
 class DashboardController extends Controller
 {
@@ -48,5 +49,26 @@ class DashboardController extends Controller
         ];
 
         return custom_success(200, 'Success', $data);
+    }
+
+    public function update_consumer_packs(Request $request)
+    {
+        $consumers = Consumer::where('campaign_id', $request->campaign_id)->get();
+
+        foreach ($consumers as $consumer) {
+            $selected_products = $consumer->selected_products;
+            $packs = 0;
+            if (is_array($selected_products) || $selected_products instanceof Traversable) {
+                foreach ($selected_products as $product) {
+                    if (is_array($product) && array_key_exists('packs', $product)) {
+                        $packs += intval($product['packs']);
+                    }
+                }
+            }
+            $consumer->packs = $packs;
+            $consumer->save();
+        }
+
+        return custom_success(200, 'Packs updated successfully', []);
     }
 }

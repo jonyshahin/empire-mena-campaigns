@@ -252,7 +252,7 @@ Route::prefix('dashboard')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('role:admin|client')->group(function () {
             Route::get('/', [DashboardController::class, 'index']);
-            Route::post('show', [DashboardController::class, 'show']);
+            Route::get('show', [DashboardController::class, 'update_consumer_packs']);
         });
     });
 });
