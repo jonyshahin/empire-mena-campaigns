@@ -188,9 +188,7 @@ class DashboardController extends Controller
 
         // Prepare final response
         return [
-            'age_group' => [
-                'data' => $ageGroupData
-            ]
+            'data' => $ageGroupData
         ];
     }
 
