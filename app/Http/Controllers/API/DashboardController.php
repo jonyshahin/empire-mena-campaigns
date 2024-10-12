@@ -72,18 +72,22 @@ class DashboardController extends Controller
         $districts = District::with(['outlets.consumers' => function ($query) use ($campaign_id) {
             $query->where('campaign_id', $campaign_id);
         }])->get();
+        $total_contacts = Consumer::where('campaign_id', $campaign->id)->get()->count();
 
-        $city_performance_data = $districts->map(function ($district) {
+        $city_performance_data = $districts->map(function ($district) use ($total_contacts) {
             $outlets = $district->outlets;
+            $total_contacts_in_district = $outlets->sum(function ($outlet) {
+                return $outlet->consumers->count();
+            });
+            $district_consumers_percentage = $total_contacts_in_district / $total_contacts * 100;
+            $total_effective_contacts_in_district = $outlets->sum(function ($outlet) {
+                return $outlet->consumers->where('packs', '>', 0)->count();
+            });
 
             return [
                 'district' => $district->name,
-                'total_consumers_in_district' => $outlets->sum(function ($outlet) {
-                    return $outlet->consumers->count();
-                }),
-                'total_effective_consumers_in_district' => $outlets->sum(function ($outlet) {
-                    return $outlet->consumers->where('packs', '>', 0)->count();
-                }),
+                'total_consumers_in_district' => $total_contacts_in_district,
+                'district_consumers_percentage' => $district_consumers_percentage,
             ];
         });
 
