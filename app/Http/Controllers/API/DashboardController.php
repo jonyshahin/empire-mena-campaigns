@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Models\Consumer;
 use App\Models\District;
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Traversable;
 
@@ -21,6 +22,8 @@ class DashboardController extends Controller
         $gender_chart = $this->gender_chart($campaign);
         $age_group = $this->age_group($campaign);
         $efficiency_rate = $this->efficiency_rate($campaign);
+        $sales_performance = $this->calculateSalesPerformance($campaign);
+
 
 
         $data = [
@@ -33,6 +36,7 @@ class DashboardController extends Controller
             'packs_sold' => $age_group['packs_sold'],
             'top_competitor_products' => $age_group['top_competitor_products'],
             'efficiency_rate' => $efficiency_rate,
+            'sales_performance' => $sales_performance,
         ];
 
         return custom_success(200, 'Success', $data);
@@ -346,5 +350,51 @@ class DashboardController extends Controller
         }
 
         return custom_success(200, 'Packs updated successfully', []);
+    }
+
+    protected function calculateSalesPerformance($campaign)
+    {
+        // Get all consumers of the campaign
+        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+
+        // Prepare arrays to hold monthly performance data
+        $monthlyPerformance = [];
+        $effectiveConsumers = [];
+
+        // Loop through consumers and group by month
+        foreach ($consumers as $consumer) {
+            $createdAt = Carbon::parse($consumer->created_at);
+            $monthKey = $createdAt->format('Y-m'); // Group by Year-Month (e.g., "2024-10")
+
+            // Initialize counts for the month if not already set
+            if (!isset($monthlyPerformance[$monthKey])) {
+                $monthlyPerformance[$monthKey] = 0;
+                $effectiveConsumers[$monthKey] = 0;
+            }
+
+            // Count total consumers for the month
+            $monthlyPerformance[$monthKey]++;
+
+            // Check if the consumer is effective (packs > 0)
+            $totalPacks = $consumer->packs;
+
+            // If total packs are greater than 0, count as effective consumer
+            if ($totalPacks > 0) {
+                $effectiveConsumers[$monthKey]++;
+            }
+        }
+
+        // Prepare the sales performance response
+        $salesPerformance = [];
+
+        foreach ($monthlyPerformance as $month => $totalConsumers) {
+            $salesPerformance[] = [
+                'month' => $month,
+                'total_consumers' => $totalConsumers,
+                'effective_consumers' => $effectiveConsumers[$month],
+            ];
+        }
+
+        return $salesPerformance;
     }
 }
