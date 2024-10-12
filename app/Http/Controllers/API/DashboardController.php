@@ -15,9 +15,22 @@ class DashboardController extends Controller
         $campaign = Campaign::find($request->campaign_id);
         $campaign_target = $campaign->target;
 
-        $total_contacts = Consumer::where('campaign_id', $request->campaign_id)->get()->count();
-        $total_contacts_percentage = $total_contacts / $campaign_target * 100;
-        $total_contacts_ratio = $total_contacts / $campaign_target;
+        $trial_rate = $this->trial_rate($campaign);
+
+        $data = [
+            'campaign' => $campaign,
+            'trial_rate' => $trial_rate,
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
+
+    protected function trial_rate($campaign)
+    {
+        // Calculate trial rate data
+        $total_contacts = Consumer::where('campaign_id', $campaign->id)->get()->count();
+        $total_contacts_percentage = $total_contacts / $campaign->target * 100;
+        $total_contacts_ratio = $total_contacts / $campaign->target;
 
         $total_contacts_data = [
             'name' => 'Total Contacts',
@@ -26,11 +39,11 @@ class DashboardController extends Controller
             'ratio' => $total_contacts_ratio,
         ];
 
-        $effective_contacts = Consumer::where('campaign_id', $request->campaign_id)
+        $effective_contacts = Consumer::where('campaign_id', $campaign->id)
             ->where('packs', '>', 0)
             ->get()->count();
-        $effective_contacts_percentage = $effective_contacts / $campaign_target * 100;
-        $effective_contacts_ratio = $effective_contacts / $campaign_target;
+        $effective_contacts_percentage = $effective_contacts / $campaign->target * 100;
+        $effective_contacts_ratio = $effective_contacts / $campaign->target;
 
         $effective_contacts_data = [
             'name' => 'Effective Contacts',
@@ -40,15 +53,10 @@ class DashboardController extends Controller
         ];
 
         $trial_rate = [
-            'total_contacts_data' => $total_contacts_data,
-            'effective_contacts_data' => $effective_contacts_data,
+            $total_contacts_data,
+            $effective_contacts_data,
         ];
-
-        $data = [
-            'trial_rate' => $trial_rate,
-        ];
-
-        return custom_success(200, 'Success', $data);
+        //////////////////////////////////////////////
     }
 
     public function update_consumer_packs(Request $request)
