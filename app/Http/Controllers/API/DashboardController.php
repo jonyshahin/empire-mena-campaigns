@@ -126,17 +126,34 @@ class DashboardController extends Controller
     protected function age_group($campaign)
     {
         $consumers = Consumer::where('campaign_id', $campaign->id)->get();
-        $total_age_18_24 = $consumers->where('age', '18-24')->count();
-        $total_age_25_34 = $consumers->where('age', '25-34')->count();
-        $total_age_35 = $consumers->where('age', '35+')->count();
         $campaign_products = $campaign->products;
+        $ageGroups = ['18-24', '25-34', '35+'];
+        $productCounts = [];
 
-        $age_group_data = [
-            'total_18-24' => $total_age_18_24,
-            'total_25-34' => $total_age_25_34,
-            'total_35+' => $total_age_35,
-            'campaign_products' => $campaign_products,
-        ];
+        // Initialize counts for each product in each age group
+        foreach ($ageGroups as $ageGroup) {
+            foreach ($campaign_products as $product) {
+                $productCounts[$ageGroup][$product->id] = 0;
+            }
+        }
+
+        // Loop through consumers and count products for each age group
+        foreach ($consumers as $consumer) {
+            $selectedProducts = $consumer->selected_products;
+
+            // Loop through the selected products for each consumer
+            foreach ($selectedProducts as $selectedProduct) {
+                $productId = $selectedProduct['id'];
+                $packs = $selectedProduct['packs']; // Get the number of packs or quantity
+
+                // Add count to the appropriate age group and product
+                if (array_key_exists($productId, $productCounts[$consumer->age])) {
+                    $productCounts[$consumer->age][$productId] += $packs;
+                }
+            }
+        }
+
+        $age_group_data = $productCounts;
 
         return $age_group_data;
     }
