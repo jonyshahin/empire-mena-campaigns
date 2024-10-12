@@ -20,6 +20,8 @@ class DashboardController extends Controller
         $city_performance = $this->city_performance($campaign);
         $gender_chart = $this->gender_chart($campaign);
         $age_group = $this->age_group($campaign);
+        $efficiency_rate = $this->efficiency_rate($campaign);
+
 
         $data = [
             'campaign' => $campaign,
@@ -30,6 +32,7 @@ class DashboardController extends Controller
             'variant_split' => $age_group['variant_split'],
             'packs_sold' => $age_group['packs_sold'],
             'top_competitor_products' => $age_group['top_competitor_products'],
+            'efficiency_rate' => $efficiency_rate,
         ];
 
         return custom_success(200, 'Success', $data);
@@ -269,6 +272,59 @@ class DashboardController extends Controller
             'packs_sold' => $campaignPacksSold,
             'top_competitor_products' => $topCompetitorProducts,
         ];
+    }
+
+    protected function efficiency_rate($campaign)
+    {
+        // Get all consumers of the campaign
+        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+
+        $competitorProductCounts = []; // To store competitor product counts
+        $competitorSwitchCounts = []; // To store switch counts for each competitor product
+
+        // Loop through consumers and count competitor products and switches
+        foreach ($consumers as $consumer) {
+            $competitorProductId = $consumer->competitor_product_id;
+            $didHeSwitch = $consumer->did_he_switch; // Check if the consumer switched
+
+            if ($competitorProductId) {
+                // Track competitor product counts
+                if (!isset($competitorProductCounts[$competitorProductId])) {
+                    $competitorProductCounts[$competitorProductId] = 0;
+                }
+                $competitorProductCounts[$competitorProductId]++;
+
+                // Track switch count for this competitor product
+                if (!isset($competitorSwitchCounts[$competitorProductId])) {
+                    $competitorSwitchCounts[$competitorProductId] = 0;
+                }
+                if ($didHeSwitch) {
+                    $competitorSwitchCounts[$competitorProductId]++;
+                }
+            }
+        }
+
+        // Get the top 5 competitor products across the campaign
+        arsort($competitorProductCounts); // Sort by count descending
+        $top5Competitors = array_slice($competitorProductCounts, 0, 5, true); // Get top 5 competitors
+
+        // Calculate the percentage of switches for the top 5 competitor products
+        $topCompetitorSwitches = [];
+
+        foreach ($top5Competitors as $competitorId => $competitorCount) {
+            $switchCount = $competitorSwitchCounts[$competitorId] ?? 0; // Get switch count for this competitor
+            $switchPercentage = ($switchCount / $competitorCount) * 100; // Calculate percentage of switches
+
+            $topCompetitorSwitches[] = [
+                'competitor_product' => Product::find($competitorId),
+                'value' => $competitorCount,
+                'switch_count' => $switchCount,
+                'switch_percentage' => round($switchPercentage, 2), // Rounded to 2 decimal places
+            ];
+        }
+
+        // Return the top 5 competitor products with their switch rates
+        return $topCompetitorSwitches;
     }
 
     public function update_consumer_packs(Request $request)
