@@ -25,7 +25,8 @@ class DashboardController extends Controller
             'trial_rate' => $trial_rate,
             'city_performance' => $city_performance,
             'gender_chart' => $gender_chart,
-            'age_group' => $age_group,
+            'age_group' => $age_group['data'],
+            'variant_split' => $age_group['variant_split'],
         ];
 
         return custom_success(200, 'Success', $data);
@@ -130,6 +131,7 @@ class DashboardController extends Controller
         $ageGroups = ['18-24', '25-34', '35+'];
         $productCounts = [];
         $totalPacksByAgeGroup = [];
+        $totalPacksInCampaign = 0; // To count total packs in the campaign
 
         // Initialize counts for each product in each age group
         foreach ($ageGroups as $ageGroup) {
@@ -153,16 +155,26 @@ class DashboardController extends Controller
                 if (array_key_exists($productId, $productCounts[$consumer->age])) {
                     $productCounts[$consumer->age][$productId] += $packs;
                     $totalPacksByAgeGroup[$consumer->age] += $packs; // Increment the total packs for this age group
+                    $totalPacksInCampaign += $packs; // Increment total packs for the campaign
                 }
             }
         }
 
         // Prepare the response structure
         $ageGroupData = [];
+        $campaignProductPercentage = []; // To hold the percentage of each product in the campaign
+
         foreach ($campaign_products as $product) {
             $productData = [
                 'product' => $product,  // Assuming $product contains id, name, image, etc.
             ];
+
+            $variantSplit = [
+                'product_name' => $product->name,
+            ];
+
+            // Initialize total product count in the campaign
+            $totalProductCountInCampaign = 0;
 
             foreach ($ageGroups as $ageGroup) {
                 $totalPacks = $totalPacksByAgeGroup[$ageGroup];
@@ -180,7 +192,20 @@ class DashboardController extends Controller
                     'value' => $productCount,
                     'percentage' => round($percentage, 2), // Rounded to 2 decimal places
                 ];
+
+                // Sum up the product count across all age groups for the campaign-level calculation
+                $totalProductCountInCampaign += $productCount;
             }
+
+            // Calculate percentage of the product in the whole campaign
+            if ($totalPacksInCampaign > 0) {
+                $campaignPercentage = ($totalProductCountInCampaign / $totalPacksInCampaign) * 100;
+            } else {
+                $campaignPercentage = 0;
+            }
+
+            // Add the product's campaign percentage
+            $variantSplit['campaign_percentage'] = round($campaignPercentage, 2);
 
             // Add the product data to the response
             $ageGroupData[] = $productData;
@@ -188,7 +213,8 @@ class DashboardController extends Controller
 
         // Prepare final response
         return [
-            'data' => $ageGroupData
+            'data' => $ageGroupData,
+            'variant_split' => $variantSplit,
         ];
     }
 
