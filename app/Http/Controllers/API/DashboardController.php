@@ -157,10 +157,14 @@ class DashboardController extends Controller
             }
         }
 
-        // Calculate percentage for each product within each age group
-        $productPercentages = [];
-        foreach ($ageGroups as $ageGroup) {
-            foreach ($campaign_products as $product) {
+        // Prepare the response structure
+        $ageGroupData = [];
+        foreach ($campaign_products as $product) {
+            $productData = [
+                'product' => $product,  // Assuming $product contains id, name, image, etc.
+            ];
+
+            foreach ($ageGroups as $ageGroup) {
                 $totalPacks = $totalPacksByAgeGroup[$ageGroup];
                 $productCount = $productCounts[$ageGroup][$product->id];
 
@@ -171,19 +175,23 @@ class DashboardController extends Controller
                     $percentage = 0;
                 }
 
-                // Store the percentage
-                $productPercentages[$ageGroup][$product->id] = round($percentage, 2); // Rounded to 2 decimal places
+                // Add the value and percentage for this age group
+                $productData[$ageGroup] = [
+                    'value' => $productCount,
+                    'percentage' => round($percentage, 2), // Rounded to 2 decimal places
+                ];
             }
+
+            // Add the product data to the response
+            $ageGroupData[] = $productData;
         }
 
-        $age_group_counts = $productCounts;
-        $age_group_percentages = $productPercentages;
-        $age_group_data = [
-            'age_group_counts' => $age_group_counts,
-            'age_group_percentages' => $age_group_percentages,
+        // Prepare final response
+        return [
+            'age_group' => [
+                'data' => $ageGroupData
+            ]
         ];
-
-        return $age_group_data;
     }
 
     public function update_consumer_packs(Request $request)
