@@ -209,12 +209,13 @@ class DashboardController extends Controller
 
             // Add the product data to the response
             $ageGroupData[] = $productData;
+            $campaignProductPercentage[] = $variantSplit;
         }
 
         // Prepare final response
         return [
             'data' => $ageGroupData,
-            'variant_split' => $variantSplit,
+            'variant_split' => $campaignProductPercentage,
         ];
     }
 
