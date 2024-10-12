@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\Consumer;
+use App\Models\District;
 use Illuminate\Http\Request;
 use Traversable;
 
@@ -13,13 +14,15 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $campaign = Campaign::find($request->campaign_id);
-        $campaign_target = $campaign->target;
 
         $trial_rate = $this->trial_rate($campaign);
+        $city_performance = $this->city_performance($campaign);
+
 
         $data = [
             'campaign' => $campaign,
             'trial_rate' => $trial_rate,
+            'city_performance' => $city_performance,
         ];
 
         return custom_success(200, 'Success', $data);
@@ -57,6 +60,34 @@ class DashboardController extends Controller
             $effective_contacts_data,
         ];
         //////////////////////////////////////////////
+    }
+
+    protected function city_performance($campaign)
+    {
+        $campaign_id = $campaign->id;
+        $districts = District::with(['outlets.consumers' => function ($query) use ($campaign_id) {
+            $query->where('campaign_id', $campaign_id);
+        }])->get();
+
+        $reportData = $districts->map(function ($district) {
+            $outlets = $district->outlets;
+
+            return [
+                'district' => $district->name,
+                'total_consumers_in_district' => $outlets->sum(function ($outlet) {
+                    return $outlet->consumers->count();
+                }),
+                'total_effective_consumers_in_district' => $outlets->sum(function ($outlet) {
+                    return $outlet->consumers->where('packs', '>', 0)->count();
+                }),
+            ];
+        });
+
+        $city_performance_data = [
+            $reportData,
+        ];
+
+        return $city_performance_data;
     }
 
     public function update_consumer_packs(Request $request)
