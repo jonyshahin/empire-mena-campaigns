@@ -59,7 +59,8 @@ class DashboardController extends Controller
             $total_contacts_data,
             $effective_contacts_data,
         ];
-        //////////////////////////////////////////////
+
+        return $trial_rate;
     }
 
     protected function city_performance($campaign)
