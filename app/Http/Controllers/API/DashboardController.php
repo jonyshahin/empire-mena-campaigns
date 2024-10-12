@@ -27,6 +27,7 @@ class DashboardController extends Controller
             'gender_chart' => $gender_chart,
             'age_group' => $age_group['data'],
             'variant_split' => $age_group['variant_split'],
+            'packs_sold' => $age_group['packs_sold'],
         ];
 
         return custom_success(200, 'Success', $data);
@@ -163,6 +164,7 @@ class DashboardController extends Controller
         // Prepare the response structure
         $ageGroupData = [];
         $campaignProductPercentage = []; // To hold the percentage of each product in the campaign
+        $campaignPacksSold = [];
 
         foreach ($campaign_products as $product) {
             $productData = [
@@ -171,6 +173,10 @@ class DashboardController extends Controller
 
             $variantSplit = [
                 'product_name' => $product->name,
+            ];
+
+            $packsSold = [
+                'product' => $product,
             ];
 
             // Initialize total product count in the campaign
@@ -206,16 +212,20 @@ class DashboardController extends Controller
 
             // Add the product's campaign percentage
             $variantSplit['campaign_percentage'] = round($campaignPercentage, 2);
+            $packsSold['packs_sold'] = $totalProductCountInCampaign;
+
 
             // Add the product data to the response
             $ageGroupData[] = $productData;
             $campaignProductPercentage[] = $variantSplit;
+            $campaignPacksSold[] = $packsSold;
         }
 
         // Prepare final response
         return [
             'data' => $ageGroupData,
             'variant_split' => $campaignProductPercentage,
+            'packs_sold' => $campaignPacksSold,
         ];
     }
 
