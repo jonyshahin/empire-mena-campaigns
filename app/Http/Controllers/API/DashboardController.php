@@ -129,12 +129,15 @@ class DashboardController extends Controller
         $campaign_products = $campaign->products;
         $ageGroups = ['18-24', '25-34', '35+'];
         $productCounts = [];
+        $totalPacksByAgeGroup = [];
 
         // Initialize counts for each product in each age group
         foreach ($ageGroups as $ageGroup) {
             foreach ($campaign_products as $product) {
                 $productCounts[$ageGroup][$product->id] = 0;
             }
+            // Initialize total packs per age group
+            $totalPacksByAgeGroup[$ageGroup] = 0;
         }
 
         // Loop through consumers and count products for each age group
@@ -149,11 +152,36 @@ class DashboardController extends Controller
                 // Add count to the appropriate age group and product
                 if (array_key_exists($productId, $productCounts[$consumer->age])) {
                     $productCounts[$consumer->age][$productId] += $packs;
+                    $totalPacksByAgeGroup[$consumer->age] += $packs; // Increment the total packs for this age group
                 }
             }
         }
 
-        $age_group_data = $productCounts;
+        // Calculate percentage for each product within each age group
+        $productPercentages = [];
+        foreach ($ageGroups as $ageGroup) {
+            foreach ($campaign_products as $product) {
+                $totalPacks = $totalPacksByAgeGroup[$ageGroup];
+                $productCount = $productCounts[$ageGroup][$product->id];
+
+                // Avoid division by zero
+                if ($totalPacks > 0) {
+                    $percentage = ($productCount / $totalPacks) * 100;
+                } else {
+                    $percentage = 0;
+                }
+
+                // Store the percentage
+                $productPercentages[$ageGroup][$product->id] = round($percentage, 2); // Rounded to 2 decimal places
+            }
+        }
+
+        $age_group_counts = $productCounts;
+        $age_group_percentages = $productPercentages;
+        $age_group_data = [
+            'age_group_counts' => $age_group_counts,
+            'age_group_percentages' => $age_group_percentages,
+        ];
 
         return $age_group_data;
     }
