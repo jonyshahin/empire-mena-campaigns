@@ -144,7 +144,7 @@ class DashboardController extends Controller
             // Loop through the selected products for each consumer
             foreach ($selectedProducts as $selectedProduct) {
                 $productId = $selectedProduct['id'];
-                $packs = $selectedProduct['packs']; // Get the number of packs or quantity
+                $packs = (int) $selectedProduct['packs']; // Get the number of packs or quantity
 
                 // Add count to the appropriate age group and product
                 if (array_key_exists($productId, $productCounts[$consumer->age])) {
