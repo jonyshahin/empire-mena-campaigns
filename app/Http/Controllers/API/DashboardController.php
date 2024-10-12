@@ -248,7 +248,7 @@ class DashboardController extends Controller
                 }
 
                 // Store top competitors for the product
-                $topCompetitorProducts[$product->id] = [
+                $topCompetitorProducts[] = [
                     'product' => $product,
                     'campaign_percentage' => round($campaignPercentage, 2),
                     'top_competitors' => $topCompetitorsData
