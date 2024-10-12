@@ -129,11 +129,13 @@ class DashboardController extends Controller
         $total_age_18_24 = $consumers->where('age', '18-24')->count();
         $total_age_25_34 = $consumers->where('age', '25-34')->count();
         $total_age_35 = $consumers->where('age', '35+')->count();
+        $campaign_products = $campaign->products;
 
         $age_group_data = [
-            '18-24' => $total_age_18_24,
-            '25-34' => $total_age_25_34,
-            '35+' => $total_age_35,
+            'total_18-24' => $total_age_18_24,
+            'total_25-34' => $total_age_25_34,
+            'total_35+' => $total_age_35,
+            'campaign_products' => $campaign_products,
         ];
 
         return $age_group_data;
