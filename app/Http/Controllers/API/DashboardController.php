@@ -70,7 +70,7 @@ class DashboardController extends Controller
             $query->where('campaign_id', $campaign_id);
         }])->get();
 
-        $reportData = $districts->map(function ($district) {
+        $city_performance_data = $districts->map(function ($district) {
             $outlets = $district->outlets;
 
             return [
@@ -83,10 +83,6 @@ class DashboardController extends Controller
                 }),
             ];
         });
-
-        $city_performance_data = [
-            $reportData,
-        ];
 
         return $city_performance_data;
     }
