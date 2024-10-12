@@ -92,10 +92,10 @@ class DashboardController extends Controller
 
     protected function gender_chart($campaign)
     {
-        $consumers = Consumer::where('campaign_id', $campaign->id);
-        $male_consumers = $consumers->where('gender', 'male')->get()->count();
-        $female_consumers = $consumers->where('gender', 'female')->get()->count();
-        $consumers_count = $consumers->get()->count();
+        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+        $male_consumers = $consumers->where('gender', 'male')->count();
+        $female_consumers = $consumers->where('gender', 'female')->count();
+        $consumers_count = $consumers->count();
         $male_consumers_percentage = $male_consumers / $consumers_count * 100;
         $female_consumers_percentage = $female_consumers / $consumers_count * 100;
 
