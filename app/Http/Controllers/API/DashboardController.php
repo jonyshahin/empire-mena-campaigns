@@ -17,12 +17,15 @@ class DashboardController extends Controller
 
         $trial_rate = $this->trial_rate($campaign);
         $city_performance = $this->city_performance($campaign);
+        $gender_chart = $this->gender_chart($campaign);
+
 
 
         $data = [
             'campaign' => $campaign,
             'trial_rate' => $trial_rate,
             'city_performance' => $city_performance,
+            'gender_chart' => $gender_chart,
         ];
 
         return custom_success(200, 'Success', $data);
@@ -85,6 +88,35 @@ class DashboardController extends Controller
         });
 
         return $city_performance_data;
+    }
+
+    protected function gender_chart($campaign)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id);
+        $male_consumers = $consumers->where('gender', 'male')->get()->count();
+        $female_consumers = $consumers->where('gender', 'female')->get()->count();
+        $consumers_count = $consumers->get()->count();
+        $male_consumers_percentage = $male_consumers / $consumers_count * 100;
+        $female_consumers_percentage = $female_consumers / $consumers_count * 100;
+
+        $male_data = [
+            'name' => 'Male',
+            'value' => $male_consumers,
+            'percentage' => $male_consumers_percentage,
+        ];
+
+        $female_data = [
+            'name' => 'Female',
+            'value' => $female_consumers,
+            'percentage' => $female_consumers_percentage,
+        ];
+
+        $gender_chart = [
+            $male_data,
+            $female_data,
+        ];
+
+        return $gender_chart;
     }
 
     public function update_consumer_packs(Request $request)
