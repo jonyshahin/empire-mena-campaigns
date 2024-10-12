@@ -29,6 +29,7 @@ class DashboardController extends Controller
             'age_group' => $age_group['data'],
             'variant_split' => $age_group['variant_split'],
             'packs_sold' => $age_group['packs_sold'],
+            'top_competitor_products' => $age_group['top_competitor_products'],
         ];
 
         return custom_success(200, 'Success', $data);
