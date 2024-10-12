@@ -18,14 +18,14 @@ class DashboardController extends Controller
         $trial_rate = $this->trial_rate($campaign);
         $city_performance = $this->city_performance($campaign);
         $gender_chart = $this->gender_chart($campaign);
-
-
+        $age_group = $this->age_group($campaign);
 
         $data = [
             'campaign' => $campaign,
             'trial_rate' => $trial_rate,
             'city_performance' => $city_performance,
             'gender_chart' => $gender_chart,
+            'age_group' => $age_group,
         ];
 
         return custom_success(200, 'Success', $data);
@@ -121,6 +121,22 @@ class DashboardController extends Controller
         ];
 
         return $gender_chart;
+    }
+
+    protected function age_group($campaign)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+        $total_age_18_24 = $consumers->where('age', '18-24')->count();
+        $total_age_25_34 = $consumers->where('age', '25-34')->count();
+        $total_age_35 = $consumers->where('age', '35+')->count();
+
+        $age_group_data = [
+            '18-24' => $total_age_18_24,
+            '25-34' => $total_age_25_34,
+            '35+' => $total_age_35,
+        ];
+
+        return $age_group_data;
     }
 
     public function update_consumer_packs(Request $request)
