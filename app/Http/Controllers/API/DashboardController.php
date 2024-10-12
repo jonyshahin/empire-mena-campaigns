@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\Consumer;
 use App\Models\District;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Traversable;
 
@@ -133,11 +134,13 @@ class DashboardController extends Controller
         $productCounts = [];
         $totalPacksByAgeGroup = [];
         $totalPacksInCampaign = 0; // To count total packs in the campaign
+        $competitorProductCounts = []; // To store competitor product counts for each product
 
         // Initialize counts for each product in each age group
         foreach ($ageGroups as $ageGroup) {
             foreach ($campaign_products as $product) {
                 $productCounts[$ageGroup][$product->id] = 0;
+                $competitorProductCounts[$product->id] = []; // Initialize competitor product counts
             }
             // Initialize total packs per age group
             $totalPacksByAgeGroup[$ageGroup] = 0;
@@ -151,12 +154,21 @@ class DashboardController extends Controller
             foreach ($selectedProducts as $selectedProduct) {
                 $productId = $selectedProduct['id'];
                 $packs = (int) $selectedProduct['packs']; // Get the number of packs or quantity
+                $competitorProductId = $consumer->competitor_product_id;
 
                 // Add count to the appropriate age group and product
                 if (array_key_exists($productId, $productCounts[$consumer->age])) {
                     $productCounts[$consumer->age][$productId] += $packs;
                     $totalPacksByAgeGroup[$consumer->age] += $packs; // Increment the total packs for this age group
                     $totalPacksInCampaign += $packs; // Increment total packs for the campaign
+                }
+
+                // Track competitor product counts for the product
+                if ($competitorProductId) {
+                    if (!isset($competitorProductCounts[$productId][$competitorProductId])) {
+                        $competitorProductCounts[$productId][$competitorProductId] = 0;
+                    }
+                    $competitorProductCounts[$productId][$competitorProductId] += $packs;
                 }
             }
         }
@@ -165,6 +177,7 @@ class DashboardController extends Controller
         $ageGroupData = [];
         $campaignProductPercentage = []; // To hold the percentage of each product in the campaign
         $campaignPacksSold = [];
+        $topCompetitorProducts = []; // To store top 3 competitor products for each product
 
         foreach ($campaign_products as $product) {
             $productData = [
@@ -214,6 +227,33 @@ class DashboardController extends Controller
             $variantSplit['campaign_percentage'] = round($campaignPercentage, 2);
             $packsSold['packs_sold'] = $totalProductCountInCampaign;
 
+            // Get top 3 competitor products for this product
+            if (isset($competitorProductCounts[$product->id])) {
+                $competitors = $competitorProductCounts[$product->id];
+                arsort($competitors); // Sort by count descending
+                $top3Competitors = array_slice($competitors, 0, 3, true); // Get top 3 competitors
+
+                // Calculate percentage for each competitor product
+                $totalCompetitorPacks = array_sum($competitors);
+                $topCompetitorsData = [];
+
+                foreach ($top3Competitors as $competitorId => $competitorCount) {
+                    $competitorPercentage = ($competitorCount / $totalCompetitorPacks) * 100;
+                    $topCompetitorsData[] = [
+                        'competitor_product' => Product::find($competitorId),
+                        'value' => $competitorCount,
+                        'percentage' => round($competitorPercentage, 2),
+                    ];
+                }
+
+                // Store top competitors for the product
+                $topCompetitorProducts[$product->id] = [
+                    'product' => $product,
+                    'campaign_percentage' => round($campaignPercentage, 2),
+                    'top_competitors' => $topCompetitorsData
+                ];
+            }
+
 
             // Add the product data to the response
             $ageGroupData[] = $productData;
@@ -226,6 +266,7 @@ class DashboardController extends Controller
             'data' => $ageGroupData,
             'variant_split' => $campaignProductPercentage,
             'packs_sold' => $campaignPacksSold,
+            'top_competitor_products' => $topCompetitorProducts,
         ];
     }
 
