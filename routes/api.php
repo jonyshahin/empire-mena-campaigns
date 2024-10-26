@@ -116,6 +116,8 @@ Route::prefix('consumer')->group(function () {
             Route::get('export-consumers-by-promoter', [ConsumerController::class, 'exportConsumersByPromoter']);
             Route::get('promoters-count-by-day', [ConsumerController::class, 'promotersCountByDay']);
             Route::get('export-promoters-count-by-day', [ConsumerController::class, 'exportPromotersCountByDay']);
+            Route::get('promoter-daily-feedback', [ConsumerController::class, 'promoterDailyFeedback']);
+            Route::get('export-promoter-daily-feedback', [ConsumerController::class, 'exportPromoterDailyFeedback']);
         });
     });
 });

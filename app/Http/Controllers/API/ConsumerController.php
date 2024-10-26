@@ -6,6 +6,7 @@ use App\Exports\ConsumersByPromoterExport;
 use App\Exports\ConsumersReportExport;
 use App\Exports\PromotersCountByDayExport;
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
 use App\Models\Consumer;
 use App\Models\District;
 use App\Models\Product;
@@ -686,5 +687,43 @@ class ConsumerController extends Controller
         // }
 
         return Excel::download(new PromotersCountByDayExport($startDate, $endDate, $districtId, $campaign_id), 'promoters_count_by_day_report.xlsx');
+    }
+
+    public function promoterDailyFeedback(Request $request)
+    {
+        try {
+            $request->validate([
+                'start_date' => 'nullable|date_format:Y-m-d',
+                'end_date' => 'nullable|date_format:Y-m-d',
+                'district_ids' => 'nullable|array',
+                'district_ids.*' => 'integer|exists:districts,id',
+                'campaign_id' => 'nullable|integer|exists:campaigns,id',
+            ]);
+
+            $districtIds = $request->input('district_ids');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $campaign_id = $request->input('campaign_id');
+
+            $attendance_records = AttendanceRecord::with(['user', 'outlet', 'campaign'])
+                ->when($campaign_id, function ($query, $campaign_id) {
+                    return $query->where('campaign_id', $campaign_id);
+                })
+                ->when($startDate, function ($query) use ($startDate) {
+                    return $query->whereDate('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function ($query) use ($endDate) {
+                    return $query->whereDate('created_at', '<=', $endDate);
+                })
+                ->when($districtIds, function ($query, $districtIds) {
+                    return $query->whereHas('outlet', function ($query) use ($districtIds) {
+                        $query->whereIn('district_id', $districtIds);
+                    });
+                })->get();
+
+            return custom_success(200, 'Report generated successfully', $attendance_records);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
     }
 }
