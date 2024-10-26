@@ -12,6 +12,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Traversable;
 
@@ -41,7 +42,8 @@ class ConsumerController extends Controller
             $consumers->search($search);
         }
 
-        if ($user->hasRole('super-admin') && $request->filled('campaign_id')) {
+        if ($user->hasRole(['super-admin', 'admin']) && $request->filled('campaign_id')) {
+            Log::info($request->campaign_id);
             $consumers->where('campaign_id', $request->campaign_id);
         }
 
