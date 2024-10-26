@@ -405,18 +405,21 @@ class ConsumerController extends Controller
     {
         // Validate the date parameter
         $request->validate([
-            'date' => 'nullable|date_format:Y-m-d',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d',
             'district_id' => 'nullable|integer|exists:districts,id',
             'outlet_id' => 'nullable|integer|exists:outlets,id',
             'campaign_id' => 'nullable|integer|exists:campaigns,id',
         ]);
 
-        $date = $request->input('date');
-        $district_id = $request->input('district_id');
-        $outlet_id = $request->input('outlet_id');
+        // Get the date from the request
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $districtId = $request->input('district_id');
+        $outletId = $request->input('outlet_id');
         $campaign_id = $request->input('campaign_id');
 
-        return Excel::download(new ConsumersReportExport($date, $district_id, $outlet_id, $campaign_id), 'consumers_report.xlsx');
+        return Excel::download(new ConsumersReportExport($start_date, $end_date, $districtId, $outletId, $campaign_id), 'consumers_report.xlsx');
     }
 
     public function consumersByPromoter(Request $request)
