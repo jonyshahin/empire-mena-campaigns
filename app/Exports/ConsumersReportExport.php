@@ -18,13 +18,16 @@ class ConsumersReportExport implements FromCollection, WithHeadings
     protected $outlet_id;
     protected $start_date;
     protected $end_date;
+    protected $campaign_id;
 
-    public function __construct($start_date = null, $end_date = null, $district_id = null, $outlet_id = null)
+
+    public function __construct($start_date = null, $end_date = null, $district_id = null, $outlet_id = null, $campaign_id = null)
     {
         $this->district_id = $district_id;
         $this->outlet_id = $outlet_id;
         $this->start_date = $start_date;
         $this->end_date = $end_date;
+        $this->campaign_id = $campaign_id;
     }
 
     public function headings(): array
@@ -51,18 +54,22 @@ class ConsumersReportExport implements FromCollection, WithHeadings
             $end_date = $this->end_date;
             $districtId = $this->district_id;
             $outletId = $this->outlet_id;
+            $campaign_id = $this->campaign_id;
 
             // $timezone = $user ? $user->timezone : 'UTC';
             $timezone = 'Asia/Baghdad';
 
 
             // Retrieve districts based on the presence of district_id
-            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($start_date, $end_date) {
+            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($start_date, $end_date, $campaign_id) {
                 if ($start_date) {
                     $query->whereDate('created_at', '>=', $start_date);
                 }
                 if ($end_date) {
                     $query->whereDate('created_at', '<=', $end_date);
+                }
+                if (isset($campaign_id)) {
+                    $query->where('campaign_id', $campaign_id);
                 }
                 $query->orderBy('created_at', 'desc');
             }]);

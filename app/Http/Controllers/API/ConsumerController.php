@@ -408,13 +408,15 @@ class ConsumerController extends Controller
             'date' => 'nullable|date_format:Y-m-d',
             'district_id' => 'nullable|integer|exists:districts,id',
             'outlet_id' => 'nullable|integer|exists:outlets,id',
+            'campaign_id' => 'nullable|integer|exists:campaigns,id',
         ]);
 
         $date = $request->input('date');
         $district_id = $request->input('district_id');
         $outlet_id = $request->input('outlet_id');
+        $campaign_id = $request->input('campaign_id');
 
-        return Excel::download(new ConsumersReportExport($date, $district_id, $outlet_id), 'consumers_report.xlsx');
+        return Excel::download(new ConsumersReportExport($date, $district_id, $outlet_id, $campaign_id), 'consumers_report.xlsx');
     }
 
     public function consumersByPromoter(Request $request)
