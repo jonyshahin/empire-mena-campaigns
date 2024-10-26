@@ -93,15 +93,17 @@ class DashboardController extends Controller
     protected function city_performance($campaign, $district_id = null)
     {
         $campaign_id = $campaign->id;
+
         $districts = District::with(['outlets.consumers' => function ($query) use ($campaign_id) {
             $query->where('campaign_id', $campaign_id);
         }])->when($district_id, function ($query, $district_id) {
-            return $query->where('district_id', $district_id);
+            return $query->where('id', $district_id);
         })->get();
+
         $total_contacts = Consumer::where('campaign_id', $campaign->id)
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('id', $district_id);
+                    $query->where('district_id', $district_id);
                 });
             })->get()->count();
 
