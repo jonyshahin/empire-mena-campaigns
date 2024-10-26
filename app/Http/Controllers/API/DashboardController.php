@@ -15,10 +15,12 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $campaign = Campaign::find($request->campaign_id);
 
-        $trial_rate = $this->trial_rate($campaign);
-        $city_performance = $this->city_performance($campaign);
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+
+        $trial_rate = $this->trial_rate($campaign, $district_id);
+        $city_performance = $this->city_performance($campaign, $district_id);
         $gender_chart = $this->gender_chart($campaign);
         $age_group = $this->age_group($campaign);
         $efficiency_rate = $this->efficiency_rate($campaign);
@@ -42,10 +44,16 @@ class DashboardController extends Controller
         return custom_success(200, 'Success', $data);
     }
 
-    protected function trial_rate($campaign)
+    protected function trial_rate($campaign, $district_id = null)
     {
         // Calculate trial rate data
-        $total_contacts = Consumer::where('campaign_id', $campaign->id)->get()->count();
+        $total_contacts = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get()
+            ->count();
         $total_contacts_percentage = $total_contacts / $campaign->target * 100;
         $total_contacts_ratio = $total_contacts / $campaign->target;
 
@@ -58,6 +66,11 @@ class DashboardController extends Controller
 
         $effective_contacts = Consumer::where('campaign_id', $campaign->id)
             ->where('packs', '>', 0)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
             ->get()->count();
         $effective_contacts_percentage = $effective_contacts / $campaign->target * 100;
         $effective_contacts_ratio = $effective_contacts / $campaign->target;
@@ -70,6 +83,9 @@ class DashboardController extends Controller
         ];
 
         $trial_rate = [
+            [
+                'campaign_target' => $campaign->target,
+            ],
             $total_contacts_data,
             $effective_contacts_data,
         ];
@@ -77,13 +93,20 @@ class DashboardController extends Controller
         return $trial_rate;
     }
 
-    protected function city_performance($campaign)
+    protected function city_performance($campaign, $district_id = null)
     {
         $campaign_id = $campaign->id;
         $districts = District::with(['outlets.consumers' => function ($query) use ($campaign_id) {
             $query->where('campaign_id', $campaign_id);
-        }])->get();
-        $total_contacts = Consumer::where('campaign_id', $campaign->id)->get()->count();
+        }])->when($district_id, function ($query, $district_id) {
+            return $query->where('district_id', $district_id);
+        })->get();
+        $total_contacts = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get()->count();
 
         $city_performance_data = $districts->map(function ($district) use ($total_contacts) {
             $outlets = $district->outlets;
