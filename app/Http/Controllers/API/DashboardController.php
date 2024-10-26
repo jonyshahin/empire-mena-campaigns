@@ -83,9 +83,6 @@ class DashboardController extends Controller
         ];
 
         $trial_rate = [
-            [
-                'campaign_target' => $campaign->target,
-            ],
             $total_contacts_data,
             $effective_contacts_data,
         ];
