@@ -104,7 +104,7 @@ class DashboardController extends Controller
         $total_contacts = Consumer::where('campaign_id', $campaign->id)
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
+                    $query->where('id', $district_id);
                 });
             })->get()->count();
 
