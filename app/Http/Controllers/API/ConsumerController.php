@@ -433,6 +433,8 @@ class ConsumerController extends Controller
                 'district_ids.*' => 'integer|exists:districts,id',
                 'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id',
                 'campaign_id' => 'nullable|integer|exists:campaigns,id',
+                'competitor_product_ids' => 'nullable|array',
+                'competitor_product_ids.*' => 'integer|exists:products,id',
             ]);
 
             $start_date = $request->input('start_date');
@@ -442,6 +444,8 @@ class ConsumerController extends Controller
             $promoterId = $request->input('promoter_id');
             $user = User::find(Auth::user()->id);
             $campaign_id = $request->input('campaign_id');
+            $competitor_product_ids = $request->input('competitor_product_ids');
+
 
             if ($user->hasRole('team_leader')) {
                 $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
@@ -453,6 +457,9 @@ class ConsumerController extends Controller
             $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
                 ->when($campaign_id, function ($query, $campaign_id) {
                     return $query->where('campaign_id', $campaign_id);
+                })
+                ->when($competitor_product_ids, function ($query, $competitor_product_ids) {
+                    return $query->whereIn('competitor_product_id', $competitor_product_ids);
                 })
                 ->when($start_date, function ($query, $date) {
                     return $query->whereDate('created_at', '>=', $date);
