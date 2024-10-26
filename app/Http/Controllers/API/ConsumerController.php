@@ -327,6 +327,9 @@ class ConsumerController extends Controller
                 if ($end_date) {
                     $query->whereDate('created_at', '<=', $end_date);
                 }
+                if (isset($campaign_id)) {
+                    $query->where('campaign_id', $campaign_id);
+                }
                 $query->orderBy('created_at', 'desc');
             }]);
 
