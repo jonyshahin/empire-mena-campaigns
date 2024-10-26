@@ -719,7 +719,9 @@ class ConsumerController extends Controller
                     return $query->whereHas('outlet', function ($query) use ($districtIds) {
                         $query->whereIn('district_id', $districtIds);
                     });
-                })->get();
+                })
+                ->get()
+                ->groupBy('promoter.name');
 
             return custom_success(200, 'Report generated successfully', $attendance_records);
         } catch (\Throwable $th) {
