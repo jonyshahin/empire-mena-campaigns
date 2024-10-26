@@ -21,10 +21,10 @@ class DashboardController extends Controller
 
         $trial_rate = $this->trial_rate($campaign, $district_id);
         $city_performance = $this->city_performance($campaign, $district_id);
-        $gender_chart = $this->gender_chart($campaign);
-        $age_group = $this->age_group($campaign);
-        $efficiency_rate = $this->efficiency_rate($campaign);
-        $sales_performance = $this->calculateSalesPerformance($campaign);
+        $gender_chart = $this->gender_chart($campaign, $district_id);
+        $age_group = $this->age_group($campaign, $district_id);
+        $efficiency_rate = $this->efficiency_rate($campaign, $district_id);
+        $sales_performance = $this->calculateSalesPerformance($campaign, $district_id);
 
         $data = [
             'campaign' => $campaign,
@@ -125,9 +125,14 @@ class DashboardController extends Controller
         return $city_performance_data;
     }
 
-    protected function gender_chart($campaign)
+    protected function gender_chart($campaign, $district_id = null)
     {
-        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get();
         $male_consumers = $consumers->where('gender', 'male')->count();
         $female_consumers = $consumers->where('gender', 'female')->count();
         $consumers_count = $consumers->count();
@@ -154,9 +159,14 @@ class DashboardController extends Controller
         return $gender_chart;
     }
 
-    protected function age_group($campaign)
+    protected function age_group($campaign, $district_id = null)
     {
-        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get();
         $campaign_products = $campaign->products;
         $ageGroups = ['18-24', '25-34', '35+'];
         $productCounts = [];
@@ -298,10 +308,15 @@ class DashboardController extends Controller
         ];
     }
 
-    protected function efficiency_rate($campaign)
+    protected function efficiency_rate($campaign, $district_id = null)
     {
         // Get all consumers of the campaign
-        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get();
 
         $competitorProductCounts = []; // To store competitor product counts
         $competitorSwitchCounts = []; // To store switch counts for each competitor product
@@ -372,10 +387,15 @@ class DashboardController extends Controller
         return custom_success(200, 'Packs updated successfully', []);
     }
 
-    protected function calculateSalesPerformance($campaign)
+    protected function calculateSalesPerformance($campaign, $district_id = null)
     {
         // Get all consumers of the campaign
-        $consumers = Consumer::where('campaign_id', $campaign->id)->get();
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get();
 
         // Prepare arrays to hold monthly performance data
         $monthlyPerformance = [];
