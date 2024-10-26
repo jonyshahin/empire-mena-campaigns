@@ -17,7 +17,7 @@ use Traversable;
 
 class ConsumerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $per_page = request('per_page', 10);
         $consumers = Consumer::query();
@@ -39,6 +39,12 @@ class ConsumerController extends Controller
 
         if ($search = request('search')) {
             $consumers->search($search);
+        }
+
+        if ($user->hasRole('super-admin')) {
+            if ($request->input('campaign_id')) {
+                $consumers->where('campaign_id', $request->campaign_id);
+            }
         }
 
         $consumers = $consumers->orderBy('created_at', 'desc')->paginate($per_page);
@@ -296,6 +302,7 @@ class ConsumerController extends Controller
                 'end_date' => 'nullable|date_format:Y-m-d',
                 'district_id' => 'nullable|integer|exists:districts,id',
                 'outlet_id' => 'nullable|integer|exists:outlets,id',
+                'campaign_id' => 'nullable|integer|exists:campaigns,id',
             ]);
 
             // Get the date from the request
@@ -303,6 +310,7 @@ class ConsumerController extends Controller
             $end_date = $request->input('end_date');
             $districtId = $request->input('district_id');
             $outletId = $request->input('outlet_id');
+            $campaign_id = $request->input('campaign_id');
 
             // Get the current user's timezone
             $user = User::find(Auth::user()->id);
