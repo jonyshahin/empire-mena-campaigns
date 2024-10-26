@@ -116,7 +116,7 @@ class ConsumerController extends Controller
                 'competitor_brand_id' => $request->input('competitor_brand_id'),
                 'other_brand_name' => $request->input('other_brand_name'),
                 'franchise' => $request->input('franchise', 0),
-                'did_he_switch' => $request->input('did_he_switch', 0),
+                'did_he_switch' => isset($request->did_he_switch) ? $request->did_he_switch : 0,
                 'aspen' => $request->has('aspen') ? implode(',', $request->aspen) : null,
                 'packs' => $packs,
                 'incentives' => $request->incentives,
