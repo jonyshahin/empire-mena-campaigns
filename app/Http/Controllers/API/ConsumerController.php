@@ -320,7 +320,7 @@ class ConsumerController extends Controller
 
 
             // Retrieve districts based on the presence of district_id
-            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($start_date, $end_date) {
+            $districtsQuery = District::with(['outlets.consumers' => function ($query) use ($start_date, $end_date, $campaign_id) {
                 if ($start_date) {
                     $query->whereDate('created_at', '>=', $start_date);
                 }
