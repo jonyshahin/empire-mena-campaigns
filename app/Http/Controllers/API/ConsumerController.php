@@ -41,10 +41,8 @@ class ConsumerController extends Controller
             $consumers->search($search);
         }
 
-        if ($user->hasRole('super-admin')) {
-            if ($request->input('campaign_id')) {
-                $consumers->where('campaign_id', $request->campaign_id);
-            }
+        if ($user->hasRole('super-admin') && $request->filled('campaign_id')) {
+            $consumers->where('campaign_id', $request->campaign_id);
         }
 
         $consumers = $consumers->orderBy('created_at', 'desc')->paginate($per_page);
