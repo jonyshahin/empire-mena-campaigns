@@ -446,6 +446,7 @@ class ConsumerController extends Controller
             $promoterId = $request->input('promoter_id');
             $user = User::find(Auth::user()->id);
             $campaign_id = $request->input('campaign_id');
+            $competitor_product_ids = [];
 
             if ($competitorBrandId) {
                 $competitor_product_ids = Product::where('brand_id', $competitorBrandId)->pluck('id');
