@@ -529,21 +529,30 @@ class ConsumerController extends Controller
             'end_date' => 'nullable|date_format:Y-m-d',
             'district_ids' => 'nullable|array',
             'district_ids.*' => 'integer|exists:districts,id',
-            'competitor_brand_id' => 'nullable|integer',
+            'competitor_brand_id' => 'nullable|integer|exists:competitor_brands,id',
             'campaign_id' => 'nullable|integer|exists:campaigns,id',
             'competitor_product_ids' => 'nullable|array',
             'competitor_product_ids.*' => 'integer|exists:products,id',
+            'promoter_id' => 'nullable|integer|exists:users,id',
         ]);
 
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
         $districtIds = $request->input('district_ids');
-        $competitor_brand_id = $request->input('competitor_brand_id');
+        $competitorBrandId = $request->input('competitor_brand_id');
         $promoterId = $request->input('promoter_id');
         $campaign_id = $request->input('campaign_id');
-        $competitor_product_ids = $request->input('competitor_product_ids');
+        $competitor_product_ids = [];
 
-        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $competitor_brand_id, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
+        if ($competitorBrandId) {
+            $competitor_product_ids = Product::where('brand_id', $competitorBrandId)->pluck('id');
+        }
+
+        if ($request->filled('competitor_product_ids')) {
+            $competitor_product_ids = $request->input('competitor_product_ids');
+        }
+
+        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)

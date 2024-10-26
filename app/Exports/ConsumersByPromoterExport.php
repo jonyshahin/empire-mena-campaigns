@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Consumer;
+use App\Models\Product;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,18 +13,18 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
     protected $start_date;
     protected $end_date;
     protected $district_ids;
-    protected $competitor_product_id;
+    protected $competitor_product_ids;
     protected $promoter_id;
     protected $campaign_id;
 
 
-    public function __construct($start_date = null, $end_date = null, $district_ids = null, $competitor_product_id = null, $promoterId = null, $campaign_id = null)
+    public function __construct($start_date = null, $end_date = null, $district_ids = null, $promoter_id = null, $campaign_id = null, $competitor_product_ids = null)
     {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->district_ids = $district_ids;
-        $this->competitor_product_id = $competitor_product_id;
-        $this->promoter_id = $promoterId;
+        $this->competitor_product_ids = $competitor_product_ids;
+        $this->promoter_id = $promoter_id;
         $this->campaign_id = $campaign_id;
     }
 
@@ -35,15 +36,17 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
         $start_date = $this->start_date;
         $end_date = $this->end_date;
         $districtIds = $this->district_ids;
-        $competitor_product_id = $this->competitor_product_id;
         $promoterId = $this->promoter_id;
         $campaign_id = $this->campaign_id;
-
+        $competitor_product_ids = $this->competitor_product_ids;
 
         // Retrieve consumers grouped by promoter
         $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
             ->when($campaign_id, function ($query, $campaign_id) {
                 return $query->where('campaign_id', $campaign_id);
+            })
+            ->when($competitor_product_ids, function ($query, $competitor_product_ids) {
+                return $query->whereIn('competitor_product_id', $competitor_product_ids);
             })
             ->when($start_date, function ($query, $date) {
                 return $query->whereDate('created_at', '>=', $date);
@@ -55,9 +58,6 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
                 return $query->whereHas('outlet', function ($query) use ($districtIds) {
                     $query->whereIn('district_id', $districtIds);
                 });
-            })
-            ->when($competitor_product_id, function ($query, $competitor_product_id) {
-                return $query->where('competitor_product_id', $competitor_product_id);
             })
             ->when($promoterId, function ($query, $promoterId) {
                 return $query->where('user_id', $promoterId);
