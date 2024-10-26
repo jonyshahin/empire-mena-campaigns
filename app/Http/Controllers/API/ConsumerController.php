@@ -653,34 +653,38 @@ class ConsumerController extends Controller
     public function exportPromotersCountByDay(Request $request)
     {
         $request->validate([
-            'period' => 'nullable|string|in:week,month,last_week,last_month',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d',
+            // 'period' => 'nullable|string|in:week,month,last_week,last_month',
             'district_id' => 'nullable|integer|exists:districts,id',
+            'campaign_id' => 'nullable|integer|exists:campaigns,id',
         ]);
 
-        $period = $request->input('period');
+        // $period = $request->input('period');
         $districtId = $request->input('district_id');
-        $startDate = null;
-        $endDate = null;
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $campaign_id = $request->input('campaign_id');
 
-        switch ($period) {
-            case 'week':
-                $startDate = Carbon::now()->startOfWeek();
-                $endDate = Carbon::now()->endOfWeek();
-                break;
-            case 'month':
-                $startDate = Carbon::now()->startOfMonth();
-                $endDate = Carbon::now()->endOfMonth();
-                break;
-            case 'last_week':
-                $startDate = Carbon::now()->subWeek()->startOfWeek();
-                $endDate = Carbon::now()->subWeek()->endOfWeek();
-                break;
-            case 'last_month':
-                $startDate = Carbon::now()->subMonth()->startOfMonth();
-                $endDate = Carbon::now()->subMonth()->endOfMonth();
-                break;
-        }
+        // switch ($period) {
+        //     case 'week':
+        //         $startDate = Carbon::now()->startOfWeek();
+        //         $endDate = Carbon::now()->endOfWeek();
+        //         break;
+        //     case 'month':
+        //         $startDate = Carbon::now()->startOfMonth();
+        //         $endDate = Carbon::now()->endOfMonth();
+        //         break;
+        //     case 'last_week':
+        //         $startDate = Carbon::now()->subWeek()->startOfWeek();
+        //         $endDate = Carbon::now()->subWeek()->endOfWeek();
+        //         break;
+        //     case 'last_month':
+        //         $startDate = Carbon::now()->subMonth()->startOfMonth();
+        //         $endDate = Carbon::now()->subMonth()->endOfMonth();
+        //         break;
+        // }
 
-        return Excel::download(new PromotersCountByDayExport($startDate, $endDate, $districtId), 'promoters_count_by_day_report.xlsx');
+        return Excel::download(new PromotersCountByDayExport($startDate, $endDate, $districtId, $campaign_id), 'promoters_count_by_day_report.xlsx');
     }
 }

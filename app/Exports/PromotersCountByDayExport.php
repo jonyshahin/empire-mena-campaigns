@@ -14,12 +14,14 @@ class PromotersCountByDayExport implements FromCollection, WithHeadings, WithMap
     protected $startDate;
     protected $endDate;
     protected $districtId;
+    protected $campaign_id;
 
-    public function __construct($startDate = null, $endDate = null, $districtId = null)
+    public function __construct($startDate = null, $endDate = null, $districtId = null, $campaign_id = null)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->districtId = $districtId;
+        $this->campaign_id = $campaign_id;
     }
 
     /**
@@ -30,6 +32,8 @@ class PromotersCountByDayExport implements FromCollection, WithHeadings, WithMap
         $startDate = $this->startDate;
         $endDate = $this->endDate;
         $districtId = $this->districtId;
+        $campaign_id = $this->campaign_id;
+
 
         // Retrieve consumers grouped by day
         $consumersQuery = Consumer::with(['promoter', 'outlet.district'])
@@ -37,6 +41,9 @@ class PromotersCountByDayExport implements FromCollection, WithHeadings, WithMap
                 return $query->whereHas('outlet', function ($query) use ($districtId) {
                     $query->where('district_id', $districtId);
                 });
+            })
+            ->when($campaign_id, function ($query, $campaign_id) {
+                return $query->where('campaign_id', $campaign_id);
             })
             ->when($startDate, function ($query) use ($startDate) {
                 return $query->whereDate('created_at', '>=', $startDate);
