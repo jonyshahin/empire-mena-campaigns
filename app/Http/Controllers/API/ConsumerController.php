@@ -721,7 +721,7 @@ class ConsumerController extends Controller
                     });
                 })
                 ->get()
-                ->groupBy('promoter.name');
+                ->groupBy('user.name');
 
             return custom_success(200, 'Report generated successfully', $attendance_records);
         } catch (\Throwable $th) {
