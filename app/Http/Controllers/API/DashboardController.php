@@ -82,7 +82,12 @@ class DashboardController extends Controller
             'ratio' => $effective_contacts_ratio,
         ];
 
+        $campaign_target = [
+            'campaign_target' => $campaign->target,
+        ];
+
         $trial_rate = [
+            $campaign_target,
             $total_contacts_data,
             $effective_contacts_data,
         ];
