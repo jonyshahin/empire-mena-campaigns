@@ -560,34 +560,38 @@ class ConsumerController extends Controller
         try {
             // Validate the optional period parameters
             $request->validate([
-                'period' => 'nullable|string|in:week,month,last_week,last_month',
+                'start_date' => 'nullable|date_format:Y-m-d',
+                'end_date' => 'nullable|date_format:Y-m-d',
+                // 'period' => 'nullable|string|in:week,month,last_week,last_month',
                 'district_id' => 'nullable|integer|exists:districts,id',
+                'campaign_id' => 'nullable|integer|exists:campaigns,id',
             ]);
 
-            $period = $request->input('period');
+            // $period = $request->input('period');
             $districtId = $request->input('district_id');
-            $startDate = null;
-            $endDate = null;
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $campaign_id = $request->input('campaign_id');
 
             // Determine the start and end dates based on the period
-            switch ($period) {
-                case 'week':
-                    $startDate = Carbon::now()->startOfWeek();
-                    $endDate = Carbon::now()->endOfWeek();
-                    break;
-                case 'month':
-                    $startDate = Carbon::now()->startOfMonth();
-                    $endDate = Carbon::now()->endOfMonth();
-                    break;
-                case 'last_week':
-                    $startDate = Carbon::now()->subWeek()->startOfWeek();
-                    $endDate = Carbon::now()->subWeek()->endOfWeek();
-                    break;
-                case 'last_month':
-                    $startDate = Carbon::now()->subMonth()->startOfMonth();
-                    $endDate = Carbon::now()->subMonth()->endOfMonth();
-                    break;
-            }
+            // switch ($period) {
+            //     case 'week':
+            //         $startDate = Carbon::now()->startOfWeek();
+            //         $endDate = Carbon::now()->endOfWeek();
+            //         break;
+            //     case 'month':
+            //         $startDate = Carbon::now()->startOfMonth();
+            //         $endDate = Carbon::now()->endOfMonth();
+            //         break;
+            //     case 'last_week':
+            //         $startDate = Carbon::now()->subWeek()->startOfWeek();
+            //         $endDate = Carbon::now()->subWeek()->endOfWeek();
+            //         break;
+            //     case 'last_month':
+            //         $startDate = Carbon::now()->subMonth()->startOfMonth();
+            //         $endDate = Carbon::now()->subMonth()->endOfMonth();
+            //         break;
+            // }
 
             // Retrieve consumers grouped by day
             $consumersQuery = Consumer::with(['promoter', 'outlet.district'])
@@ -595,6 +599,9 @@ class ConsumerController extends Controller
                     return $query->whereHas('outlet', function ($query) use ($districtId) {
                         $query->where('district_id', $districtId);
                     });
+                })
+                ->when($campaign_id, function ($query, $campaign_id) {
+                    return $query->where('campaign_id', $campaign_id);
                 })
                 ->when($startDate, function ($query) use ($startDate) {
                     return $query->whereDate('created_at', '>=', $startDate);
