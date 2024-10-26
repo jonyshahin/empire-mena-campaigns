@@ -388,10 +388,12 @@ class DashboardController extends Controller
         $salesPerformance = [];
 
         foreach ($monthlyPerformance as $month => $totalConsumers) {
+            $trial_rate_percentage = ($effectiveConsumers[$month] / $totalConsumers) * 100;
             $salesPerformance[] = [
                 'month' => $month,
                 'total_consumers' => $totalConsumers,
                 'effective_consumers' => $effectiveConsumers[$month],
+                'trial_rate_percentage' => $trial_rate_percentage,
             ];
         }
 
