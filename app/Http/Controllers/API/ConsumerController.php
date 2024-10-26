@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Exports\ConsumersByPromoterExport;
 use App\Exports\ConsumersReportExport;
+use App\Exports\PromoterDailyFeedback;
 use App\Exports\PromotersCountByDayExport;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
@@ -724,6 +725,27 @@ class ConsumerController extends Controller
                 ->groupBy('user.name');
 
             return custom_success(200, 'Report generated successfully', $attendance_records);
+        } catch (\Throwable $th) {
+            return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function exportPromoterDailyFeedback(Request $request)
+    {
+        try {
+            $request->validate([
+                'start_date' => 'nullable|date_format:Y-m-d',
+                'end_date' => 'nullable|date_format:Y-m-d',
+                'district_ids' => 'nullable|array',
+                'district_ids.*' => 'integer|exists:districts,id',
+                'campaign_id' => 'nullable|integer|exists:campaigns,id',
+            ]);
+
+            $districtIds = $request->input('district_ids');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $campaign_id = $request->input('campaign_id');
+            return Excel::download(new PromoterDailyFeedback($startDate, $endDate, $districtIds, $campaign_id), 'promoters_daily_feedback_report.xlsx');
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
