@@ -60,7 +60,7 @@ class PromoterDailyFeedback implements FromCollection, WithHeadings
                     'District' => $attendance_record->outlet->district->name,
                     'Outlet' => $attendance_record->outlet->name,
                     'Check In Time' => $attendance_record->check_in_time->toDateTimeString(),
-                    'Check Out Time' => $attendance_record->check_out_time->toDateTimeString(),
+                    'Check Out Time' => isset($attendance_record->check_out_time) ? $attendance_record->check_out_time->toDateTimeString() : '',
                     'Created At' => $attendance_record->created_at->toDateTimeString(),
                     'Updated At' => $attendance_record->updated_at->toDateTimeString(),
                 ]);
