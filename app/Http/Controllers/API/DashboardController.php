@@ -53,14 +53,6 @@ class DashboardController extends Controller
 
     protected function trial_rate($campaign, $district_id = null)
     {
-        // Calculate trial rate data
-        $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })->get()
-            ->count();
         $total_contacts = $this->total_contacts;
         $campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
         $campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
@@ -73,15 +65,6 @@ class DashboardController extends Controller
             'percentage' => $total_contacts_percentage,
             'ratio' => $total_contacts_ratio,
         ];
-
-        $this->effective_contacts = Consumer::where('campaign_id', $campaign->id)
-            ->where('packs', '>', 0)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })
-            ->get()->count();
 
         $effective_contacts = $this->effective_contacts;
         $effective_contacts_percentage = $effective_contacts / $campaign->target * 100;
@@ -482,7 +465,23 @@ class DashboardController extends Controller
         foreach ($dailyLogins as $login) {
             $visits += $login['login_count'];
         }
-        // $visits = $dailyLogins->sum('login_count');
+
+        $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get()
+            ->count();
+
+        $this->effective_contacts = Consumer::where('campaign_id', $campaign->id)
+            ->where('packs', '>', 0)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->get()->count();
 
         $general_statistics['campaign_promoters_count'] = $this->campaign_promoters_count;
         $general_statistics['daily_logins'] = $dailyLogins;
