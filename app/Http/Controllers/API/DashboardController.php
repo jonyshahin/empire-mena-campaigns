@@ -67,8 +67,8 @@ class DashboardController extends Controller
         ];
 
         $effective_contacts = $this->effective_contacts;
-        $effective_contacts_percentage = $effective_contacts / $campaign_effective_target * 100;
-        $effective_contacts_ratio = $effective_contacts / $campaign_effective_target;
+        $effective_contacts_percentage = $effective_contacts / $campaign_total_target * 100;
+        $effective_contacts_ratio = $effective_contacts / $campaign_total_target;
 
         $effective_contacts_data = [
             'name' => 'Effective Contacts',
