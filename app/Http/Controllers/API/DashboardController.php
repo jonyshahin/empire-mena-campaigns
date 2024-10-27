@@ -25,6 +25,7 @@ class DashboardController extends Controller
         $age_group = $this->age_group($campaign, $district_id);
         $efficiency_rate = $this->efficiency_rate($campaign, $district_id);
         $sales_performance = $this->calculateSalesPerformance($campaign, $district_id);
+        $general_statistics = $this->general_statistics($campaign, $district_id);
 
         $data = [
             'campaign' => $campaign,
@@ -37,6 +38,7 @@ class DashboardController extends Controller
             'top_competitor_products' => $age_group['top_competitor_products'],
             'efficiency_rate' => $efficiency_rate,
             'sales_performance' => $sales_performance,
+            'general_statistics' => $general_statistics,
         ];
 
         return custom_success(200, 'Success', $data);
@@ -438,5 +440,23 @@ class DashboardController extends Controller
         }
 
         return $salesPerformance;
+    }
+
+    protected function general_statistics($campaign, $district_id = null)
+    {
+        $general_statistics = [];
+
+        $campaign_promoters_count = $campaign->promoters->count();
+        $general_statistics['campaign_promoters_count'] = $campaign_promoters_count;
+
+        // Get all consumers of the campaign
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->get();
+
+        return $general_statistics;
     }
 }
