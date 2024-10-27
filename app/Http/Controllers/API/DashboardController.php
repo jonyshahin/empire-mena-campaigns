@@ -474,7 +474,11 @@ class DashboardController extends Controller
 
         // Count the number of elements in the $dailyLogins array
         $campaign_active_days_count = count($dailyLogins);
-        $visits = $dailyLogins->sum('login_count');
+        $visits = 0;
+        foreach ($dailyLogins as $login) {
+            $visits += $login['login_count'];
+        }
+        // $visits = $dailyLogins->sum('login_count');
 
         $general_statistics['campaign_promoters_count'] = $campaign_promoters_count;
         $general_statistics['daily_logins'] = $dailyLogins;
