@@ -21,6 +21,7 @@ class DashboardController extends Controller
     protected $campaign_promoters_count;
     protected $campaign_total_target;
     protected $campaign_effective_target;
+    protected $total_franchise;
 
 
     public function index(Request $request)
@@ -481,15 +482,24 @@ class DashboardController extends Controller
             })
             ->get()->count();
 
+        $this->total_franchise = Consumer::where('campaign_id', $campaign->id)
+            ->where('franchise', 1)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->get()->count();
+
         $this->campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
         $this->campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
 
         $general_statistics['campaign_promoters_count'] = $this->campaign_promoters_count;
-        $general_statistics['daily_logins'] = $dailyLogins;
-        $general_statistics['campaign_active_days_count'] = $this->campaign_active_days_count;
         $general_statistics['visits'] = $visits;
         $general_statistics['total_contacts'] = $this->total_contacts;
         $general_statistics['effective_contacts'] = $this->effective_contacts;
+        $general_statistics['total_franchise'] = $this->total_franchise;
+        $general_statistics['campaign_active_days_count'] = $this->campaign_active_days_count;
         $general_statistics['campaign_total_target'] = $this->campaign_total_target;
         $general_statistics['campaign_effective_target'] = $this->campaign_effective_target;
 
