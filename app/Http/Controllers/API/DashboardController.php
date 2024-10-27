@@ -491,7 +491,7 @@ class DashboardController extends Controller
             ->get()->count();
 
         $this->total_switched = Consumer::where('campaign_id', $campaign->id)
-            ->where('dis_he_switch', '<>', 0)
+            ->where('did_he_switch', '<>', 0)
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
