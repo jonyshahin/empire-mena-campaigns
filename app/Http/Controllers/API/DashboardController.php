@@ -19,6 +19,9 @@ class DashboardController extends Controller
     protected $effective_contacts;
     protected $campaign_active_days_count;
     protected $campaign_promoters_count;
+    protected $campaign_total_target;
+    protected $campaign_effective_target;
+
 
     public function index(Request $request)
     {
@@ -54,8 +57,8 @@ class DashboardController extends Controller
     protected function trial_rate($campaign, $district_id = null)
     {
         $total_contacts = $this->total_contacts;
-        $campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
-        $campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
+        $campaign_total_target = $this->campaign_total_target;
+        $campaign_effective_target = $this->campaign_effective_target;
         $total_contacts_percentage = $total_contacts / $campaign_total_target * 100;
         $total_contacts_ratio = $total_contacts / $campaign_total_target;
 
@@ -478,20 +481,17 @@ class DashboardController extends Controller
             })
             ->get()->count();
 
+        $this->campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
+        $this->campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
+
         $general_statistics['campaign_promoters_count'] = $this->campaign_promoters_count;
         $general_statistics['daily_logins'] = $dailyLogins;
         $general_statistics['campaign_active_days_count'] = $this->campaign_active_days_count;
         $general_statistics['visits'] = $visits;
         $general_statistics['total_contacts'] = $this->total_contacts;
         $general_statistics['effective_contacts'] = $this->effective_contacts;
-
-        // Get all consumers of the campaign
-        $consumers = Consumer::where('campaign_id', $campaign->id)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })->get();
+        $general_statistics['campaign_total_target'] = $this->campaign_total_target;
+        $general_statistics['campaign_effective_target'] = $this->campaign_effective_target;
 
         return $general_statistics;
     }
