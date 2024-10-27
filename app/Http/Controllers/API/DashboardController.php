@@ -344,7 +344,7 @@ class DashboardController extends Controller
 
         // Get the top 5 competitor products across the campaign
         arsort($competitorProductCounts); // Sort by count descending
-        $top5Competitors = array_slice($competitorProductCounts, 0, 5, true); // Get top 5 competitors
+        $top5Competitors = array_slice($competitorProductCounts, 0, 7, true); // Get top 5 competitors
 
         // Calculate the percentage of switches for the top 5 competitor products
         $topCompetitorSwitches = [];
