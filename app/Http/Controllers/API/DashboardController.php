@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
 use App\Models\Campaign;
 use App\Models\Consumer;
 use App\Models\District;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Traversable;
 
 class DashboardController extends Controller
 {
+    protected $total_contacts;
+    protected $effective_contacts;
+
     public function index(Request $request)
     {
 
@@ -47,13 +52,14 @@ class DashboardController extends Controller
     protected function trial_rate($campaign, $district_id = null)
     {
         // Calculate trial rate data
-        $total_contacts = Consumer::where('campaign_id', $campaign->id)
+        $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
             })->get()
             ->count();
+        $total_contacts = $this->total_contacts;
         $total_contacts_percentage = $total_contacts / $campaign->target * 100;
         $total_contacts_ratio = $total_contacts / $campaign->target;
 
@@ -64,7 +70,7 @@ class DashboardController extends Controller
             'ratio' => $total_contacts_ratio,
         ];
 
-        $effective_contacts = Consumer::where('campaign_id', $campaign->id)
+        $this->effective_contacts = Consumer::where('campaign_id', $campaign->id)
             ->where('packs', '>', 0)
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
@@ -72,6 +78,8 @@ class DashboardController extends Controller
                 });
             })
             ->get()->count();
+
+        $effective_contacts = $this->effective_contacts;
         $effective_contacts_percentage = $effective_contacts / $campaign->target * 100;
         $effective_contacts_ratio = $effective_contacts / $campaign->target;
 
@@ -446,8 +454,34 @@ class DashboardController extends Controller
     {
         $general_statistics = [];
 
-        $campaign_promoters_count = $campaign->promoters->count();
+        $campaign_promoters_count = AttendanceRecord::where('campaign_id', $campaign->id)
+            ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $dailyLogins = AttendanceRecord::select(DB::raw('DATE(check_in_time) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
+            ->where('campaign_id', $campaign->id)
+            ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
+            ->groupBy('date')
+            ->orderBy('date', 'desc')
+            ->get()->map(function ($record) {
+                return [
+                    'date' => $record->date,
+                    'login_count' => $record->login_count,
+                ];
+            })
+            ->toArray();
+
+        // Count the number of elements in the $dailyLogins array
+        $campaign_active_days_count = count($dailyLogins);
+        $visits = $dailyLogins->sum('login_count');
+
         $general_statistics['campaign_promoters_count'] = $campaign_promoters_count;
+        $general_statistics['daily_logins'] = $dailyLogins;
+        $general_statistics['campaign_active_days_count'] = $campaign_active_days_count;
+        $general_statistics['visits'] = $visits;
+        $general_statistics['total_contacts'] = $this->total_contacts;
+        $general_statistics['effective_contacts'] = $this->effective_contacts;
 
         // Get all consumers of the campaign
         $consumers = Consumer::where('campaign_id', $campaign->id)
