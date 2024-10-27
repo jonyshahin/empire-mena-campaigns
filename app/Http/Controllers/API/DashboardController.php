@@ -24,6 +24,8 @@ class DashboardController extends Controller
     protected $total_franchise;
     protected $total_switched;
     protected $total_refusals;
+    protected $lvl1_incentive_count;
+    protected $lvl2_incentive_count;
 
     public function index(Request $request)
     {
@@ -510,6 +512,24 @@ class DashboardController extends Controller
             })
             ->get()->count();
 
+        $this->lvl1_incentive_count = Consumer::where('campaign_id', $campaign->id)
+            ->where('packs', 1)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->get()->count();
+
+        $this->lvl2_incentive_count = Consumer::where('campaign_id', $campaign->id)
+            ->where('packs', '>', 1)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->get()->count();
+
         $this->campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
         $this->campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
 
@@ -520,6 +540,10 @@ class DashboardController extends Controller
         $general_statistics['total_franchise'] = $this->total_franchise;
         $general_statistics['total_switched'] = $this->total_switched;
         $general_statistics['total_refusals'] = $this->total_refusals;
+        $general_statistics['lvl1_incentive_count'] = $this->lvl1_incentive_count;
+        $general_statistics['lvl2_incentive_count'] = $this->lvl2_incentive_count;
+        $general_statistics['lvl1_incentive_percentage'] = $this->lvl1_incentive_count / $this->effective_contacts * 100;
+        $general_statistics['lvl2_incentive_percentage'] = $this->lvl2_incentive_count / $this->effective_contacts * 100;
         $general_statistics['campaign_active_days_count'] = $this->campaign_active_days_count;
         $general_statistics['campaign_total_target'] = $this->campaign_total_target;
         $general_statistics['campaign_effective_target'] = $this->campaign_effective_target;
