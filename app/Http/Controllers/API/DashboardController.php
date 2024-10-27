@@ -17,6 +17,8 @@ class DashboardController extends Controller
 {
     protected $total_contacts;
     protected $effective_contacts;
+    protected $campaign_active_days_count;
+    protected $campaign_promoters_count;
 
     public function index(Request $request)
     {
@@ -24,13 +26,13 @@ class DashboardController extends Controller
         $campaign = Campaign::find($request->campaign_id);
         $district_id = $request->input('district_id');
 
+        $general_statistics = $this->general_statistics($campaign, $district_id);
         $trial_rate = $this->trial_rate($campaign, $district_id);
         $city_performance = $this->city_performance($campaign, $district_id);
         $gender_chart = $this->gender_chart($campaign, $district_id);
         $age_group = $this->age_group($campaign, $district_id);
         $efficiency_rate = $this->efficiency_rate($campaign, $district_id);
         $sales_performance = $this->calculateSalesPerformance($campaign, $district_id);
-        $general_statistics = $this->general_statistics($campaign, $district_id);
 
         $data = [
             'campaign' => $campaign,
@@ -60,8 +62,10 @@ class DashboardController extends Controller
             })->get()
             ->count();
         $total_contacts = $this->total_contacts;
-        $total_contacts_percentage = $total_contacts / $campaign->target * 100;
-        $total_contacts_ratio = $total_contacts / $campaign->target;
+        $campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
+        $campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
+        $total_contacts_percentage = $total_contacts / $campaign_total_target * 100;
+        $total_contacts_ratio = $total_contacts / $campaign_total_target;
 
         $total_contacts_data = [
             'name' => 'Total Contacts',
@@ -454,7 +458,7 @@ class DashboardController extends Controller
     {
         $general_statistics = [];
 
-        $campaign_promoters_count = AttendanceRecord::where('campaign_id', $campaign->id)
+        $this->campaign_promoters_count = AttendanceRecord::where('campaign_id', $campaign->id)
             ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
             ->distinct('user_id')
             ->count('user_id');
@@ -473,16 +477,16 @@ class DashboardController extends Controller
             ->toArray();
 
         // Count the number of elements in the $dailyLogins array
-        $campaign_active_days_count = count($dailyLogins);
+        $this->campaign_active_days_count = count($dailyLogins);
         $visits = 0;
         foreach ($dailyLogins as $login) {
             $visits += $login['login_count'];
         }
         // $visits = $dailyLogins->sum('login_count');
 
-        $general_statistics['campaign_promoters_count'] = $campaign_promoters_count;
+        $general_statistics['campaign_promoters_count'] = $this->campaign_promoters_count;
         $general_statistics['daily_logins'] = $dailyLogins;
-        $general_statistics['campaign_active_days_count'] = $campaign_active_days_count;
+        $general_statistics['campaign_active_days_count'] = $this->campaign_active_days_count;
         $general_statistics['visits'] = $visits;
         $general_statistics['total_contacts'] = $this->total_contacts;
         $general_statistics['effective_contacts'] = $this->effective_contacts;
