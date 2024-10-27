@@ -547,6 +547,8 @@ class DashboardController extends Controller
         $general_statistics['campaign_active_days_count'] = $this->campaign_active_days_count;
         $general_statistics['campaign_total_target'] = $this->campaign_total_target;
         $general_statistics['campaign_effective_target'] = $this->campaign_effective_target;
+        $general_statistics['daily_logins'] = $dailyLogins;
+
 
         return $general_statistics;
     }
