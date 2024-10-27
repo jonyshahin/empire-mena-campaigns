@@ -67,8 +67,8 @@ class DashboardController extends Controller
         ];
 
         $effective_contacts = $this->effective_contacts;
-        $effective_contacts_percentage = $effective_contacts / $campaign->target * 100;
-        $effective_contacts_ratio = $effective_contacts / $campaign->target;
+        $effective_contacts_percentage = $effective_contacts / $campaign_effective_target * 100;
+        $effective_contacts_ratio = $effective_contacts / $campaign_effective_target;
 
         $effective_contacts_data = [
             'name' => 'Effective Contacts',
@@ -95,12 +95,7 @@ class DashboardController extends Controller
             return $query->where('id', $district_id);
         })->get();
 
-        $total_contacts = Consumer::where('campaign_id', $campaign->id)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })->get()->count();
+        $total_contacts = $this->total_contacts;
 
         $city_performance_data = $districts->map(function ($district) use ($total_contacts) {
             $outlets = $district->outlets;
