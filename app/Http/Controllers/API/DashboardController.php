@@ -67,7 +67,7 @@ class DashboardController extends Controller
         $total_contacts_ratio = $total_contacts / $campaign_total_target;
 
         $total_contacts_data = [
-            'name' => 'Total Contacts',
+            'name' => 'Total Contacts vs Target',
             'value' => $total_contacts,
             'percentage' => $total_contacts_percentage,
             'ratio' => $total_contacts_ratio,
@@ -78,7 +78,7 @@ class DashboardController extends Controller
         $effective_contacts_ratio = $effective_contacts / $campaign_total_target;
 
         $effective_contacts_data = [
-            'name' => 'Effective Contacts',
+            'name' => 'Effective Contacts vs Target',
             'value' => $effective_contacts,
             'percentage' => $effective_contacts_percentage,
             'ratio' => $effective_contacts_ratio,
