@@ -477,7 +477,6 @@ class DashboardController extends Controller
             ->groupBy(function ($date) {
                 return Carbon::parse($date->created_at)->format('Y-m-d');
             })
-            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($record) {
                 return [
