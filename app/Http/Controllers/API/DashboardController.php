@@ -503,7 +503,7 @@ class DashboardController extends Controller
                     $query->where('district_id', $district_id);
                 });
             })
-            ->get()->count();
+            ->get()->count() + 1;
 
         $this->total_franchise = Consumer::where('campaign_id', $campaign->id)
             ->where('franchise', 1)
