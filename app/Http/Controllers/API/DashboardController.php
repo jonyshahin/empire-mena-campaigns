@@ -28,6 +28,8 @@ class DashboardController extends Controller
     protected $lvl1_incentive_count;
     protected $lvl2_incentive_count;
     protected $campaign_id;
+    protected $start_date;
+    protected $end_date;
 
     public function index(Request $request)
     {
@@ -35,6 +37,8 @@ class DashboardController extends Controller
         $campaign = Campaign::find($request->campaign_id);
         $district_id = $request->input('district_id');
         $this->campaign_id = $campaign->id;
+        $this->start_date = $request->input('start_date');
+        $this->end_date = $request->input('end_date');
 
         $general_statistics = $this->general_statistics($campaign, $district_id);
         $trial_rate = $this->trial_rate($campaign, $district_id);
@@ -103,6 +107,10 @@ class DashboardController extends Controller
             $query->where('campaign_id', $campaign_id);
         }])->when($district_id, function ($query, $district_id) {
             return $query->where('id', $district_id);
+        })->when($this->start_date, function ($query, $start_date) {
+            return $query->whereDate('created_at', '>=', $start_date);
+        })->when($this->end_date, function ($query, $end_date) {
+            return $query->whereDate('created_at', '<=', $end_date);
         })->get();
 
         $total_contacts = $this->total_contacts;
@@ -134,7 +142,13 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
-            })->get();
+            })
+            ->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })
+            ->get();
         $male_consumers = $consumers->where('gender', 'male')->count();
         $female_consumers = $consumers->where('gender', 'female')->count();
         $consumers_count = $consumers->count();
@@ -168,6 +182,11 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })
+            ->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })->get();
         $campaign_products = $campaign->products;
         $ageGroups = ['18-24', '25-34', '35+'];
@@ -318,6 +337,11 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })
+            ->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })->get();
 
         $competitorProductCounts = []; // To store competitor product counts
@@ -397,6 +421,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })->get();
 
         // Prepare arrays to hold monthly performance data
@@ -458,6 +486,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })
             ->groupBy('date')
             ->orderBy('date', 'desc')
@@ -485,6 +517,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })->get()
             ->count();
 
@@ -494,6 +530,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })
             ->get()->count();
 
@@ -504,6 +544,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })
             ->get()->count();
 
@@ -533,6 +577,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })
             ->get()->count();
 
@@ -542,6 +590,10 @@ class DashboardController extends Controller
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
                 });
+            })->when($this->start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($this->end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
             })
             ->get()->count();
 
