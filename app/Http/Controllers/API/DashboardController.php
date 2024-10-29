@@ -507,6 +507,7 @@ class DashboardController extends Controller
 
         $this->total_franchise = Consumer::where('campaign_id', $campaign->id)
             ->where('franchise', 1)
+            ->where('packs', '>', 0)
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
