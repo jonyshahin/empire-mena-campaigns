@@ -524,14 +524,16 @@ class DashboardController extends Controller
             })
             ->get()->count();
 
-        $this->total_refusals = Consumer::where('campaign_id', $campaign->id)
-            ->where('packs', 0)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })
-            ->get()->count();
+        // $this->total_refusals = Consumer::where('campaign_id', $campaign->id)
+        //     ->where('packs', 0)
+        //     ->when($district_id, function ($query, $district_id) {
+        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
+        //             $query->where('district_id', $district_id);
+        //         });
+        //     })
+        //     ->get()->count();
+
+        $this->total_refusals = $this->total_contacts - $this->effective_contacts;
 
         $this->lvl1_incentive_count = Consumer::where('campaign_id', $campaign->id)
             ->where('packs', 1)
