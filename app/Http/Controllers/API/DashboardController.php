@@ -479,10 +479,13 @@ class DashboardController extends Controller
 
         // Count the number of elements in the $dailyLogins array
         $this->campaign_active_days_count = count($dailyLogins);
-        $this->campaign_promoters_count = max($dailyLogins['login_count']);
+        $this->campaign_promoters_count = 0;
         $visits = 0;
         foreach ($dailyLogins as $login) {
             $visits += $login['login_count'];
+            if ($this->campaign_promoters_count < $login['login_count']) {
+                $this->campaign_promoters_count = $login['login_count'];
+            }
         }
 
         $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
