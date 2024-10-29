@@ -536,7 +536,7 @@ class DashboardController extends Controller
         $this->total_refusals = $this->total_contacts - $this->effective_contacts;
 
         $this->lvl1_incentive_count = Consumer::where('campaign_id', $campaign->id)
-            ->where('packs', 1)
+            ->where('incentives', 'lvl1')
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
@@ -545,7 +545,7 @@ class DashboardController extends Controller
             ->get()->count();
 
         $this->lvl2_incentive_count = Consumer::where('campaign_id', $campaign->id)
-            ->where('packs', '>', 1)
+            ->where('incentives', 'lvl2')
             ->when($district_id, function ($query, $district_id) {
                 return $query->whereHas('outlet', function ($query) use ($district_id) {
                     $query->where('district_id', $district_id);
