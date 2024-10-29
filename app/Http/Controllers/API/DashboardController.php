@@ -479,7 +479,7 @@ class DashboardController extends Controller
                 return Carbon::parse($date->created_at)->format('Y-m-d');
             })->map(function ($record) {
                 return [
-                    'date' => $record->date,
+                    'date' => $record->created_at,
                     'login_count' => $record->pluck('user_id')->unique()->count(),
                 ];
             })
