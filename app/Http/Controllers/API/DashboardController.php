@@ -520,14 +520,14 @@ class DashboardController extends Controller
             })
             ->get()->count();
 
-        $this->total_switched = Consumer::where('campaign_id', $campaign->id)
-            ->where('did_he_switch', '<>', 0)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })
-            ->get()->count();
+        // $this->total_switched = Consumer::where('campaign_id', $campaign->id)
+        //     ->where('did_he_switch', '<>', 0)
+        //     ->when($district_id, function ($query, $district_id) {
+        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
+        //             $query->where('district_id', $district_id);
+        //         });
+        //     })
+        //     ->get()->count();
 
         // $this->total_refusals = Consumer::where('campaign_id', $campaign->id)
         //     ->where('packs', 0)
@@ -557,6 +557,8 @@ class DashboardController extends Controller
                 });
             })
             ->get()->count();
+
+        $this->total_switched = $this->lvl1_incentive_count + $this->lvl2_incentive_count - $this->total_franchise;
 
         $this->campaign_total_target = $campaign->target * $visits;
         $this->campaign_effective_target = $campaign->effective_contact_target * $visits;
