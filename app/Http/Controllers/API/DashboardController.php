@@ -550,8 +550,8 @@ class DashboardController extends Controller
             })
             ->get()->count();
 
-        $this->campaign_total_target = $campaign->target * $this->campaign_active_days_count * $this->campaign_promoters_count;
-        $this->campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $this->campaign_promoters_count;
+        $this->campaign_total_target = $campaign->target * $this->campaign_active_days_count * $visits;
+        $this->campaign_effective_target = $campaign->effective_contact_target * $this->campaign_active_days_count * $visits;
 
         $general_statistics['campaign_promoters_count'] = $this->campaign_promoters_count;
         $general_statistics['visits'] = $visits;
