@@ -11,6 +11,7 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Traversable;
 
 class DashboardController extends Controller
@@ -477,14 +478,9 @@ class DashboardController extends Controller
             ->groupBy(function ($date) {
                 return Carbon::parse($date->created_at)->format('Y-m-d');
             })
-            ->get()
-            ->map(function ($record) {
-                return [
-                    'date' => $record->created_at,
-                    'login_count' => $record->pluck('user_id')->unique()->count(),
-                ];
-            })
-            ->toArray();
+            ->get();
+
+        Log::info($dailyLogins);
 
         // Count the number of elements in the $dailyLogins array
         $this->campaign_active_days_count = count($dailyLogins);
