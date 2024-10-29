@@ -40,13 +40,14 @@ class DashboardController extends Controller
         $this->start_date = $request->input('start_date');
         $this->end_date = $request->input('end_date');
 
+        $sales_performance = $this->calculateSalesPerformance($campaign, $district_id);
         $general_statistics = $this->general_statistics($campaign, $district_id);
         $trial_rate = $this->trial_rate($campaign, $district_id);
         $city_performance = $this->city_performance($campaign, $district_id);
         $gender_chart = $this->gender_chart($campaign, $district_id);
         $age_group = $this->age_group($campaign, $district_id);
         $efficiency_rate = $this->efficiency_rate($campaign, $district_id);
-        $sales_performance = $this->calculateSalesPerformance($campaign, $district_id);
+
 
         $data = [
             'campaign' => $campaign,
@@ -430,6 +431,8 @@ class DashboardController extends Controller
         // Prepare arrays to hold monthly performance data
         $monthlyPerformance = [];
         $effectiveConsumers = [];
+        $total_contacts = 0;
+        $effective_contacts = 0;
 
         // Loop through consumers and group by month
         foreach ($consumers as $consumer) {
@@ -444,6 +447,8 @@ class DashboardController extends Controller
 
             // Count total consumers for the month
             $monthlyPerformance[$monthKey]++;
+            $total_contacts++;
+
 
             // Check if the consumer is effective (packs > 0)
             $totalPacks = $consumer->packs;
@@ -451,6 +456,7 @@ class DashboardController extends Controller
             // If total packs are greater than 0, count as effective consumer
             if ($totalPacks > 0) {
                 $effectiveConsumers[$monthKey]++;
+                $effective_contacts++;
             }
         }
 
@@ -466,6 +472,9 @@ class DashboardController extends Controller
                 'trial_rate_percentage' => $trial_rate_percentage,
             ];
         }
+
+        $this->total_contacts = $total_contacts;
+        $this->effective_contacts = $effective_contacts;
 
         return $salesPerformance;
     }
@@ -512,30 +521,30 @@ class DashboardController extends Controller
             }
         }
 
-        $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })->when($this->start_date, function ($query, $start_date) {
-                return $query->whereDate('created_at', '>=', $start_date);
-            })->when($this->end_date, function ($query, $end_date) {
-                return $query->whereDate('created_at', '<=', $end_date);
-            })->get()
-            ->count();
+        // $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
+        //     ->when($district_id, function ($query, $district_id) {
+        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
+        //             $query->where('district_id', $district_id);
+        //         });
+        //     })->when($this->start_date, function ($query, $start_date) {
+        //         return $query->whereDate('created_at', '>=', $start_date);
+        //     })->when($this->end_date, function ($query, $end_date) {
+        //         return $query->whereDate('created_at', '<=', $end_date);
+        //     })->get()
+        //     ->count();
 
-        $this->effective_contacts = Consumer::where('campaign_id', $campaign->id)
-            ->where('packs', '>', 0)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })->when($this->start_date, function ($query, $start_date) {
-                return $query->whereDate('created_at', '>=', $start_date);
-            })->when($this->end_date, function ($query, $end_date) {
-                return $query->whereDate('created_at', '<=', $end_date);
-            })
-            ->get()->count();
+        // $this->effective_contacts = Consumer::where('campaign_id', $campaign->id)
+        //     ->where('packs', '>', 0)
+        //     ->when($district_id, function ($query, $district_id) {
+        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
+        //             $query->where('district_id', $district_id);
+        //         });
+        //     })->when($this->start_date, function ($query, $start_date) {
+        //         return $query->whereDate('created_at', '>=', $start_date);
+        //     })->when($this->end_date, function ($query, $end_date) {
+        //         return $query->whereDate('created_at', '<=', $end_date);
+        //     })
+        //     ->get()->count();
 
         $this->total_franchise = Consumer::where('campaign_id', $campaign->id)
             ->where('franchise', 1)
