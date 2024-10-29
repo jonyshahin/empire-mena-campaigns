@@ -415,7 +415,7 @@ class DashboardController extends Controller
             }
 
             // Count total consumers for the month
-            $monthlyPerformance[$monthKey]++;
+            // $monthlyPerformance[$monthKey]++;
 
             // Check if the consumer is effective (packs > 0)
             $totalPacks = $consumer->packs;
