@@ -291,8 +291,9 @@ class DashboardController extends Controller
             if (isset($competitorProductCounts[$product->id])) {
                 $competitors = $competitorProductCounts[$product->id];
                 arsort($competitors); // Sort by count descending
-                $top3Competitors = array_slice($competitors, 0, 5, true); // Get top 3 competitors
+                // $top3Competitors = array_slice($competitors, 0, 5, true); // Get top 3 competitors
 
+                $top3Competitors = $competitors;
                 // Calculate percentage for each competitor product
                 $totalCompetitorPacks = array_sum($competitors);
                 $topCompetitorsData = [];
