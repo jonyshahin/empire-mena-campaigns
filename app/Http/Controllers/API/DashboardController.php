@@ -483,7 +483,7 @@ class DashboardController extends Controller
                     'login_count' => $record->pluck('user_id')->unique()->count(),
                 ];
             })
-            ->toArray();;
+            ->toArray();
 
         // Count the number of elements in the $dailyLogins array
         $this->campaign_active_days_count = count($dailyLogins);
