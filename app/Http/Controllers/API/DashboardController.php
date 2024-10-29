@@ -467,6 +467,11 @@ class DashboardController extends Controller
 
         $dailyLogins = Consumer::select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
             ->where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
             ->groupBy('date')
             ->orderBy('date', 'desc')
             ->get()->map(function ($record) {
