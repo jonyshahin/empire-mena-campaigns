@@ -250,7 +250,7 @@ class ConsumerController extends Controller
                 'franchise' => $request->input('franchise', $consumer->franchise),
                 'did_he_switch' => isset($request->did_he_switch) ? $request->did_he_switch : 0,
                 'aspen' => $request->input('aspen', $consumer->aspen),
-                'packs' => $request->input('packs', $consumer->packs),
+                'packs' => $packs,
                 'incentives' => $request->input('incentives', $consumer->incentives),
                 'age' => $request->input('age', $consumer->age),
                 'nationality_id' => $request->input('nationality_id', $consumer->nationality_id),

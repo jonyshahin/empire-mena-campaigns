@@ -452,19 +452,6 @@ class DashboardController extends Controller
             ->distinct('user_id')
             ->count('user_id');
 
-        // $dailyLogins = AttendanceRecord::select(DB::raw('DATE(check_in_time) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
-        //     ->where('campaign_id', $campaign->id)
-        //     ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
-        //     ->groupBy('date')
-        //     ->orderBy('date', 'desc')
-        //     ->get()->map(function ($record) {
-        //         return [
-        //             'date' => $record->date,
-        //             'login_count' => $record->login_count,
-        //         ];
-        //     })
-        //     ->toArray();
-
         $dailyLogins = Consumer::select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
             ->where('campaign_id', $campaign->id)
             ->when($district_id, function ($query, $district_id) {
