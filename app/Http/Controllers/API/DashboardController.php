@@ -474,10 +474,10 @@ class DashboardController extends Controller
             ->when($campaign_id, function ($query, $campaign_id) {
                 return $query->where('campaign_id', $campaign_id);
             })
+            ->groupBy('created_at')
+            ->orderBy('created_at', 'desc')
             ->get()
-            ->groupBy(function ($date) {
-                return Carbon::parse($date->created_at)->format('Y-m-d');
-            })->map(function ($record) {
+            ->map(function ($record) {
                 return [
                     'date' => $record->created_at,
                     'login_count' => $record->pluck('user_id')->unique()->count(),
