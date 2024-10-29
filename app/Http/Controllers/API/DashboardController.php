@@ -410,12 +410,12 @@ class DashboardController extends Controller
 
             // Initialize counts for the month if not already set
             if (!isset($monthlyPerformance[$monthKey])) {
-                $monthlyPerformance[$monthKey] = 0;
+                $monthlyPerformance[$monthKey] = -1;
                 $effectiveConsumers[$monthKey] = 0;
             }
 
             // Count total consumers for the month
-            // $monthlyPerformance[$monthKey]++;
+            $monthlyPerformance[$monthKey]++;
 
             // Check if the consumer is effective (packs > 0)
             $totalPacks = $consumer->packs;
