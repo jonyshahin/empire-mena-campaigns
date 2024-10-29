@@ -479,6 +479,7 @@ class DashboardController extends Controller
 
         // Count the number of elements in the $dailyLogins array
         $this->campaign_active_days_count = count($dailyLogins);
+        $this->campaign_promoters_count = max($dailyLogins['login_count']);
         $visits = 0;
         foreach ($dailyLogins as $login) {
             $visits += $login['login_count'];
