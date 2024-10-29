@@ -26,12 +26,15 @@ class DashboardController extends Controller
     protected $total_refusals;
     protected $lvl1_incentive_count;
     protected $lvl2_incentive_count;
+    protected $campaign_id;
 
     public function index(Request $request)
     {
 
         $campaign = Campaign::find($request->campaign_id);
         $district_id = $request->input('district_id');
+        $this->campaign_id = $campaign->id;
+
 
         $general_statistics = $this->general_statistics($campaign, $district_id);
         $trial_rate = $this->trial_rate($campaign, $district_id);
@@ -442,24 +445,45 @@ class DashboardController extends Controller
     protected function general_statistics($campaign, $district_id = null)
     {
         $general_statistics = [];
+        $campaign_id = $this->campaign_id;
 
         $this->campaign_promoters_count = AttendanceRecord::where('campaign_id', $campaign->id)
             ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
             ->distinct('user_id')
             ->count('user_id');
 
-        $dailyLogins = AttendanceRecord::select(DB::raw('DATE(check_in_time) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
-            ->where('campaign_id', $campaign->id)
-            ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
-            ->groupBy('date')
-            ->orderBy('date', 'desc')
-            ->get()->map(function ($record) {
+        // $dailyLogins = AttendanceRecord::select(DB::raw('DATE(check_in_time) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
+        //     ->where('campaign_id', $campaign->id)
+        //     ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
+        //     ->groupBy('date')
+        //     ->orderBy('date', 'desc')
+        //     ->get()->map(function ($record) {
+        //         return [
+        //             'date' => $record->date,
+        //             'login_count' => $record->login_count,
+        //         ];
+        //     })
+        //     ->toArray();
+
+        $dailyLogins = Consumer::with(['promoter', 'outlet.district'])
+            ->when($district_id, function ($query) use ($district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->when($campaign_id, function ($query, $campaign_id) {
+                return $query->where('campaign_id', $campaign_id);
+            })
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('Y-m-d');
+            })->map(function ($record) {
                 return [
                     'date' => $record->date,
-                    'login_count' => $record->login_count,
+                    'login_count' => $record->pluck('user_id')->unique()->count(),
                 ];
             })
-            ->toArray();
+            ->toArray();;
 
         // Count the number of elements in the $dailyLogins array
         $this->campaign_active_days_count = count($dailyLogins);
