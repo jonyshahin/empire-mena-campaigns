@@ -21,6 +21,8 @@ class AttendanceRecord extends Model
         'outlet_id' => 'integer',
         'last_day_note' => 'string',
         'campaign_id' => 'integer',
+        'stock_first' => 'array',
+        'stock_last' => 'array',
     ];
 
     public function user(): BelongsTo
