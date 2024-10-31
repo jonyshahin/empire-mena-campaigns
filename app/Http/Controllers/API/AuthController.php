@@ -108,7 +108,6 @@ class AuthController extends Controller
                     'email' => 'required|email',
                     'password' => 'required',
                     'outlet_id' => 'required|exists:outlets,id',
-                    'stock_first' => 'nullable|array',
                 ]
             );
             if ($validator->fails()) {
@@ -140,7 +139,6 @@ class AuthController extends Controller
             $attendance->user_id = $user->id;
             $attendance->check_in_time = now();
             $attendance->outlet_id = $request->outlet_id;
-            $attendance->stock_first = isset($request->stock_first) ? $request->stock_first : [];
             $attendance->save();
 
             return custom_success(200, 'User Logged In Successfully', $data);
@@ -211,6 +209,7 @@ class AuthController extends Controller
                 $data,
                 [
                     'campaign_id' => 'required|exists:campaigns,id',
+                    'stock_first' => 'nullable|array',
                 ]
             );
             if ($validator->fails()) {
@@ -225,6 +224,7 @@ class AuthController extends Controller
                 ->first();
 
             $attendance->campaign_id = $request->campaign_id;
+            $attendance->stock_first = isset($request->stock_first) ? $request->stock_first : [];
             $attendance->save();
 
             $fetch_data = [
