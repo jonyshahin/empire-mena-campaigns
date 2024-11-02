@@ -75,7 +75,7 @@ Route::post('/login/team-leader', [AuthController::class, 'login_team_leader']);
 Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
     Route::get('/verify-token', [AuthController::class, 'verifyToken']);
     Route::post('/set-campaign', [AuthController::class, 'setCampaign']);
-    Route::get('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::middleware('role:admin')->group(function () {
         Route::get('get-profile', [AuthController::class, 'get_profile']);
         Route::post('update-profile', [AuthController::class, 'update_profile']);
