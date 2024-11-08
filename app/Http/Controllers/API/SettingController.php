@@ -12,7 +12,7 @@ class SettingController extends Controller
     public function index(Request $request)
     {
         try {
-            $settings = Setting::all()->pluck('value', 'key');
+            $settings = Setting::get();
 
             return custom_success(200, 'Setting List', $settings);
         } catch (\Throwable $th) {
