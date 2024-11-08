@@ -45,6 +45,7 @@ class Campaign extends Model
         'promoters',
         'team_leaders',
         'competitor_products',
+        'settings',
     ];
 
     public function client(): BelongsTo
