@@ -358,7 +358,7 @@ class CampaignController extends Controller
 
             if (isset($request->campaign_settings)) {
                 foreach ($request->campaign_settings as $setting) {
-                    $model->settings()->syncWithoutDetaching($setting->id, ['value' => $setting->value]);
+                    $model->settings()->syncWithoutDetaching($setting['id'], ['value' => $setting->value]);
                 }
             }
 
