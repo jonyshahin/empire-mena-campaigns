@@ -320,6 +320,9 @@ class CampaignController extends Controller
                     'competitor_product_ids' => 'nullable|array|exists:products,id',
                     'target' => 'nullable|integer',
                     'effective_contact_target' => 'nullable|integer',
+                    'campaign_settings' => 'nullable|array',
+                    'campaign_settings.*.id' => 'required|integer|exists:settings,id',
+                    'campaign_settings.*.value' => 'required',
                 ]
             );
 
@@ -351,6 +354,12 @@ class CampaignController extends Controller
 
             if ($request->has('team_leader_ids')) {
                 $model->team_leaders()->sync($request->team_leader_ids);
+            }
+
+            if (isset($request->campaign_settings)) {
+                foreach ($request->campaign_settings as $setting) {
+                    $model->settings()->syncWithoutDetaching($setting->id, ['value' => $setting->value]);
+                }
             }
 
             $model = Campaign::find($request->campaign_id);
