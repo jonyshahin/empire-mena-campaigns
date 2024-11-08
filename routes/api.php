@@ -15,6 +15,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
+use App\Http\Controllers\API\SettingController;
 use App\Http\Controllers\API\TeamLeaderController;
 use App\Http\Controllers\API\ZoneController;
 use Illuminate\Support\Facades\Route;
@@ -257,4 +258,19 @@ Route::prefix('dashboard')->group(function () {
             Route::get('show', [DashboardController::class, 'show']);
         });
     });
+});
+
+Route::prefix('settings')->group(function () {
+    Route::middleware('auth:sanctum')->group(
+        function () {
+            Route::middleware('role:admin')->group(function () {
+                Route::get('/get', [SettingController::class, 'index']);
+                Route::post('/set', [SettingController::class, 'set']);
+                Route::post('/create', [SettingController::class, 'store']);
+                Route::get('/show/{id}', [SettingController::class, 'show']);
+                Route::post('/update/{id}', [SettingController::class, 'update']);
+                Route::delete('/delete/{id}', [SettingController::class, 'delete']);
+            });
+        }
+    );
 });
