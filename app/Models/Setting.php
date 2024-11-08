@@ -19,4 +19,9 @@ class Setting extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'campaign_setting')->withPivot(['value']);
+    }
 }

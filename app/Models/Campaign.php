@@ -81,4 +81,9 @@ class Campaign extends Model
     {
         return $this->belongsToMany(Product::class, 'campaign_competitor_product', 'campaign_id', 'competitor_product_id');
     }
+
+    public function settings()
+    {
+        return $this->belongsToMany(Setting::class, 'campaign_setting')->withPivot(['value']);
+    }
 }
