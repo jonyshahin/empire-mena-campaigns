@@ -355,7 +355,9 @@ class CampaignController extends Controller
             }
 
             if (isset($request->settings)) {
-                $model->settings()->sync($request->settings);
+                foreach ($request->settings as $setting) {
+                    $model->settings()->syncWithoutDetaching([$setting['setting_id'] => ['value' => $setting['value']]]);
+                }
             }
 
             $model = Campaign::find($request->campaign_id);
