@@ -25,11 +25,15 @@ class CampaignController extends Controller
 
             if ($user->hasRole('promoter')) {
                 $campaigns = $user->campaigns()->pluck('campaign_id');
-                $models->whereIn('id', $campaigns);
+                $models->whereIn('id', $campaigns)
+                    ->whereDate('start_date', '>=', now()->toDateString())
+                    ->whereDate('end_date', '<=', now()->toDateString());
             }
             if ($user->hasRole('team_leader')) {
                 $campaigns = $user->team_leader_campaigns()->pluck('campaign_id');
-                $models->whereIn('id', $campaigns);
+                $models->whereIn('id', $campaigns)
+                    ->whereDate('start_date', '>=', now()->toDateString())
+                    ->whereDate('end_date', '<=', now()->toDateString());
             }
             $per_page = $request->perPage ?? 10;
 
