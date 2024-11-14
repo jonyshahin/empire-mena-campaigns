@@ -83,7 +83,7 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
                     'Incentives' => $consumer->incentives,
                     'Franchise' => $consumer->franchise ? 'Yes' : 'No',
                     'Did He Switch' => $consumer->did_he_switch ? 'Yes' : 'No',
-                    'Competitor Brand' => isset($consumer->competitor_product) ? $consumer->competitor_product()->brand->name : 'N/A',
+                    'Competitor Brand' => isset($consumer->competitor_product) ? $consumer->competitor_product()->brand()->name : 'N/A',
                     'Competitor Product' => optional($consumer->competitor_product)->name,
                     // 'Other Brand Name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
                     'Products' => $consumer->selected_products,
