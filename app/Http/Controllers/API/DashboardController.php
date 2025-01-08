@@ -364,11 +364,11 @@ class DashboardController extends Controller
                 $competitorProductCounts[$brand_id]++;
 
                 // Track switch count for this competitor product
-                if (!isset($competitorSwitchCounts[$competitorProductId])) {
-                    $competitorSwitchCounts[$competitorProductId] = 0;
+                if (!isset($competitorSwitchCounts[$brand_id])) {
+                    $competitorSwitchCounts[$brand_id] = 0;
                 }
                 if ($didHeSwitch) {
-                    $competitorSwitchCounts[$competitorProductId]++;
+                    $competitorSwitchCounts[$brand_id]++;
                 }
             }
         }
