@@ -357,10 +357,11 @@ class DashboardController extends Controller
 
             if ($competitorProductId) {
                 // Track competitor product counts
-                if (!isset($competitorProductCounts[$competitorProductId])) {
-                    $competitorProductCounts[$competitorProductId] = 0;
+                $brand_id = Product::find($competitorProductId)->brand_id;
+                if (!isset($competitorProductCounts[$brand_id])) {
+                    $competitorProductCounts[$brand_id] = 0;
                 }
-                $competitorProductCounts[$competitorProductId]++;
+                $competitorProductCounts[$brand_id]++;
 
                 // Track switch count for this competitor product
                 if (!isset($competitorSwitchCounts[$competitorProductId])) {
@@ -382,8 +383,8 @@ class DashboardController extends Controller
         foreach ($top5Competitors as $competitorId => $competitorCount) {
             $switchCount = $competitorSwitchCounts[$competitorId] ?? 0; // Get switch count for this competitor
             $switchPercentage = ($switchCount / $competitorCount) * 100; // Calculate percentage of switches
-            $competitor_product = Product::find($competitorId);
-            $competitor_brand = CompetitorBrand::find($competitor_product->brand_id);
+            // $competitor_product = Product::find($competitorId);
+            $competitor_brand = CompetitorBrand::find($competitorId);
 
             $topCompetitorSwitches[] = [
                 // 'competitor_product' => $competitor_product,
