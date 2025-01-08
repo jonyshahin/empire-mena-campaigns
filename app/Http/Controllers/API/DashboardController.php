@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
 use App\Models\Campaign;
+use App\Models\CompetitorBrand;
 use App\Models\Consumer;
 use App\Models\District;
 use App\Models\Product;
@@ -381,9 +382,12 @@ class DashboardController extends Controller
         foreach ($top5Competitors as $competitorId => $competitorCount) {
             $switchCount = $competitorSwitchCounts[$competitorId] ?? 0; // Get switch count for this competitor
             $switchPercentage = ($switchCount / $competitorCount) * 100; // Calculate percentage of switches
+            $competitor_product = Product::find($competitorId);
+            $competitor_brand = CompetitorBrand::find($competitor_product->brand_id);
 
             $topCompetitorSwitches[] = [
-                'competitor_product' => Product::find($competitorId),
+                // 'competitor_product' => $competitor_product,
+                'competitor_product' => $competitor_brand,
                 'value' => $competitorCount,
                 'switch_count' => $switchCount,
                 'switch_percentage' => round($switchPercentage, 2), // Rounded to 2 decimal places
