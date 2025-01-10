@@ -59,6 +59,7 @@ class DashboardController extends Controller
             'variant_split' => $age_group['variant_split'],
             'packs_sold' => $age_group['packs_sold'],
             'top_competitor_products' => $age_group['top_competitor_products'],
+            'top_competitor_brands' => $age_group['top_competitor_brands'],
             'efficiency_rate' => $efficiency_rate,
             'sales_performance' => $sales_performance,
             'general_statistics' => $general_statistics,
