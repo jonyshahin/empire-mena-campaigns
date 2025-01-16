@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exports\StockCampaignReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -18,16 +20,20 @@ class ReportController extends Controller
             $request->validate([
                 'start_date' => 'nullable|date_format:Y-m-d',
                 'end_date' => 'nullable|date_format:Y-m-d',
-                'district_id' => 'nullable|integer|exists:districts,id',
-                'outlet_id' => 'nullable|integer|exists:outlets,id',
+                'district_ids' => 'nullable|array',
+                'district_ids.*' => 'integer|exists:districts,id',
+                'outlet_ids' => 'nullable|array',
+                'outlet_ids.*' => 'nullable|integer|exists:outlets,id',
+                'promoter_ids' => 'nullable|array',
+                'promoter_ids.*' => 'nullable|integer|exists:users,id',
                 'campaign_id' => 'nullable|integer|exists:campaigns,id',
             ]);
 
             // Get the date from the request
             $start_date = $request->input('start_date');
             $end_date = $request->input('end_date');
-            $districtId = $request->input('district_id');
-            $outletId = $request->input('outlet_id');
+            $district_ids = $request->input('district_ids');
+            $outlet_ids = $request->input('outlet_ids');
             $campaign_id = $request->input('campaign_id');
 
             $timezone = 'Asia/Baghdad';
@@ -72,5 +78,32 @@ class ReportController extends Controller
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
+    }
+
+    public function exportStockCampaignReport(Request $request)
+    {
+        // Validate the date parameter
+        // Validate the date parameter
+        $request->validate([
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d',
+            'district_ids' => 'nullable|array',
+            'district_ids.*' => 'integer|exists:districts,id',
+            'outlet_ids' => 'nullable|array',
+            'outlet_ids.*' => 'nullable|integer|exists:outlets,id',
+            'promoter_ids' => 'nullable|array',
+            'promoter_ids.*' => 'nullable|integer|exists:users,id',
+            'campaign_id' => 'nullable|integer|exists:campaigns,id',
+        ]);
+
+        // Get the date from the request
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $district_ids = $request->input('district_ids');
+        $outlet_ids = $request->input('outlet_ids');
+        $promoter_ids = $request->input('promoter_ids');
+        $campaign_id = $request->input('campaign_id');
+
+        return Excel::download(new StockCampaignReportExport($start_date, $end_date, $district_ids, $outlet_ids, $promoter_ids, $campaign_id), 'consumers_by_promoter_report.xlsx');
     }
 }
