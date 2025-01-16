@@ -51,14 +51,14 @@ class ReportController extends Controller
                             'last_day_note' => $attendance_record->last_day_note,
                             'stock_first' => $attendance_record->stock_first ? array_map(function ($stock_first_record) {
                                 return [
-                                    'product_name' => $stock_first_record->product_name,
-                                    'stock' => $stock_first_record->stock,
+                                    'product_name' => $stock_first_record['product_name'],
+                                    'stock' => $stock_first_record['stock'],
                                 ];
                             }, $attendance_record->stock_first) : [],
                             'stock_last' => $attendance_record->stock_last ? array_map(function ($stock_last_record) {
                                 return [
-                                    'product_name' => $stock_last_record->product_name,
-                                    'stock' => $stock_last_record->stock,
+                                    'product_name' => $stock_last_record['product_name'],
+                                    'stock' => $stock_last_record['stock'],
                                 ];
                             }, $attendance_record->stock_last) : [],
                             'created_at' => Carbon::parse($attendance_record->created_at)->timezone($timezone)->toDateTimeString(),
