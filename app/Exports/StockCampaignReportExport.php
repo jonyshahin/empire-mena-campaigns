@@ -49,45 +49,51 @@ class StockCampaignReportExport implements FromCollection, WithHeadings
             ->groupBy('user.name');
 
         $data = new Collection();
+        if ($campaign_attendance_records) {
+            foreach ($campaign_attendance_records as $promoterName => $attendance_records) {
+                foreach ($attendance_records as $attendance_record) {
+                    $stocks = [];
 
-        foreach ($campaign_attendance_records as $promoterName => $attendance_records) {
-            foreach ($attendance_records as $attendance_record) {
-                $stocks = [];
-
-                // Process stock_first
-                foreach ($attendance_record->stock_first as $stock_first_record) {
-                    $product_name = $stock_first_record['product_name'];
-                    $stocks[$product_name] = [
-                        'product_name' => $product_name,
-                        'stock_in' => $stock_first_record['stock'],
-                        'stock_out' => NULL, // Initialize stock_out
-                    ];
-                }
-
-                // Process stock_last
-                foreach ($attendance_record->stock_last as $stock_last_record) {
-                    $product_name = $stock_last_record['product_name'];
-                    if (isset($stocks[$product_name])) {
-                        $stocks[$product_name]['stock_out'] = $stock_last_record['stock'];
-                    } else {
-                        $stocks[$product_name] = [
-                            'product_name' => $product_name,
-                            'stock_in' => NULL, // Initialize stock_in
-                            'stock_out' => $stock_last_record['stock'],
-                        ];
+                    // Process stock_first
+                    if ($attendance_record->stock_first) {
+                        foreach ($attendance_record->stock_first as $stock_first_record) {
+                            $product_name = $stock_first_record['product_name'];
+                            $stocks[$product_name] = [
+                                'product_name' => $product_name,
+                                'stock_in' => $stock_first_record['stock'],
+                                'stock_out' => NULL, // Initialize stock_out
+                            ];
+                        }
                     }
-                }
-                foreach ($stocks as $stock) {
-                    $data->push([
-                        'Promoter' => $promoterName,
-                        'Outlet' => $attendance_record->outlet ? $attendance_record->outlet->name : NULL,
-                        'Check In Time' => $attendance_record->check_in_time,
-                        'Check Out Time' => $attendance_record->check_out_time,
-                        'Last Day Note' => $attendance_record->last_day_note,
-                        'Product Name' => $stock['product_name'],
-                        'Stock In' => $stock['stock_in'],
-                        'Stock Out' => $stock['stock_out'],
-                    ]);
+
+                    // Process stock_last
+                    if ($attendance_record->stock_last) {
+                        foreach ($attendance_record->stock_last as $stock_last_record) {
+                            $product_name = $stock_last_record['product_name'];
+                            if (isset($stocks[$product_name])) {
+                                $stocks[$product_name]['stock_out'] = $stock_last_record['stock'];
+                            } else {
+                                $stocks[$product_name] = [
+                                    'product_name' => $product_name,
+                                    'stock_in' => NULL, // Initialize stock_in
+                                    'stock_out' => $stock_last_record['stock'],
+                                ];
+                            }
+                        }
+                    }
+
+                    foreach ($stocks as $stock) {
+                        $data->push([
+                            'Promoter' => $promoterName,
+                            'Outlet' => $attendance_record->outlet ? $attendance_record->outlet->name : NULL,
+                            'Check In Time' => $attendance_record->check_in_time,
+                            'Check Out Time' => $attendance_record->check_out_time,
+                            'Last Day Note' => $attendance_record->last_day_note,
+                            'Product Name' => $stock['product_name'],
+                            'Stock In' => $stock['stock_in'],
+                            'Stock Out' => $stock['stock_out'],
+                        ]);
+                    }
                 }
             }
         }
