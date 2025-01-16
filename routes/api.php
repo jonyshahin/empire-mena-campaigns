@@ -277,11 +277,12 @@ Route::prefix('settings')->group(function () {
 });
 
 Route::prefix('reports')->group(function () {
+    Route::get('export-stock-campaign', [ReportController::class, 'exportStockCampaignReport']);
     Route::middleware('auth:sanctum')->group(
         function () {
             Route::middleware('role:admin')->group(function () {
                 Route::get('stock-campaign', [ReportController::class, 'stockCampaignReport']);
-                Route::get('export-stock-campaign', [ReportController::class, 'exportStockCampaignReport']);
+                // Route::get('export-stock-campaign', [ReportController::class, 'exportStockCampaignReport']);
             });
         }
     );

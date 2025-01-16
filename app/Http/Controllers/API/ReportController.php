@@ -83,7 +83,6 @@ class ReportController extends Controller
     public function exportStockCampaignReport(Request $request)
     {
         // Validate the date parameter
-        // Validate the date parameter
         $request->validate([
             'start_date' => 'nullable|date_format:Y-m-d',
             'end_date' => 'nullable|date_format:Y-m-d',
