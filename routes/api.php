@@ -15,6 +15,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
+use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingController;
 use App\Http\Controllers\API\TeamLeaderController;
 use App\Http\Controllers\API\ZoneController;
@@ -270,6 +271,17 @@ Route::prefix('settings')->group(function () {
                 Route::get('/show/{id}', [SettingController::class, 'show']);
                 Route::post('/update/{id}', [SettingController::class, 'update']);
                 Route::delete('/delete/{id}', [SettingController::class, 'delete']);
+            });
+        }
+    );
+});
+
+Route::prefix('reports')->group(function () {
+    Route::middleware('auth:sanctum')->group(
+        function () {
+            Route::middleware('role:admin')->group(function () {
+                Route::get('stock-campaign', [ReportController::class, 'stockCampaignReport']);
+                Route::get('export-stock-campaign', [ReportController::class, 'exportStockCampaignReport']);
             });
         }
     );
