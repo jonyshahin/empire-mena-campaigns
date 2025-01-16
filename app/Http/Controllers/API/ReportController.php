@@ -45,7 +45,7 @@ class ReportController extends Controller
                     'promoter' => $promoterName,
                     'attendance_records' => $attendance_records->map(function ($attendance_record) use ($timezone) {
                         return [
-                            'outlet' => $attendance_record->outlet->name,
+                            'outlet' => $attendance_record->outlet ? $attendance_record->outlet->name : null,
                             'check_in_time' => $attendance_record->check_in_time,
                             'check_out_time' => $attendance_record->check_out_time,
                             'last_day_note' => $attendance_record->last_day_note,
