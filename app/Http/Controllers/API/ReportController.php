@@ -29,7 +29,10 @@ class ReportController extends Controller
             $outletId = $request->input('outlet_id');
             $campaign_id = $request->input('campaign_id');
 
-            $campaign_attendance_records = AttendanceRecord::where('campaign_id', $campaign_id)->get();
+            $campaign_attendance_records = AttendanceRecord::where('campaign_id', $campaign_id)
+                ->with(['user'])
+                ->get()
+                ->groupBy('user.name');
 
             return custom_success(200, 'Report generated successfully', $campaign_attendance_records);
         } catch (\Throwable $th) {
