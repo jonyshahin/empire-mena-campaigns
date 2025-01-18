@@ -140,7 +140,9 @@ class ConsumersReportExport implements FromCollection, WithHeadings
                 ];
             });
 
-            return $reportData[0]['outlets'];
+            $allOutlets = $reportData->pluck('outlets')->flatten(1);
+
+            return $allOutlets;
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
