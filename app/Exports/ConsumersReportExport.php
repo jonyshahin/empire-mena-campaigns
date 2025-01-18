@@ -33,6 +33,8 @@ class ConsumersReportExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'District',
+            'Zone',
             'Outlet',
             '# Consumers',
             '# Effective Consumers',
@@ -123,6 +125,8 @@ class ConsumersReportExport implements FromCollection, WithHeadings
                     }),
                     'outlets' => $outlets->map(function ($outlet) use ($timezone) {
                         return [
+                            'district' => $outlet->district->name,
+                            'zone' => $outlet->zone->name,
                             'outlet' => $outlet->name,
                             'consumer_count' => $outlet->consumers->count(),
                             'effective_consumer_count' => $outlet->consumers->where('packs', '>', 0)->count(),
