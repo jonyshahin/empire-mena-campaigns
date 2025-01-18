@@ -139,7 +139,11 @@ class ConsumersReportExport implements FromCollection, WithHeadings
                     }),
                 ];
             });
-            return $reportData['outlets'];
+            foreach ($reportData as $data) {
+                $data['outlets'] = $data['outlets']->toArray();
+            }
+
+            return $data['outlets'];
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
