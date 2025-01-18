@@ -83,9 +83,26 @@ class StockCampaignReportExport implements FromCollection, WithHeadings
                     }
 
                     foreach ($stocks as $stock) {
+                        $outlet = $attendance_record->outlet;
+                        $outlet_name = NULL;
+                        if ($outlet) {
+                            $outlet_name = $attendance_record->outlet->name;
+                            $district = $attendance_record->outlet->district;
+                            $district_name = NULL;
+                            if ($district) {
+                                $district_name = $attendance_record->outlet->district->name;
+                            }
+                            $zone = $attendance_record->outlet->zone;
+                            $zone_name = NULL;
+                            if ($zone) {
+                                $zone_name = $attendance_record->outlet->zone->name;
+                            }
+                        }
                         $data->push([
                             'Promoter' => $promoterName,
-                            'Outlet' => $attendance_record->outlet ? $attendance_record->outlet->name : NULL,
+                            'District' => $district_name,
+                            'Zone' => $zone_name,
+                            'Outlet' => $outlet_name,
                             'Check In Time' => $attendance_record->check_in_time,
                             'Check Out Time' => $attendance_record->check_out_time,
                             'Last Day Note' => $attendance_record->last_day_note,
@@ -105,6 +122,8 @@ class StockCampaignReportExport implements FromCollection, WithHeadings
     {
         return [
             'Promoter',
+            'District',
+            'Zone',
             'Outlet',
             'Check In Time',
             'Check Out Time',
