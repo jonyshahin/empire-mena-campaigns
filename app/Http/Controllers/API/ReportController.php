@@ -52,15 +52,15 @@ class ReportController extends Controller
                     'attendance_records' => $attendance_records->map(function ($attendance_record) use ($timezone) {
                         $outlet = $attendance_record->outlet;
                         $outlet_name = NULL;
+                        $district_name = NULL;
+                        $zone_name = NULL;
                         if ($outlet) {
                             $outlet_name = $attendance_record->outlet->name;
                             $district = $attendance_record->outlet->district;
-                            $district_name = NULL;
                             if ($district) {
                                 $district_name = $attendance_record->outlet->district->name;
                             }
                             $zone = $attendance_record->outlet->zone;
-                            $zone_name = NULL;
                             if ($zone) {
                                 $zone_name = $attendance_record->outlet->zone->name;
                             }
