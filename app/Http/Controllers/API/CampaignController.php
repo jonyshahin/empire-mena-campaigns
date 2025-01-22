@@ -226,9 +226,10 @@ class CampaignController extends Controller
                     'competitor_product_ids' => 'nullable|array|exists:products,id',
                     'target' => 'nullable|integer',
                     'effective_contact_target' => 'nullable|integer',
-                    'settings' => 'nullable|array',
-                    'settings.*.setting_id' => 'required|integer|exists:settings,id',
-                    'settings.*.value' => 'required',
+                    'incentives' => 'nullable|array',
+                    'incentives.*.brand_id' => 'required|integer|exists:competitor_brands,id',
+                    'incentives.*.name' => 'required|string',
+                    'incentives.*.value' => 'required|numeric',
                 ]
             );
 
@@ -263,9 +264,13 @@ class CampaignController extends Controller
                 $model->team_leaders()->sync($request->team_leader_ids);
             }
 
-            if (isset($request->settings)) {
-                foreach ($request->settings as $setting) {
-                    $model->settings()->syncWithoutDetaching([$setting['setting_id'] => ['value' => $setting['value']]]);
+            if (isset($request->incentives)) {
+                foreach ($request->incentives as $incentive) {
+                    $model->incentives()->create([
+                        'brand_id' => $incentive['brand_id'],
+                        'name' => $incentive['name'],
+                        'value' => $incentive['value'],
+                    ]);
                 }
             }
 
@@ -324,9 +329,10 @@ class CampaignController extends Controller
                     'competitor_product_ids' => 'nullable|array|exists:products,id',
                     'target' => 'nullable|integer',
                     'effective_contact_target' => 'nullable|integer',
-                    'settings' => 'nullable|array',
-                    'settings.*.setting_id' => 'required|integer|exists:settings,id',
-                    'settings.*.value' => 'required',
+                    'incentives' => 'nullable|array',
+                    'incentives.*.brand_id' => 'required|integer|exists:competitor_brands,id',
+                    'incentives.*.name' => 'required|string',
+                    'incentives.*.value' => 'required|numeric',
                 ]
             );
 
@@ -360,9 +366,13 @@ class CampaignController extends Controller
                 $model->team_leaders()->sync($request->team_leader_ids);
             }
 
-            if (isset($request->settings)) {
-                foreach ($request->settings as $setting) {
-                    $model->settings()->syncWithoutDetaching([$setting['setting_id'] => ['value' => $setting['value']]]);
+            if (isset($request->incentives)) {
+                foreach ($request->incentives as $incentive) {
+                    $model->incentives()->create([
+                        'brand_id' => $incentive['brand_id'],
+                        'name' => $incentive['name'],
+                        'value' => $incentive['value'],
+                    ]);
                 }
             }
 

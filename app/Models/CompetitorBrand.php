@@ -83,4 +83,9 @@ class CompetitorBrand extends Model implements HasMedia
     {
         return $this->hasMany(Product::class, 'brand_id')->without(['brand']);
     }
+
+    public function incentives(): HasMany
+    {
+        return $this->hasMany(Incentive::class, 'brand_id');
+    }
 }

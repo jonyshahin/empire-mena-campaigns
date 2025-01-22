@@ -87,4 +87,9 @@ class Campaign extends Model
     {
         return $this->belongsToMany(Setting::class, 'campaign_setting')->withPivot(['value']);
     }
+
+    public function incentives(): HasMany
+    {
+        return $this->hasMany(Incentive::class);
+    }
 }
