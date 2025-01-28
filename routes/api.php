@@ -8,6 +8,7 @@ use App\Http\Controllers\API\CompetitorBrandController;
 use App\Http\Controllers\API\ConsumerController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\DistrictController;
+use App\Http\Controllers\API\IncentiveController;
 use App\Http\Controllers\API\IndustryController;
 use App\Http\Controllers\API\NationalityController;
 use App\Http\Controllers\API\ProductCategoryController;
@@ -167,6 +168,18 @@ Route::prefix('district')->group(function () {
             Route::post('show', [DistrictController::class, 'show']);
             Route::post('update', [DistrictController::class, 'update']);
             Route::post('delete', [DistrictController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('incentive')->group(function () {
+    Route::get('/', [IncentiveController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [IncentiveController::class, 'store']);
+            Route::post('show', [IncentiveController::class, 'show']);
+            Route::post('update', [IncentiveController::class, 'update']);
+            Route::post('delete', [IncentiveController::class, 'destroy']);
         });
     });
 });
