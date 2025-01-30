@@ -38,6 +38,7 @@ class Consumer extends Model
         'selected_products' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'dynamic_incentives' => 'array',
     ];
 
     protected function packs(): Attribute

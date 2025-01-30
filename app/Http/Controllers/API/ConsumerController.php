@@ -72,6 +72,8 @@ class ConsumerController extends Controller
                 'other_refused_reason' => 'nullable|string',
                 'selected_products' => 'nullable|array',
                 'competitor_product_id' => 'nullable|integer',
+                'dynamic_incentives' => 'nullable|array',
+                'dynamic_incentives.*.id' => 'required|integer|exists:incentives,id',
             ]);
 
             $otp_code = rand(100000, 999999);
@@ -126,6 +128,7 @@ class ConsumerController extends Controller
                 'campaign_id' => $campaign_id,
                 'selected_products' => $request->input('selected_products'),
                 'competitor_product_id' => $request->input('competitor_product_id'),
+                'dynamic_incentives' => $request->input('dynamic_incentives'),
             ]);
 
 
