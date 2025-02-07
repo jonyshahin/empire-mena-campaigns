@@ -270,6 +270,7 @@ Route::prefix('dashboard')->group(function () {
         Route::middleware('role:admin|client')->group(function () {
             Route::get('/', [DashboardController::class, 'index']);
             Route::get('show', [DashboardController::class, 'show']);
+            Route::get('/sales-performance', [DashboardController::class, 'salesPerformance']);
         });
     });
 });
