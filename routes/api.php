@@ -276,6 +276,7 @@ Route::prefix('dashboard')->group(function () {
             Route::get('/city-performance', [DashboardController::class, 'cityPerformance']);
             Route::get('/gender-chart', [DashboardController::class, 'genderChart']);
             Route::get('/age-group', [DashboardController::class, 'ageGroup']);
+            Route::get('/efficiency-rate', [DashboardController::class, 'efficiencyRate']);
         });
     });
 });

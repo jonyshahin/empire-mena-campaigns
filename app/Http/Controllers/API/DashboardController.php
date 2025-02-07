@@ -759,4 +759,22 @@ class DashboardController extends Controller
 
         return custom_success(200, 'Success', $data);
     }
+
+    public function efficiencyRate(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        $efficiency_rate = $this->dashboardService->efficiencyRate($campaign, $district_id, $start_date, $end_date);
+
+        $data = [
+            'campaign' => $campaign,
+            'efficiency_rate' => $efficiency_rate,
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
 }

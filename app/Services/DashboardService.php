@@ -529,4 +529,71 @@ class DashboardService
             'top_competitor_brands' => $topCompetitorBrands,
         ];
     }
+
+    public function efficiencyRate($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        // Get all consumers of the campaign
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->get();
+
+        $competitorProductCounts = []; // To store competitor product counts
+        $competitorSwitchCounts = []; // To store switch counts for each competitor product
+
+        // Loop through consumers and count competitor products and switches
+        foreach ($consumers as $consumer) {
+            $competitorProductId = $consumer->competitor_product_id;
+            $didHeSwitch = $consumer->did_he_switch; // Check if the consumer switched
+
+            if ($competitorProductId) {
+                // Track competitor product counts
+                $brand_id = Product::find($competitorProductId)->brand_id;
+                if (!isset($competitorProductCounts[$brand_id])) {
+                    $competitorProductCounts[$brand_id] = 0;
+                }
+                $competitorProductCounts[$brand_id]++;
+
+                // Track switch count for this competitor product
+                if (!isset($competitorSwitchCounts[$brand_id])) {
+                    $competitorSwitchCounts[$brand_id] = 0;
+                }
+                if ($didHeSwitch) {
+                    $competitorSwitchCounts[$brand_id]++;
+                }
+            }
+        }
+
+        // Get the top 5 competitor products across the campaign
+        arsort($competitorProductCounts); // Sort by count descending
+        $top5Competitors = array_slice($competitorProductCounts, 0, 7, true); // Get top 5 competitors
+
+        // Calculate the percentage of switches for the top 5 competitor products
+        $topCompetitorSwitches = [];
+
+        foreach ($top5Competitors as $competitorId => $competitorCount) {
+            $switchCount = $competitorSwitchCounts[$competitorId] ?? 0; // Get switch count for this competitor
+            $switchPercentage = ($switchCount / $competitorCount) * 100; // Calculate percentage of switches
+            // $competitor_product = Product::find($competitorId);
+            $competitor_brand = CompetitorBrand::find($competitorId);
+
+            $topCompetitorSwitches[] = [
+                // 'competitor_product' => $competitor_product,
+                'competitor_product' => $competitor_brand,
+                'value' => $competitorCount,
+                'switch_count' => $switchCount,
+                'switch_percentage' => round($switchPercentage, 2), // Rounded to 2 decimal places
+            ];
+        }
+
+        // Return the top 5 competitor products with their switch rates
+        return $topCompetitorSwitches;
+    }
 }
