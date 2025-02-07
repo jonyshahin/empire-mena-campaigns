@@ -271,6 +271,7 @@ Route::prefix('dashboard')->group(function () {
             Route::get('/', [DashboardController::class, 'index']);
             Route::get('show', [DashboardController::class, 'show']);
             Route::get('/sales-performance', [DashboardController::class, 'salesPerformance']);
+            Route::get('/general-statistics', [DashboardController::class, 'generalStatistics']);
         });
     });
 });

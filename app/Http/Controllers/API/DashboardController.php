@@ -702,4 +702,24 @@ class DashboardController extends Controller
 
         return custom_success(200, 'Success', $data);
     }
+
+    public function generalStatistics(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $this->campaign_id = $campaign->id;
+        $this->start_date = $request->input('start_date');
+        $this->end_date = $request->input('end_date');
+
+        $general_statistics = $this->general_statistics($campaign, $district_id);
+
+
+        $data = [
+            'campaign' => $campaign,
+            'general_statistics' => $general_statistics,
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
 }
