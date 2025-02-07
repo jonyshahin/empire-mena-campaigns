@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\AttendanceRecord;
+use App\Models\CompetitorBrand;
 use App\Models\Consumer;
 use App\Models\District;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -340,5 +342,191 @@ class DashboardService
         ];
 
         return $gender_chart;
+    }
+
+    public function ageGroup($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->get();
+
+        $campaign_products = $campaign->products;
+        $ageGroups = ['18-24', '25-34', '35+'];
+        $productCounts = [];
+        $totalPacksByAgeGroup = [];
+        $totalPacksInCampaign = 0; // To count total packs in the campaign
+        $competitorProductCounts = []; // To store competitor product counts for each product
+
+        // Initialize counts for each product in each age group
+        foreach ($ageGroups as $ageGroup) {
+            foreach ($campaign_products as $product) {
+                $productCounts[$ageGroup][$product->id] = 0;
+                $competitorProductCounts[$product->id] = [];
+                $competitorBrandCounts[$product->id] = [];
+            }
+            $totalPacksByAgeGroup[$ageGroup] = 0;
+        }
+
+        // Loop through consumers and count products for each age group and competitor products for each selected product
+        foreach ($consumers as $consumer) {
+            $selectedProducts = $consumer->selected_products;
+
+            // Loop through the selected products for each consumer
+            foreach ($selectedProducts as $selectedProduct) {
+                $productId = $selectedProduct['id'];            // Get the selected product ID in the consumer
+                $packs = (int) $selectedProduct['packs'];       // Get the number of packs or quantity for the selected product
+                $competitorProductId = $consumer->competitor_product_id;    // Get the competitor product ID for the consumer
+
+                // Add count to the appropriate age group and product
+                if (array_key_exists($productId, $productCounts[$consumer->age])) {
+                    $productCounts[$consumer->age][$productId] += $packs;
+                    $totalPacksByAgeGroup[$consumer->age] += $packs; // Increment the total packs for this age group
+                    $totalPacksInCampaign += $packs; // Increment total packs for the campaign
+                }
+
+                // Track competitor product counts for the product
+                if ($competitorProductId) {
+                    if (!isset($competitorProductCounts[$productId][$competitorProductId])) {
+                        $competitorProductCounts[$productId][$competitorProductId] = 0; // Initialize count
+                    }
+                    // Increment the competitor product count
+                    $competitorProductCounts[$productId][$competitorProductId] += $packs;
+
+                    // Track competitor brand counts for the product
+                    $brand_id = Product::find($competitorProductId)->brand_id;  // Get the brand ID of the competitor product
+                    if (!isset($competitorBrandCounts[$productId][$brand_id])) {
+                        $competitorBrandCounts[$productId][$brand_id] = 0;  // Initialize the competitor brand count
+                    }
+                    // Increment the competitor brand count
+                    $competitorBrandCounts[$productId][$brand_id] += $packs;
+                }
+            }
+        }
+
+        // Prepare the response structure
+        $ageGroupData = [];                 // To hold the product data for each age group
+        $campaignProductPercentage = [];    // To hold the percentage of each product in the campaign
+        $campaignPacksSold = [];            // To hold the total packs sold for each product in the campaign
+        $topCompetitorProducts = [];        // To store top 3 competitor products for each product
+        $topCompetitorBrands = [];          // To store top 3 competitor brands for each product
+
+        foreach ($campaign_products as $product) {  // Loop through each product in the campaign
+            $productData = [
+                'product' => $product,  // Assuming $product contains id, name, image, etc.
+            ];
+
+            $variantSplit = [
+                'product_name' => $product->name,
+            ];
+
+            $packsSold = [
+                'product' => $product,
+            ];
+
+            // Initialize total product count in the campaign
+            $totalProductCountInCampaign = 0;
+
+            foreach ($ageGroups as $ageGroup) {         // Loop through each age group
+                $totalPacks = $totalPacksByAgeGroup[$ageGroup];
+                $productCount = $productCounts[$ageGroup][$product->id];
+
+                // Avoid division by zero
+                if ($totalPacks > 0) {
+                    $percentage = ($productCount / $totalPacks) * 100;
+                } else {
+                    $percentage = 0;
+                }
+
+                // Add the value and percentage for this age group
+                $productData[$ageGroup] = [
+                    'value' => $productCount,
+                    'percentage' => round($percentage, 2), // Rounded to 2 decimal places
+                ];
+
+                // Sum up the product count across all age groups for the campaign-level calculation
+                $totalProductCountInCampaign += $productCount;
+            }
+
+            // Calculate percentage of the product in the whole campaign
+            if ($totalPacksInCampaign > 0) {
+                $campaignPercentage = ($totalProductCountInCampaign / $totalPacksInCampaign) * 100;
+            } else {
+                $campaignPercentage = 0;
+            }
+
+            // Add the product's campaign percentage
+            $variantSplit['campaign_percentage'] = round($campaignPercentage, 2);
+            $packsSold['packs_sold'] = $totalProductCountInCampaign;
+
+            // Get top 3 competitor products for this product
+            if (isset($competitorProductCounts[$product->id])) {
+                $competitors = $competitorProductCounts[$product->id];
+                $competitors_brand = $competitorBrandCounts[$product->id];
+                arsort($competitors); // Sort by count descending
+                arsort($competitors_brand); // Sort by count descending
+                $top3Competitors = array_slice($competitors, 0, 12, true); // Get top 3 competitors
+                $top3CompetitorsBrand = array_slice($competitors_brand, 0, 12, true); // Get top 3 competitors
+
+                // $top3Competitors = $competitors;
+                // Calculate percentage for each competitor product
+                $totalCompetitorPacks = array_sum($competitors);
+                $totalCompetitorPacksBrand = array_sum($competitors_brand);
+                $topCompetitorsData = [];
+                $topCompetitorsDataBrand = [];
+
+                foreach ($top3Competitors as $competitorId => $competitorCount) { // Loop through top competitors
+                    $competitorPercentage = ($competitorCount / $totalCompetitorPacks) * 100;
+                    $topCompetitorsData[] = [
+                        'competitor_product' => Product::find($competitorId),
+                        'value' => $competitorCount,
+                        'percentage' => round($competitorPercentage, 2),
+                    ];
+                }
+
+                foreach ($top3CompetitorsBrand as $competitorId => $competitorCount) { // Loop through top competitors
+                    $competitorPercentage = ($competitorCount / $totalCompetitorPacksBrand) * 100;
+                    $topCompetitorsDataBrand[] = [
+                        'competitor_brand' => CompetitorBrand::find($competitorId),
+                        'value' => $competitorCount,
+                        'percentage' => round($competitorPercentage, 2),
+                    ];
+                }
+
+                // Store top competitors for the product
+                $topCompetitorProducts[] = [
+                    'product' => $product,
+                    'campaign_percentage' => round($campaignPercentage, 2),
+                    'top_competitors' => $topCompetitorsData
+                ];
+
+                $topCompetitorBrands[] = [
+                    'product' => $product,
+                    'campaign_percentage' => round($campaignPercentage, 2),
+                    'top_competitors' => $topCompetitorsDataBrand
+                ];
+            }
+
+
+            // Add the product data to the response
+            $ageGroupData[] = $productData;
+            $campaignProductPercentage[] = $variantSplit;
+            $campaignPacksSold[] = $packsSold;
+        }
+
+        // Prepare final response
+        return [
+            'data' => $ageGroupData,
+            'variant_split' => $campaignProductPercentage,
+            'packs_sold' => $campaignPacksSold,
+            'top_competitor_products' => $topCompetitorProducts,
+            'top_competitor_brands' => $topCompetitorBrands,
+        ];
     }
 }

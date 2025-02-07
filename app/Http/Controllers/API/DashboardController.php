@@ -737,4 +737,26 @@ class DashboardController extends Controller
 
         return custom_success(200, 'Success', $data);
     }
+
+    public function ageGroup(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        $age_group = $this->dashboardService->ageGroup($campaign, $district_id, $start_date, $end_date);
+
+        $data = [
+            'campaign' => $campaign,
+            'age_group' => $age_group['data'],
+            'variant_split' => $age_group['variant_split'],
+            'packs_sold' => $age_group['packs_sold'],
+            'top_competitor_products' => $age_group['top_competitor_products'],
+            'top_competitor_brands' => $age_group['top_competitor_brands'],
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
 }
