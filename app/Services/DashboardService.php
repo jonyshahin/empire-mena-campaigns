@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AttendanceRecord;
 use App\Models\Consumer;
+use App\Models\District;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -262,5 +263,41 @@ class DashboardService
         ];
 
         return $trial_rate;
+    }
+
+    public function cityPerformance($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $campaign_id = $campaign->id;
+
+        $districts = District::with(['outlets.consumers' => function ($query) use ($campaign_id) {
+            $query->where('campaign_id', $campaign_id);
+        }])->when($district_id, function ($query, $district_id) {
+            return $query->where('id', $district_id);
+        })->when($start_date, function ($query, $start_date) {
+            return $query->whereDate('created_at', '>=', $start_date);
+        })->when($end_date, function ($query, $end_date) {
+            return $query->whereDate('created_at', '<=', $end_date);
+        })->get();
+
+        $total_contacts = $this->totalContacts($campaign, $district_id, $start_date, $end_date);
+
+        $city_performance_data = $districts->map(function ($district) use ($total_contacts) {
+            $outlets = $district->outlets;
+            $total_contacts_in_district = $outlets->sum(function ($outlet) {
+                return $outlet->consumers->count();
+            });
+            $district_consumers_percentage = $total_contacts > 0 ? ($total_contacts_in_district / $total_contacts * 100) : 0;
+            $total_effective_contacts_in_district = $outlets->sum(function ($outlet) {
+                return $outlet->consumers->where('packs', '>', 0)->count();
+            });
+
+            return [
+                'district' => $district->name,
+                'total_consumers_in_district' => $total_contacts_in_district,
+                'district_consumers_percentage' => $district_consumers_percentage,
+            ];
+        });
+
+        return $city_performance_data;
     }
 }

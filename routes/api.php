@@ -273,6 +273,7 @@ Route::prefix('dashboard')->group(function () {
             Route::get('/sales-performance', [DashboardController::class, 'salesPerformance']);
             Route::get('/general-statistics', [DashboardController::class, 'generalStatistics']);
             Route::get('/trial-rate', [DashboardController::class, 'trialRate']);
+            Route::get('/city-performance', [DashboardController::class, 'cityPerformance']);
         });
     });
 });
