@@ -13,42 +13,15 @@ class DashboardService
     {
         $general_statistics = [];
 
-        $campaign_promoters_count = AttendanceRecord::where('campaign_id', $campaign->id)
-            ->whereNotNull('check_in_time') // Ensure only records with check-ins are counted
-            ->distinct('user_id')
-            ->count('user_id');
+        // Fetch daily logins data
+        $dailyLogins = $this->getDailyLogins($campaign, $district_id, $start_date, $end_date);
 
-        $dailyLogins = Consumer::select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
-            ->where('campaign_id', $campaign->id)
-            ->when($district_id, function ($query, $district_id) {
-                return $query->whereHas('outlet', function ($query) use ($district_id) {
-                    $query->where('district_id', $district_id);
-                });
-            })->when($start_date, function ($query, $start_date) {
-                return $query->whereDate('created_at', '>=', $start_date);
-            })->when($end_date, function ($query, $end_date) {
-                return $query->whereDate('created_at', '<=', $end_date);
-            })
-            ->groupBy('date')
-            ->orderBy('date', 'desc')
-            ->get()->map(function ($record) {
-                return [
-                    'date' => $record->date,
-                    'login_count' => $record->login_count,
-                ];
-            })
-            ->toArray();
+        // Get visits count using the new function
+        $visits = $this->calculateTotalVisits($dailyLogins);
 
-        // Count the number of elements in the $dailyLogins array
-        $campaign_active_days_count = count($dailyLogins);
-        $campaign_promoters_count = 0;
-        $visits = 0;
-        foreach ($dailyLogins as $login) {
-            $visits += $login['login_count'];
-            if ($campaign_promoters_count < $login['login_count']) {
-                $campaign_promoters_count = $login['login_count'];
-            }
-        }
+        // Calculate targets
+        $campaign_total_target = $this->calculateCampaignTotalTarget($campaign, $visits);
+        $campaign_effective_target = $this->calculateCampaignEffectiveTarget($campaign, $visits);
 
         $total_franchise = $this->totalFranchise($campaign, $district_id, $start_date, $end_date);
         $total_contacts = $this->totalContacts($campaign, $district_id, $start_date, $end_date);
@@ -59,10 +32,7 @@ class DashboardService
 
         $total_switched = $lvl1_incentive_count + $lvl2_incentive_count - $total_franchise;
 
-        $campaign_total_target = $campaign->target * $visits;
-        $campaign_effective_target = $campaign->effective_contact_target * $visits;
-
-        $general_statistics['campaign_promoters_count'] = $campaign_promoters_count;
+        $general_statistics['campaign_promoters_count'] = max(array_column($dailyLogins, 'login_count'));
         $general_statistics['visits'] = $visits;
         $general_statistics['total_contacts'] = $total_contacts;
         $general_statistics['effective_contacts'] = $effective_contacts;
@@ -71,14 +41,24 @@ class DashboardService
         $general_statistics['total_refusals'] = $total_refusals;
         $general_statistics['lvl1_incentive_count'] = $lvl1_incentive_count;
         $general_statistics['lvl2_incentive_count'] = $lvl2_incentive_count;
-        $general_statistics['lvl1_incentive_percentage'] = $lvl1_incentive_count / $effective_contacts * 100;
-        $general_statistics['lvl2_incentive_percentage'] = $lvl2_incentive_count / $effective_contacts * 100;
-        $general_statistics['campaign_active_days_count'] = $campaign_active_days_count;
+        $general_statistics['lvl1_incentive_percentage'] = $effective_contacts > 0 ? ($lvl1_incentive_count / $effective_contacts * 100) : 0;
+        $general_statistics['lvl2_incentive_percentage'] = $effective_contacts > 0 ? ($lvl2_incentive_count / $effective_contacts * 100) : 0;
+        $general_statistics['campaign_active_days_count'] = count($dailyLogins);
         $general_statistics['campaign_total_target'] = $campaign_total_target;
         $general_statistics['campaign_effective_target'] = $campaign_effective_target;
         $general_statistics['daily_logins'] = $dailyLogins;
 
         return $general_statistics;
+    }
+
+    public function calculateCampaignEffectiveTarget($campaign, $visits)
+    {
+        return $campaign->effective_contact_target * $visits;
+    }
+
+    public function calculateCampaignTotalTarget($campaign, $visits)
+    {
+        return $campaign->target * $visits;
     }
 
     public function calculateSalesPerformance($campaign, $district_id = null, $start_date = null, $end_date = null)
@@ -151,7 +131,7 @@ class DashboardService
                 return $query->whereDate('created_at', '>=', $start_date);
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
-            })->get()->count();
+            })->count();
     }
 
     public function effectiveContacts($campaign, $district_id = null, $start_date = null, $end_date = null)
@@ -167,7 +147,7 @@ class DashboardService
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
             })->where('packs', '>', 0)
-            ->get()->count();
+            ->count();
     }
 
     public function lvl1Incentives($campaign, $district_id = null, $start_date = null, $end_date = null)
@@ -183,7 +163,7 @@ class DashboardService
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
             })
-            ->get()->count();
+            ->count();
     }
 
     public function totalFranchise($campaign, $district_id = null, $start_date = null, $end_date = null)
@@ -200,7 +180,7 @@ class DashboardService
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
             })
-            ->get()->count();
+            ->count();
     }
 
     public function lvl2Incentives($campaign, $district_id = null, $start_date = null, $end_date = null)
@@ -216,6 +196,71 @@ class DashboardService
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
             })
-            ->get()->count();
+            ->count();
+    }
+
+    public function getDailyLogins($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        return Consumer::select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(DISTINCT user_id) as login_count'))
+            ->where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })
+            ->groupBy('date')
+            ->orderBy('date', 'desc')
+            ->get()->map(function ($record) {
+                return [
+                    'date' => $record->date,
+                    'login_count' => $record->login_count,
+                ];
+            })
+            ->toArray();
+    }
+
+    public function calculateTotalVisits($dailyLogins)
+    {
+        return array_sum(array_column($dailyLogins, 'login_count'));
+    }
+
+    public function trialRate($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $total_contacts = $this->totalContacts($campaign, $district_id, $start_date, $end_date);
+        $visits = $this->calculateTotalVisits($this->getDailyLogins($campaign, $district_id, $start_date, $end_date));
+        $campaign_total_target = $this->calculateCampaignTotalTarget($campaign, $visits);
+        $campaign_effective_target = $this->calculateCampaignEffectiveTarget($campaign, $visits);
+        $total_contacts_ratio = $campaign_total_target > 0 ? ($total_contacts / $campaign_total_target) : 0;
+        $total_contacts_percentage = $total_contacts_ratio * 100;
+
+
+        $total_contacts_data = [
+            'name' => 'Total Contacts vs Target',
+            'value' => $total_contacts,
+            'percentage' => $total_contacts_percentage,
+            'ratio' => $total_contacts_ratio,
+        ];
+
+        $effective_contacts = $this->effectiveContacts($campaign, $district_id, $start_date, $end_date);
+        $effective_contacts_percentage = $effective_contacts / $campaign_effective_target * 100;
+        $effective_contacts_ratio = $effective_contacts / $campaign_effective_target;
+
+        $effective_contacts_data = [
+            'name' => 'Effective Contacts vs Effective Target',
+            'value' => $effective_contacts,
+            'percentage' => $effective_contacts_percentage,
+            'ratio' => $effective_contacts_ratio,
+        ];
+
+        $trial_rate = [
+            $total_contacts_data,
+            $effective_contacts_data,
+        ];
+
+        return $trial_rate;
     }
 }

@@ -683,4 +683,22 @@ class DashboardController extends Controller
 
         return custom_success(200, 'Success', $data);
     }
+
+    public function trialRate(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        $trial_rate = $this->dashboardService->trialRate($campaign, $district_id, $start_date, $end_date);
+
+        $data = [
+            'campaign' => $campaign,
+            'trial_rate' => $trial_rate,
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
 }
