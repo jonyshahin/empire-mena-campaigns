@@ -9,6 +9,7 @@ use App\Models\CompetitorBrand;
 use App\Models\Consumer;
 use App\Models\District;
 use App\Models\Product;
+use App\Services\DashboardService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,13 @@ use Traversable;
 
 class DashboardController extends Controller
 {
+    protected $dashboardService;
+
+    public function __construct(DashboardService $dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
+    }
+
     protected $total_contacts;
     protected $effective_contacts;
     protected $campaign_active_days_count;
@@ -575,31 +583,6 @@ class DashboardController extends Controller
             }
         }
 
-        // $this->total_contacts = Consumer::where('campaign_id', $campaign->id)
-        //     ->when($district_id, function ($query, $district_id) {
-        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
-        //             $query->where('district_id', $district_id);
-        //         });
-        //     })->when($this->start_date, function ($query, $start_date) {
-        //         return $query->whereDate('created_at', '>=', $start_date);
-        //     })->when($this->end_date, function ($query, $end_date) {
-        //         return $query->whereDate('created_at', '<=', $end_date);
-        //     })->get()
-        //     ->count();
-
-        // $this->effective_contacts = Consumer::where('campaign_id', $campaign->id)
-        //     ->where('packs', '>', 0)
-        //     ->when($district_id, function ($query, $district_id) {
-        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
-        //             $query->where('district_id', $district_id);
-        //         });
-        //     })->when($this->start_date, function ($query, $start_date) {
-        //         return $query->whereDate('created_at', '>=', $start_date);
-        //     })->when($this->end_date, function ($query, $end_date) {
-        //         return $query->whereDate('created_at', '<=', $end_date);
-        //     })
-        //     ->get()->count();
-
         $this->total_franchise = Consumer::where('campaign_id', $campaign->id)
             ->where('franchise', 1)
             ->where('packs', '>', 0)
@@ -613,24 +596,6 @@ class DashboardController extends Controller
                 return $query->whereDate('created_at', '<=', $end_date);
             })
             ->get()->count();
-
-        // $this->total_switched = Consumer::where('campaign_id', $campaign->id)
-        //     ->where('did_he_switch', '<>', 0)
-        //     ->when($district_id, function ($query, $district_id) {
-        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
-        //             $query->where('district_id', $district_id);
-        //         });
-        //     })
-        //     ->get()->count();
-
-        // $this->total_refusals = Consumer::where('campaign_id', $campaign->id)
-        //     ->where('packs', 0)
-        //     ->when($district_id, function ($query, $district_id) {
-        //         return $query->whereHas('outlet', function ($query) use ($district_id) {
-        //             $query->where('district_id', $district_id);
-        //         });
-        //     })
-        //     ->get()->count();
 
         $this->total_refusals = $this->total_contacts - $this->effective_contacts;
 
@@ -689,11 +654,10 @@ class DashboardController extends Controller
     {
         $campaign = Campaign::find($request->campaign_id);
         $district_id = $request->input('district_id');
-        $this->campaign_id = $campaign->id;
-        $this->start_date = $request->input('start_date');
-        $this->end_date = $request->input('end_date');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
 
-        $sales_performance = $this->calculateSalesPerformance($campaign, $district_id);
+        $sales_performance = $this->dashboardService->calculateSalesPerformance($campaign, $district_id, $start_date, $end_date);
 
         $data = [
             'campaign' => $campaign,
@@ -705,15 +669,12 @@ class DashboardController extends Controller
 
     public function generalStatistics(Request $request)
     {
-
         $campaign = Campaign::find($request->campaign_id);
         $district_id = $request->input('district_id');
-        $this->campaign_id = $campaign->id;
-        $this->start_date = $request->input('start_date');
-        $this->end_date = $request->input('end_date');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
 
-        $general_statistics = $this->general_statistics($campaign, $district_id);
-
+        $general_statistics = $this->dashboardService->generalStatistics($campaign, $district_id, $start_date, $end_date);
 
         $data = [
             'campaign' => $campaign,
