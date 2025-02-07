@@ -300,4 +300,45 @@ class DashboardService
 
         return $city_performance_data;
     }
+
+    public function genderChart($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })
+            ->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })
+            ->get();
+
+        $male_consumers = $consumers->where('gender', 'male')->count();
+        $female_consumers = $consumers->where('gender', 'female')->count();
+        $consumers_count = $consumers->count();
+        $male_consumers_percentage = $consumers_count > 0 ? ($male_consumers / $consumers_count * 100) : 0;
+        $female_consumers_percentage = $consumers_count > 0 ? ($female_consumers / $consumers_count * 100) : 0;
+
+        $male_data = [
+            'name' => 'Male',
+            'value' => $male_consumers,
+            'percentage' => $male_consumers_percentage,
+        ];
+
+        $female_data = [
+            'name' => 'Female',
+            'value' => $female_consumers,
+            'percentage' => $female_consumers_percentage,
+        ];
+
+        $gender_chart = [
+            $male_data,
+            $female_data,
+        ];
+
+        return $gender_chart;
+    }
 }

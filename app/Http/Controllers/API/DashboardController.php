@@ -707,14 +707,32 @@ class DashboardController extends Controller
 
         $campaign = Campaign::find($request->campaign_id);
         $district_id = $request->input('district_id');
-        $this->start_date = $request->input('start_date');
-        $this->end_date = $request->input('end_date');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
 
-        $city_performance = $this->dashboardService->cityPerformance($campaign, $district_id);
+        $city_performance = $this->dashboardService->cityPerformance($campaign, $district_id, $start_date, $end_date);
 
         $data = [
             'campaign' => $campaign,
             'city_performance' => $city_performance,
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
+
+    public function genderChart(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        $gender_chart = $this->dashboardService->genderChart($campaign, $district_id, $start_date, $end_date);
+
+        $data = [
+            'campaign' => $campaign,
+            'gender_chart' => $gender_chart,
         ];
 
         return custom_success(200, 'Success', $data);
