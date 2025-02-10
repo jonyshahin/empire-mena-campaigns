@@ -681,6 +681,117 @@ class DashboardService
         ];
     }
 
+    public function topCompetitorProducts($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->get();
+
+        $campaign_products = $campaign->products;
+        $ageGroups = ['18-24', '25-34', '35+'];
+        $productCounts = [];
+        $totalPacksInCampaign = 0; // To count total packs in the campaign
+        $competitorProductCounts = []; // To store competitor product counts for each product
+
+        // Initialize counts for each product in each age group
+        foreach ($ageGroups as $ageGroup) {
+            foreach ($campaign_products as $product) {
+                $productCounts[$ageGroup][$product->id] = 0;
+                $competitorProductCounts[$product->id] = [];
+            }
+        }
+
+        // Loop through consumers and count products for each age group and competitor products for each selected product
+        foreach ($consumers as $consumer) {
+            $selectedProducts = $consumer->selected_products;
+
+            // Loop through the selected products for each consumer
+            foreach ($selectedProducts as $selectedProduct) {
+                $productId = $selectedProduct['id'];            // Get the selected product ID in the consumer
+                $packs = (int) $selectedProduct['packs'];       // Get the number of packs or quantity for the selected product
+                $competitorProductId = $consumer->competitor_product_id;    // Get the competitor product ID for the consumer
+
+                // Add count to the appropriate age group and product
+                if (array_key_exists($productId, $productCounts[$consumer->age])) {
+                    $productCounts[$consumer->age][$productId] += $packs;
+                    $totalPacksInCampaign += $packs; // Increment total packs for the campaign
+                }
+
+                // Track competitor product counts for the product
+                if ($competitorProductId) {
+                    if (!isset($competitorProductCounts[$productId][$competitorProductId])) {
+                        $competitorProductCounts[$productId][$competitorProductId] = 0; // Initialize count
+                    }
+                    // Increment the competitor product count
+                    $competitorProductCounts[$productId][$competitorProductId] += $packs;
+                }
+            }
+        }
+
+        // Prepare the response structure
+        $topCompetitorProducts = [];        // To store top 3 competitor products for each product
+
+        foreach ($campaign_products as $product) {  // Loop through each product in the campaign
+
+            // Initialize total product count in the campaign
+            $totalProductCountInCampaign = 0;
+
+            foreach ($ageGroups as $ageGroup) {
+                $productCount = $productCounts[$ageGroup][$product->id];
+
+                // Sum up the product count across all age groups for the campaign-level calculation
+                $totalProductCountInCampaign += $productCount;
+            }
+
+            // Calculate percentage of the product in the whole campaign
+            if ($totalPacksInCampaign > 0) {
+                $campaignPercentage = ($totalProductCountInCampaign / $totalPacksInCampaign) * 100;
+            } else {
+                $campaignPercentage = 0;
+            }
+
+            // Get top 3 competitor products for this product
+            if (isset($competitorProductCounts[$product->id])) {
+                $competitors = $competitorProductCounts[$product->id];
+                arsort($competitors); // Sort by count descending
+                $top3Competitors = array_slice($competitors, 0, 12, true); // Get top 3 competitors
+
+                // $top3Competitors = $competitors;
+                // Calculate percentage for each competitor product
+                $totalCompetitorPacks = array_sum($competitors);
+                $topCompetitorsData = [];
+
+                foreach ($top3Competitors as $competitorId => $competitorCount) { // Loop through top competitors
+                    $competitorPercentage = ($competitorCount / $totalCompetitorPacks) * 100;
+                    $topCompetitorsData[] = [
+                        'competitor_product' => Product::find($competitorId),
+                        'value' => $competitorCount,
+                        'percentage' => round($competitorPercentage, 2),
+                    ];
+                }
+
+                // Store top competitors for the product
+                $topCompetitorProducts[] = [
+                    'product' => $product,
+                    'campaign_percentage' => round($campaignPercentage, 2),
+                    'top_competitors' => $topCompetitorsData
+                ];
+            }
+        }
+
+        // Prepare final response
+        return [
+            'top_competitor_products' => $topCompetitorProducts,
+        ];
+    }
+
     public function efficiencyRate($campaign, $district_id = null, $start_date = null, $end_date = null)
     {
         // Get all consumers of the campaign
