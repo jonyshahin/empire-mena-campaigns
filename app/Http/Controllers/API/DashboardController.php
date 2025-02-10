@@ -814,6 +814,24 @@ class DashboardController extends Controller
         return custom_success(200, 'Success', $data);
     }
 
+    public function topCompetitorBrands(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        $top_competitor_brands = $this->dashboardService->topCompetitorBrands($campaign, $district_id, $start_date, $end_date);
+
+        $data = [
+            'campaign' => $campaign,
+            'top_competitor_brands' => $top_competitor_brands['top_competitor_brands'],
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
+
     public function efficiencyRate(Request $request)
     {
 

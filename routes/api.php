@@ -279,6 +279,7 @@ Route::prefix('dashboard')->group(function () {
             Route::get('/variant-split', [DashboardController::class, 'variantSplit']);
             Route::get('/packs-sold', [DashboardController::class, 'campaignPacksSold']);
             Route::get('/top-competitor-products', [DashboardController::class, 'topCompetitorProducts']);
+            Route::get('/top-competitor-brands', [DashboardController::class, 'topCompetitorBrands']);
             Route::get('/efficiency-rate', [DashboardController::class, 'efficiencyRate']);
         });
     });
