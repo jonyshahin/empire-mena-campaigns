@@ -530,6 +530,86 @@ class DashboardService
         ];
     }
 
+    public function variantSplit($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->get();
+
+        $campaign_products = $campaign->products;
+        $ageGroups = ['18-24', '25-34', '35+'];
+        $productCounts = [];
+        $totalPacksInCampaign = 0;
+
+        // Initialize counts for each product in each age group
+        foreach ($ageGroups as $ageGroup) {
+            foreach ($campaign_products as $product) {
+                $productCounts[$ageGroup][$product->id] = 0;
+            }
+        }
+
+        // Loop through consumers and count products for each age group and competitor products for each selected product
+        foreach ($consumers as $consumer) {
+            $selectedProducts = $consumer->selected_products;
+
+            // Loop through the selected products for each consumer
+            foreach ($selectedProducts as $selectedProduct) {
+                $productId = $selectedProduct['id'];            // Get the selected product ID in the consumer
+                $packs = (int) $selectedProduct['packs'];
+
+                // Add count to the appropriate age group and product
+                if (array_key_exists($productId, $productCounts[$consumer->age])) {
+                    $productCounts[$consumer->age][$productId] += $packs;
+                    $totalPacksInCampaign += $packs; // Increment total packs for the campaign
+                }
+            }
+        }
+
+        // Prepare the response structure
+        $campaignProductPercentage = [];
+
+        foreach ($campaign_products as $product) {
+            $variantSplit = [
+                'product_name' => $product->name,
+            ];
+
+            // Initialize total product count in the campaign
+            $totalProductCountInCampaign = 0;
+
+            foreach ($ageGroups as $ageGroup) {
+                $productCount = $productCounts[$ageGroup][$product->id];
+
+                // Sum up the product count across all age groups for the campaign-level calculation
+                $totalProductCountInCampaign += $productCount;
+            }
+
+            // Calculate percentage of the product in the whole campaign
+            if ($totalPacksInCampaign > 0) {
+                $campaignPercentage = ($totalProductCountInCampaign / $totalPacksInCampaign) * 100;
+            } else {
+                $campaignPercentage = 0;
+            }
+
+            // Add the product's campaign percentage
+            $variantSplit['campaign_percentage'] = round($campaignPercentage, 2);
+
+            // Add the product data to the response
+            $campaignProductPercentage[] = $variantSplit;
+        }
+
+        // Prepare final response
+        return [
+            'variant_split' => $campaignProductPercentage,
+        ];
+    }
+
     public function efficiencyRate($campaign, $district_id = null, $start_date = null, $end_date = null)
     {
         // Get all consumers of the campaign
