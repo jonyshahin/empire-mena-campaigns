@@ -778,6 +778,24 @@ class DashboardController extends Controller
         return custom_success(200, 'Success', $data);
     }
 
+    public function campaignPacksSold(Request $request)
+    {
+
+        $campaign = Campaign::find($request->campaign_id);
+        $district_id = $request->input('district_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+        $packs_sold = $this->dashboardService->campaignPacksSold($campaign, $district_id, $start_date, $end_date);
+
+        $data = [
+            'campaign' => $campaign,
+            'packs_sold' => $packs_sold['packs_sold'],
+        ];
+
+        return custom_success(200, 'Success', $data);
+    }
+
     public function efficiencyRate(Request $request)
     {
 

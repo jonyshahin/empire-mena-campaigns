@@ -610,6 +610,77 @@ class DashboardService
         ];
     }
 
+    public function campaignPacksSold($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $consumers = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->get();
+
+        $campaign_products = $campaign->products;
+        $ageGroups = ['18-24', '25-34', '35+'];
+        $productCounts = [];
+
+        // Initialize counts for each product in each age group
+        foreach ($ageGroups as $ageGroup) {
+            foreach ($campaign_products as $product) {
+                $productCounts[$ageGroup][$product->id] = 0;
+            }
+        }
+
+        // Loop through consumers and count products for each age group and competitor products for each selected product
+        foreach ($consumers as $consumer) {
+            $selectedProducts = $consumer->selected_products;
+
+            // Loop through the selected products for each consumer
+            foreach ($selectedProducts as $selectedProduct) {
+                $productId = $selectedProduct['id'];            // Get the selected product ID in the consumer
+                $packs = (int) $selectedProduct['packs'];       // Get the number of packs or quantity for the selected product
+
+                // Add count to the appropriate age group and product
+                if (array_key_exists($productId, $productCounts[$consumer->age])) {
+                    $productCounts[$consumer->age][$productId] += $packs;
+                }
+            }
+        }
+
+        // Prepare the response structure
+        $campaignPacksSold = [];            // To hold the total packs sold for each product in the campaign
+
+        foreach ($campaign_products as $product) {
+            $packsSold = [
+                'product' => $product,
+            ];
+
+            // Initialize total product count in the campaign
+            $totalProductCountInCampaign = 0;
+
+            foreach ($ageGroups as $ageGroup) {
+                $productCount = $productCounts[$ageGroup][$product->id];
+
+                // Sum up the product count across all age groups for the campaign-level calculation
+                $totalProductCountInCampaign += $productCount;
+            }
+
+            // Add the product's campaign percentage
+            $packsSold['packs_sold'] = $totalProductCountInCampaign;
+
+            // Add the product data to the response
+            $campaignPacksSold[] = $packsSold;
+        }
+
+        // Prepare final response
+        return [
+            'packs_sold' => $campaignPacksSold,
+        ];
+    }
+
     public function efficiencyRate($campaign, $district_id = null, $start_date = null, $end_date = null)
     {
         // Get all consumers of the campaign
