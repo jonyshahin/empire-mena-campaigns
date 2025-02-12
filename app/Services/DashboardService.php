@@ -932,9 +932,37 @@ class DashboardService
                 return $query->whereDate('created_at', '>=', $start_date);
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
-            })->pluck('selected_products');
+            })->pluck('selected_products')->toArray();
 
-        // Prepare final response
-        return  $selected_products;
+        // Flatten the selected_products array
+        $flattened_products = collect($selected_products)
+            ->filter() // Remove null values
+            ->flatten(1); // Flatten nested arrays
+
+        // Initialize brand count array
+        $packs_sold_by_brand = [];
+
+        foreach ($flattened_products as $product) {
+            if (!isset($product['id']) || !isset($product['packs'])) {
+                continue; // Skip invalid entries
+            }
+
+            $brand_id = Product::find($product['id'])->brand_id ?? null;
+
+            if ($brand_id) {
+                $packs = is_numeric($product['packs']) ? (int)$product['packs'] : 0;
+
+                if (!isset($packs_sold_by_brand[$brand_id])) {
+                    $packs_sold_by_brand[$brand_id] = [
+                        'brand_id' => $brand_id,
+                        'packs_sold' => 0,
+                    ];
+                }
+                $packs_sold_by_brand[$brand_id]['packs_sold'] += $packs;
+            }
+        }
+
+        // Return result as a collection
+        return array_values($packs_sold_by_brand);
     }
 }
