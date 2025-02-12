@@ -36,7 +36,9 @@ class DashboardService
 
         $total_switched = $lvl1_incentive_count + $lvl2_incentive_count - $total_franchise;
 
+        $packs_sold_by_brand = $this->campaignPacksSoldByBrand($campaign, $district_id, $start_date, $end_date);
 
+        $general_statistics['packs_sold_by_brand'] = $packs_sold_by_brand;
         $general_statistics['incentives'] = $incentives;
         $general_statistics['campaign_promoters_count'] = max(array_column($dailyLogins, 'login_count'));
         $general_statistics['visits'] = $visits;
@@ -917,5 +919,22 @@ class DashboardService
 
         // Return the top 5 competitor products with their switch rates
         return $topCompetitorSwitches;
+    }
+
+    public function campaignPacksSoldByBrand($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $selected_products = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->pluck('selected_products');
+
+        // Prepare final response
+        return  $selected_products;
     }
 }
