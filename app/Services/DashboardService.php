@@ -947,22 +947,28 @@ class DashboardService
                 continue; // Skip invalid entries
             }
 
-            $brand_id = Product::find($product['id'])->brand_id ?? null;
-
-            if ($brand_id) {
-                $packs = is_numeric($product['packs']) ? (int)$product['packs'] : 0;
-
-                if (!isset($packs_sold_by_brand[$brand_id])) {
-                    $packs_sold_by_brand[$brand_id] = [
-                        'brand_id' => $brand_id,
-                        'packs_sold' => 0,
-                    ];
-                }
-                $packs_sold_by_brand[$brand_id]['packs_sold'] += $packs;
+            // Retrieve product details
+            $productModel = Product::find($product['id']);
+            if (!$productModel) {
+                continue;
             }
+
+            $brand_id = $productModel->brand_id;
+            $brand_name = $productModel->brand->name ?? 'Unknown Brand';
+
+            $packs = is_numeric($product['packs']) ? (int)$product['packs'] : 0;
+
+            if (!isset($packs_sold_by_brand[$brand_id])) {
+                $packs_sold_by_brand[$brand_id] = [
+                    'brand_id' => $brand_id,
+                    'brand_name' => $brand_name,
+                    'packs_sold' => 0,
+                ];
+            }
+            $packs_sold_by_brand[$brand_id]['packs_sold'] += $packs;
         }
 
-        // Return result as a collection
+        // Return result as an indexed array
         return array_values($packs_sold_by_brand);
     }
 }
