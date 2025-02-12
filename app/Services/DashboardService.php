@@ -32,6 +32,7 @@ class DashboardService
         $total_refusals = $total_contacts - $effective_contacts;
         $lvl1_incentive_count = $this->lvl1Incentives($campaign, $district_id, $start_date, $end_date);
         $lvl2_incentive_count = $this->lvl2Incentives($campaign, $district_id, $start_date, $end_date);
+        $incentives = $this->incentives($campaign, $district_id, $start_date, $end_date);
 
         $total_switched = $lvl1_incentive_count + $lvl2_incentive_count - $total_franchise;
 
@@ -50,6 +51,7 @@ class DashboardService
         $general_statistics['campaign_total_target'] = $campaign_total_target;
         $general_statistics['campaign_effective_target'] = $campaign_effective_target;
         $general_statistics['daily_logins'] = $dailyLogins;
+        $general_statistics['incentives'] = $incentives;
 
         return $general_statistics;
     }
@@ -167,6 +169,25 @@ class DashboardService
                 return $query->whereDate('created_at', '<=', $end_date);
             })
             ->count();
+    }
+
+    public function incentives($campaign, $district_id = null, $start_date = null, $end_date = null)
+    {
+        $incentives = $campaign->incentives;
+        $dynamic_incentives = Consumer::where('campaign_id', $campaign->id)
+            ->when($district_id, function ($query, $district_id) {
+                return $query->whereHas('outlet', function ($query) use ($district_id) {
+                    $query->where('district_id', $district_id);
+                });
+            })->when($start_date, function ($query, $start_date) {
+                return $query->whereDate('created_at', '>=', $start_date);
+            })->when($end_date, function ($query, $end_date) {
+                return $query->whereDate('created_at', '<=', $end_date);
+            })->pluck('dynamic_incentives');
+        $data = [
+            'incentives' => $incentives,
+        ];
+        return $data;
     }
 
     public function totalFranchise($campaign, $district_id = null, $start_date = null, $end_date = null)
