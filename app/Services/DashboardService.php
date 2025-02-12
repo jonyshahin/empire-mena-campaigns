@@ -36,6 +36,8 @@ class DashboardService
 
         $total_switched = $lvl1_incentive_count + $lvl2_incentive_count - $total_franchise;
 
+
+        $general_statistics['incentives'] = $incentives;
         $general_statistics['campaign_promoters_count'] = max(array_column($dailyLogins, 'login_count'));
         $general_statistics['visits'] = $visits;
         $general_statistics['total_contacts'] = $total_contacts;
@@ -51,7 +53,6 @@ class DashboardService
         $general_statistics['campaign_total_target'] = $campaign_total_target;
         $general_statistics['campaign_effective_target'] = $campaign_effective_target;
         $general_statistics['daily_logins'] = $dailyLogins;
-        $general_statistics['incentives'] = $incentives;
 
         return $general_statistics;
     }
@@ -186,6 +187,7 @@ class DashboardService
             })->pluck('dynamic_incentives');
         $data = [
             'incentives' => $incentives,
+            'dynamic_incentives' => $dynamic_incentives,
         ];
         return $data;
     }
