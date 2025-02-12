@@ -194,17 +194,21 @@ class DashboardService
         // Count occurrences of each incentive
         $incentive_counts = $flattened_dynamic_incentives->countBy('id');
 
+        // Calculate total incentives count
+        $total_incentives_given = $incentive_counts->sum();
+
         // Attach counts to incentives
-        $incentive_summary = $incentives->map(function ($incentive) use ($incentive_counts) {
+        $incentive_summary = $incentives->map(function ($incentive) use ($incentive_counts, $total_incentives_given) {
+            $count = $incentive_counts->get($incentive->id, 0);
+            $percentage = $total_incentives_given > 0 ? round(($count / $total_incentives_given) * 100, 2) : 0;
+
             return [
                 'id' => $incentive->id,
                 'name' => $incentive->name,
-                'count' => $incentive_counts->get($incentive->id, 0),
+                'count' => $count,
+                'percentage' => $percentage,
             ];
         });
-
-        // Calculate total incentives count
-        $total_incentives_given = $incentive_counts->sum();
 
         // Return structured response
         return [
