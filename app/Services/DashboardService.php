@@ -212,7 +212,7 @@ class DashboardService
 
         // Return structured response
         return [
-            'incentives' => $incentive_summary,
+            'incentive_summary' => $incentive_summary,
             'total_incentives_given' => $total_incentives_given,
         ];
     }
