@@ -184,12 +184,33 @@ class DashboardService
                 return $query->whereDate('created_at', '>=', $start_date);
             })->when($end_date, function ($query, $end_date) {
                 return $query->whereDate('created_at', '<=', $end_date);
-            })->pluck('dynamic_incentives');
-        $data = [
-            'incentives' => $incentives,
-            'dynamic_incentives' => $dynamic_incentives,
+            })->pluck('dynamic_incentives')->toArray();
+
+        // Flatten dynamic incentives array
+        $flattened_dynamic_incentives = collect($dynamic_incentives)
+            ->filter() // Remove null values
+            ->flatten(1); // Flatten nested arrays
+
+        // Count occurrences of each incentive
+        $incentive_counts = $flattened_dynamic_incentives->countBy('id');
+
+        // Attach counts to incentives
+        $incentive_summary = $incentives->map(function ($incentive) use ($incentive_counts) {
+            return [
+                'id' => $incentive->id,
+                'name' => $incentive->name,
+                'count' => $incentive_counts->get($incentive->id, 0),
+            ];
+        });
+
+        // Calculate total incentives count
+        $total_incentives_given = $incentive_counts->sum();
+
+        // Return structured response
+        return [
+            'incentives' => $incentive_summary,
+            'total_incentives_given' => $total_incentives_given,
         ];
-        return $data;
     }
 
     public function totalFranchise($campaign, $district_id = null, $start_date = null, $end_date = null)
