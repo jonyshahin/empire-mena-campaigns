@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Traversable;
 
@@ -65,31 +66,6 @@ class ConsumerController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'telephone' => 'nullable|string|max:255',
-                'reason_for_refusal_ids' => 'nullable|array',
-                'other_refused_reason' => 'nullable|string',
-                'selected_products' => 'nullable|array',
-                'competitor_product_id' => 'nullable|integer',
-                'dynamic_incentives' => 'nullable|array',
-                'dynamic_incentives.*.id' => 'required|integer|exists:incentives,id',
-            ]);
-
-            $otp_code = rand(100000, 999999);
-            $otp_expired_at = Carbon::now()->addMinutes(15);
-
-            /*************** Send WhatsApp code********************/
-            if ($request->filled('telephone')) {
-                $phone = $request->telephone;
-                $whatsapp_data = whatsapp_message($phone, $otp_code);
-
-                if ($whatsapp_data['code'] == 0) {
-                    return custom_error(400, $whatsapp_data['data']);
-                }
-            }
-            /******************************************************/
-
             $user = User::find(auth()->id());
 
             if (!$user->hasRole('promoter')) {
@@ -98,6 +74,41 @@ class ConsumerController extends Controller
 
             $outlet_id = $user->attendanceRecords()->latest()->first()->outlet_id;
             $campaign_id = $user->attendanceRecords()->latest()->first()->campaign_id;
+
+            $request->validate([
+                'name' => 'required|string|max:255',
+                // 'telephone' => 'nullable|string|max:255',
+                'telephone' => [
+                    'nullable',
+                    'string',
+                    'max:255',
+                    Rule::unique('consumers')->where(function ($query) use ($campaign_id) {
+                        return $query->where('campaign_id', $campaign_id);
+                    }),
+                ],
+                'reason_for_refusal_ids' => 'nullable|array',
+                'other_refused_reason' => 'nullable|string',
+                'selected_products' => 'nullable|array',
+                'competitor_product_id' => 'nullable|integer',
+                'dynamic_incentives' => 'nullable|array',
+                'dynamic_incentives.*.id' => 'required|integer|exists:incentives,id',
+            ]);
+
+            // $otp_code = rand(100000, 999999);
+            // $otp_expired_at = Carbon::now()->addMinutes(15);
+
+            // /*************** Send WhatsApp code********************/
+            // if ($request->filled('telephone')) {
+            //     $phone = $request->telephone;
+            //     $whatsapp_data = whatsapp_message($phone, $otp_code);
+
+            //     if ($whatsapp_data['code'] == 0) {
+            //         return custom_error(400, $whatsapp_data['data']);
+            //     }
+            // }
+            /******************************************************/
+
+
 
             $packs = 0;
             $selected_products = $request->input('selected_products');
