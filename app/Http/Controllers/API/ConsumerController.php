@@ -94,18 +94,18 @@ class ConsumerController extends Controller
                 'dynamic_incentives.*.id' => 'required|integer|exists:incentives,id',
             ]);
 
-            $otp_code = rand(100000, 999999);
-            $otp_expired_at = Carbon::now()->addMinutes(15);
+            // $otp_code = rand(100000, 999999);
+            // $otp_expired_at = Carbon::now()->addMinutes(15);
 
-            /*************** Send WhatsApp code********************/
-            if ($request->filled('telephone')) {
-                $phone = $request->telephone;
-                $whatsapp_data = whatsapp_message($phone, $otp_code);
+            // /*************** Send WhatsApp code********************/
+            // if ($request->filled('telephone')) {
+            //     $phone = $request->telephone;
+            //     $whatsapp_data = whatsapp_message($phone, $otp_code);
 
-                if ($whatsapp_data['code'] == 0) {
-                    return custom_error(400, $whatsapp_data['data']);
-                }
-            }
+            //     if ($whatsapp_data['code'] == 0) {
+            //         return custom_error(400, $whatsapp_data['data']);
+            //     }
+            // }
             /******************************************************/
 
             $packs = 0;
@@ -238,17 +238,17 @@ class ConsumerController extends Controller
             if (!$consumer) {
                 return custom_error(404, 'Consumer not found');
             }
-            $otp_code = rand(100000, 999999);
-            $otp_expired_at = Carbon::now()->addMinutes(15);
-            /*************** Send WhatsApp code********************/
-            if ($request->filled('telephone')) {
-                $phone = $request->telephone;
-                $whatsapp_data = whatsapp_message($phone, $otp_code);
+            // $otp_code = rand(100000, 999999);
+            // $otp_expired_at = Carbon::now()->addMinutes(15);
+            // /*************** Send WhatsApp code********************/
+            // if ($request->filled('telephone')) {
+            //     $phone = $request->telephone;
+            //     $whatsapp_data = whatsapp_message($phone, $otp_code);
 
-                if ($whatsapp_data['code'] == 0) {
-                    return custom_error(400, $whatsapp_data['data']);
-                }
-            }
+            //     if ($whatsapp_data['code'] == 0) {
+            //         return custom_error(400, $whatsapp_data['data']);
+            //     }
+            // }
             /******************************************************/
 
             $packs = 0;
