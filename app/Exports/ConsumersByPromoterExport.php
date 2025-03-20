@@ -3,12 +3,12 @@
 namespace App\Exports;
 
 use App\Models\Consumer;
-use App\Models\Product;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
-class ConsumersByPromoterExport implements FromCollection, WithHeadings
+class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping
 {
     protected $start_date;
     protected $end_date;
@@ -31,77 +31,42 @@ class ConsumersByPromoterExport implements FromCollection, WithHeadings
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function collection()
+    public function query()
     {
-        $start_date = $this->start_date;
-        $end_date = $this->end_date;
-        $districtIds = $this->district_ids;
-        $promoterId = $this->promoter_id;
-        $campaign_id = $this->campaign_id;
-        $competitor_product_ids = $this->competitor_product_ids;
+        return Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
+            ->when($this->campaign_id, fn($query) => $query->where('campaign_id', $this->campaign_id))
+            ->when($this->competitor_product_ids, fn($query) => $query->whereIn('competitor_product_id', $this->competitor_product_ids))
+            ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date))
+            ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date))
+            ->when($this->district_ids, fn($query) => $query->whereHas('outlet', fn($query) => $query->whereIn('district_id', $this->district_ids)))
+            ->when($this->promoter_id, fn($query) => $query->where('user_id', $this->promoter_id));
+    }
 
-        // Retrieve consumers grouped by promoter
-        $consumersQuery = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
-            ->when($campaign_id, function ($query, $campaign_id) {
-                return $query->where('campaign_id', $campaign_id);
-            })
-            ->when($competitor_product_ids, function ($query, $competitor_product_ids) {
-                return $query->whereIn('competitor_product_id', $competitor_product_ids);
-            })
-            ->when($start_date, function ($query, $date) {
-                return $query->whereDate('created_at', '>=', $date);
-            })
-            ->when($end_date, function ($query, $date) {
-                return $query->whereDate('created_at', '<=', $date);
-            })
-            ->when($districtIds, function ($query, $districtIds) {
-                return $query->whereHas('outlet', function ($query) use ($districtIds) {
-                    $query->whereIn('district_id', $districtIds);
-                });
-            })
-            ->when($promoterId, function ($query, $promoterId) {
-                return $query->where('user_id', $promoterId);
-            })
-            ->get()
-            ->groupBy('promoter.name');
-
-        $data = new Collection();
-
-        foreach ($consumersQuery as $promoterName => $consumers) {
-            foreach ($consumers as $consumer) {
-                $data->push([
-                    'Promoter' => $promoterName,
-                    'Outlet' => $consumer->outlet->name,
-                    'Outlet Code' => $consumer->outlet->code,
-                    'Zone' => $consumer->outlet->zone->name,
-                    'Channel' => $consumer->outlet->channel,
-                    'District' => $consumer->outlet->district->name,
-                    'Consumer Name' => $consumer->name,
-                    'Telephone' => $consumer->telephone,
-                    'Gender' => $consumer->gender,
-                    'Age' => $consumer->age,
-                    'Nationality' => $consumer->nationality->name,
-                    'Packs' => $consumer->packs,
-                    'Incentives' => $consumer->incentives,
-                    'Franchise' => $consumer->franchise ? 'Yes' : 'No',
-                    'Did He Switch' => $consumer->did_he_switch ? 'Yes' : 'No',
-                    'Competitor Brand' => isset($consumer->competitor_product) ? optional($consumer->competitor_product->brand)->name : 'N/A',
-                    'Competitor Product' => optional($consumer->competitor_product)->name,
-                    // 'Other Brand Name' => $consumer->other_brand_name == null ? '' : $consumer->other_brand_name,
-                    'Products' => $consumer->selected_products,
-                    'Refusal Reasons' => $consumer->refusedReasons->map(function ($reason) {
-                        return [
-                            'reason' => $reason->name,
-                            'other_reason' => $reason->pivot->other_refused_reason,
-                        ];
-                    }),
-                    'Created At' => $consumer->created_at->toDateTimeString(),
-                    'Updated At' => $consumer->updated_at->toDateTimeString(),
-                ]);
-            }
-        }
-
-        return $data;
+    public function map($consumer): array
+    {
+        return [
+            $consumer->promoter->name ?? 'N/A',
+            $consumer->outlet->name ?? 'N/A',
+            $consumer->outlet->code ?? 'N/A',
+            $consumer->outlet->zone->name ?? 'N/A',
+            $consumer->outlet->channel ?? 'N/A',
+            $consumer->outlet->district->name ?? 'N/A',
+            $consumer->name ?? 'N/A',
+            $consumer->telephone ?? 'N/A',
+            $consumer->gender ?? 'N/A',
+            $consumer->age ?? 'N/A',
+            $consumer->nationality->name ?? 'N/A',
+            $consumer->packs ?? 0,
+            $consumer->incentives ?? 0,
+            $consumer->franchise ? 'Yes' : 'No',
+            $consumer->did_he_switch ? 'Yes' : 'No',
+            optional($consumer->competitor_product->brand)->name ?? 'N/A',
+            optional($consumer->competitor_product)->name ?? 'N/A',
+            implode(', ', $consumer->selected_products ?? []),
+            $consumer->refusedReasons->map(fn($reason) => $reason->name . ': ' . ($reason->pivot->other_refused_reason ?? ''))->implode('; '),
+            $consumer->created_at->toDateTimeString(),
+            $consumer->updated_at->toDateTimeString(),
+        ];
     }
 
     public function headings(): array
