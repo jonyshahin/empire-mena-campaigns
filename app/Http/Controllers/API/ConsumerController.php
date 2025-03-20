@@ -7,6 +7,7 @@ use App\Exports\ConsumersReportExport;
 use App\Exports\PromoterDailyFeedback;
 use App\Exports\PromotersCountByDayExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendExportEmail;
 use App\Models\AttendanceRecord;
 use App\Models\Consumer;
 use App\Models\District;
@@ -574,7 +575,33 @@ class ConsumerController extends Controller
             $competitor_product_ids = $request->input('competitor_product_ids');
         }
 
-        return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
+        $fileName = 'consumers_' . now()->timestamp . '.xlsx';
+        $filePath = storage_path('app/public/' . $fileName);
+
+        // Excel::queue(new ConsumersByPromoterExport(
+        //     $start_date,
+        //     $end_date,
+        //     $districtIds,
+        //     $promoterId,
+        //     $campaign_id,
+        //     $competitor_product_ids
+        // ), 'consumers_by_promoter_report.xlsx');
+
+        Excel::store(new ConsumersByPromoterExport(
+            $start_date,
+            $end_date,
+            $districtIds,
+            $promoterId,
+            $campaign_id,
+            $competitor_product_ids
+        ), 'public/' . $fileName);
+
+        // Dispatch email job
+        SendExportEmail::dispatch('jony.shahin@gmail.com', $filePath);
+
+        return response()->json(['message' => 'Export started. You will receive an email once it is ready.']);
+
+        // return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)

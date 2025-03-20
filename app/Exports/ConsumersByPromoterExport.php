@@ -3,13 +3,16 @@
 namespace App\Exports;
 
 use App\Models\Consumer;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping
+class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping, ShouldQueue
 {
+    use Exportable;
+
     protected $start_date;
     protected $end_date;
     protected $district_ids;
