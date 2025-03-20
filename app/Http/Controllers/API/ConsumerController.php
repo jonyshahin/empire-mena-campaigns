@@ -578,14 +578,16 @@ class ConsumerController extends Controller
         $fileName = 'consumers_' . now()->timestamp . '.xlsx';
         $filePath = storage_path('app/public/' . $fileName);
 
-        // Excel::queue(new ConsumersByPromoterExport(
-        //     $start_date,
-        //     $end_date,
-        //     $districtIds,
-        //     $promoterId,
-        //     $campaign_id,
-        //     $competitor_product_ids
-        // ), 'consumers_by_promoter_report.xlsx');
+        Excel::queue(new ConsumersByPromoterExport(
+            $start_date,
+            $end_date,
+            $districtIds,
+            $promoterId,
+            $campaign_id,
+            $competitor_product_ids
+        ), 'consumers_by_promoter_report.xlsx')->chain([
+            new SendExportEmail('jony.shahin@gmail.com', $filePath),
+        ]);;
 
         // Excel::store(new ConsumersByPromoterExport(
         //     $start_date,
@@ -597,9 +599,11 @@ class ConsumerController extends Controller
         // ), 'public/' . $fileName);
 
         // Dispatch email job
-        SendExportEmail::dispatch('jony.shahin@gmail.com', $filePath);
+        // SendExportEmail::dispatch('jony.shahin@gmail.com', $filePath);
 
-        return response()->json(['message' => 'Export started. You will receive an email once it is ready.']);
+        return custom_success(200, 'Export started. You will receive an email once it is ready.', []);
+
+        // return response()->json(['message' => 'Export started. You will receive an email once it is ready.']);
 
         // return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
     }
