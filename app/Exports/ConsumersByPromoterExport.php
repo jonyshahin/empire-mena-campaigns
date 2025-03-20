@@ -62,7 +62,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping
             $consumer->did_he_switch ? 'Yes' : 'No',
             optional($consumer->competitor_product->brand)->name ?? 'N/A',
             optional($consumer->competitor_product)->name ?? 'N/A',
-            implode(', ', $consumer->selected_products ?? []),
+            $consumer->selected_products ?? [],
             $consumer->refusedReasons->map(fn($reason) => $reason->name . ': ' . ($reason->pivot->other_refused_reason ?? ''))->implode('; '),
             $consumer->created_at->toDateTimeString(),
             $consumer->updated_at->toDateTimeString(),
