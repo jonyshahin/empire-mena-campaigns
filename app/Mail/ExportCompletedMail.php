@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -50,6 +51,8 @@ class ExportCompletedMail extends Mailable
      */
     public function attachments(): array
     {
-        return [$this->filePath];
+        return [
+            // Attachment::fromPath($this->filePath)->as('exported_consumers.xlsx')->withMime('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        ];
     }
 }

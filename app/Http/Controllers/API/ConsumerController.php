@@ -587,14 +587,14 @@ class ConsumerController extends Controller
         //     $competitor_product_ids
         // ), 'consumers_by_promoter_report.xlsx');
 
-        Excel::store(new ConsumersByPromoterExport(
-            $start_date,
-            $end_date,
-            $districtIds,
-            $promoterId,
-            $campaign_id,
-            $competitor_product_ids
-        ), 'public/' . $fileName);
+        // Excel::store(new ConsumersByPromoterExport(
+        //     $start_date,
+        //     $end_date,
+        //     $districtIds,
+        //     $promoterId,
+        //     $campaign_id,
+        //     $competitor_product_ids
+        // ), 'public/' . $fileName);
 
         // Dispatch email job
         SendExportEmail::dispatch('jony.shahin@gmail.com', $filePath);
