@@ -60,7 +60,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping
             $consumer->incentives ?? 0,
             $consumer->franchise ? 'Yes' : 'No',
             $consumer->did_he_switch ? 'Yes' : 'No',
-            optional($consumer->competitor_product->brand)->name ?? 'N/A',
+            optional(optional($consumer->competitor_product)->brand)->name ?? 'N/A',
             optional($consumer->competitor_product)->name ?? 'N/A',
             $consumer->selected_products ?? [],
             $consumer->refusedReasons->map(fn($reason) => $reason->name . ': ' . ($reason->pivot->other_refused_reason ?? ''))->implode('; '),
