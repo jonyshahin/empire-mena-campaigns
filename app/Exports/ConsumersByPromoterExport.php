@@ -141,6 +141,6 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 }
