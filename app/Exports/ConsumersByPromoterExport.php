@@ -15,7 +15,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 {
     use Exportable;
 
-    protected static int $rowCount = 0;
+    protected int $rowCount = 0;
     protected static ?int $chunkStartId = null;
     protected static ?int $chunkEndId = null;
     protected $start_date;
@@ -25,9 +25,10 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     protected $promoter_id;
     protected $campaign_id;
     protected $totalCount;
+    protected $exportKey;
 
 
-    public function __construct($start_date = null, $end_date = null, $district_ids = null, $promoter_id = null, $campaign_id = null, $competitor_product_ids = null, $totalCount = null)
+    public function __construct($start_date = null, $end_date = null, $district_ids = null, $promoter_id = null, $campaign_id = null, $competitor_product_ids = null, $totalCount = 0)
     {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
@@ -36,6 +37,8 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         $this->promoter_id = $promoter_id;
         $this->campaign_id = $campaign_id;
         $this->totalCount = $totalCount;
+        $this->exportKey = 'export_progress_' . now()->timestamp . '_' . uniqid();
+        cache()->put($this->exportKey . '_row_count', 0);
     }
 
     /**
@@ -54,10 +57,11 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 
     public function map($consumer): array
     {
-        self::$rowCount++;
+        // self::$rowCount++;
+        $rowCount = cache()->increment($this->exportKey . '_row_count');
 
         // ✅ Log total rows once at the beginning
-        if (self::$rowCount === 1) {
+        if ($rowCount === 1) {
             Log::info('📦 Export progress: ' . $this->totalCount . ' total rows will be processed.');
         }
 
@@ -70,12 +74,12 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         self::$chunkEndId = $consumer->id;
 
         // Log progress at every 1000th row
-        if (self::$rowCount % $this->chunkSize() === 0) {
+        if ($rowCount % $this->chunkSize() === 0 || $rowCount === $this->totalCount) {
             $percent = $this->totalCount > 0
-                ? number_format((self::$rowCount / $this->totalCount) * 100, 2)
+                ? number_format(($rowCount / $this->totalCount) * 100, 2)
                 : 0;
 
-            Log::info("⏱ Export progress: " . self::$rowCount . " rows processed (~{$percent}%)");
+            Log::info("⏱ Export progress: " . $rowCount . " rows processed (~{$percent}%)");
             Log::info("✅ Chunk processed: IDs " . self::$chunkStartId . ' to ' . self::$chunkEndId);
 
             // Reset for next chunk
