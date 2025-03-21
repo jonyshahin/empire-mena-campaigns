@@ -64,7 +64,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 
         // Log progress at every 1000th row
         if (self::$rowCount % $this->chunkSize() === 0) {
-            Log::info('⏱ [' . now() . '] Export progress: ' . self::$rowCount . ' rows processed in this job.');
+            Log::info('⏱ Export progress: ' . self::$rowCount . ' rows processed in this job.');
             Log::info("✅ Chunk processed: IDs " . self::$chunkStartId . ' to ' . self::$chunkEndId);
 
             // Reset for next chunk
