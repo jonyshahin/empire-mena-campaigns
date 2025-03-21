@@ -15,6 +15,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 {
     use Exportable;
 
+    protected static int $rowCount = 0;
     protected $start_date;
     protected $end_date;
     protected $district_ids;
@@ -49,7 +50,13 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 
     public function map($consumer): array
     {
-        Log::info('Exporting consumer ID: ' . $consumer->id); // ✅ This is the log
+        self::$rowCount++;
+
+        // Log progress at every 1000th row
+        if (self::$rowCount % $this->chunkSize() === 0) {
+            Log::info("Processed " . self::$rowCount . " rows so far.");
+        }
+
         return [
             $consumer->promoter->name ?? 'N/A',
             $consumer->outlet->name ?? 'N/A',
