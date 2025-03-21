@@ -24,9 +24,10 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     protected $competitor_product_ids;
     protected $promoter_id;
     protected $campaign_id;
+    protected $totalCount;
 
 
-    public function __construct($start_date = null, $end_date = null, $district_ids = null, $promoter_id = null, $campaign_id = null, $competitor_product_ids = null)
+    public function __construct($start_date = null, $end_date = null, $district_ids = null, $promoter_id = null, $campaign_id = null, $competitor_product_ids = null, $totalCount = null)
     {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
@@ -34,6 +35,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         $this->competitor_product_ids = $competitor_product_ids;
         $this->promoter_id = $promoter_id;
         $this->campaign_id = $campaign_id;
+        $this->totalCount = $totalCount;
     }
 
     /**
@@ -54,6 +56,11 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     {
         self::$rowCount++;
 
+        // ✅ Log total rows once at the beginning
+        if (self::$rowCount === 1) {
+            Log::info('📦 Export progress: ' . $this->totalCount . ' total rows will be processed.');
+        }
+
         // Capture first ID in chunk
         if (self::$chunkStartId === null) {
             self::$chunkStartId = $consumer->id;
@@ -64,7 +71,11 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 
         // Log progress at every 1000th row
         if (self::$rowCount % $this->chunkSize() === 0) {
-            Log::info('⏱ Export progress: ' . self::$rowCount . ' rows processed in this job.');
+            $percent = $this->totalCount > 0
+                ? number_format((self::$rowCount / $this->totalCount) * 100, 2)
+                : 0;
+
+            Log::info("⏱ Export progress: " . self::$rowCount . " rows processed (~{$percent}%)");
             Log::info("✅ Chunk processed: IDs " . self::$chunkStartId . ' to ' . self::$chunkEndId);
 
             // Reset for next chunk
