@@ -587,23 +587,9 @@ class ConsumerController extends Controller
             $competitor_product_ids
         ), 'consumers_by_promoter_report.xlsx')->chain([
             new SendExportEmail('jony.shahin@gmail.com', $filePath),
-        ]);;
-
-        // Excel::store(new ConsumersByPromoterExport(
-        //     $start_date,
-        //     $end_date,
-        //     $districtIds,
-        //     $promoterId,
-        //     $campaign_id,
-        //     $competitor_product_ids
-        // ), 'public/' . $fileName);
-
-        // Dispatch email job
-        // SendExportEmail::dispatch('jony.shahin@gmail.com', $filePath);
+        ]);
 
         return custom_success(200, 'Export started. You will receive an email once it is ready.', []);
-
-        // return response()->json(['message' => 'Export started. You will receive an email once it is ready.']);
 
         // return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
     }

@@ -6,10 +6,11 @@ use App\Models\Consumer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping, ShouldQueue
+class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping, ShouldQueue, WithChunkReading
 {
     use Exportable;
 
@@ -97,5 +98,10 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
             'Created At',
             'Updated At',
         ];
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 }
