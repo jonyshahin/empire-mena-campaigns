@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Consumer;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -48,6 +49,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
 
     public function map($consumer): array
     {
+        Log::info('Exporting consumer ID: ' . $consumer->id); // ✅ This is the log
         return [
             $consumer->promoter->name ?? 'N/A',
             $consumer->outlet->name ?? 'N/A',
