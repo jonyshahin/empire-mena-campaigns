@@ -611,6 +611,7 @@ class ConsumerController extends Controller
             $totalCount
         ), $fileName)->chain([
             new SendExportEmail('jony.shahin@gmail.com', $filePath),
+            new SendExportEmail('h.saad@empire-mena.com', $filePath),
         ]);
 
         return custom_success(200, 'Export started. You will receive an email once it is ready.', []);
