@@ -52,7 +52,7 @@ class ExportCompletedMail extends Mailable
     public function attachments(): array
     {
         return [
-            // Attachment::fromPath($this->filePath)->as('exported_consumers.xlsx')->withMime('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            Attachment::fromPath($this->filePath)->as('exported_consumers.xlsx')->withMime('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         ];
     }
 }

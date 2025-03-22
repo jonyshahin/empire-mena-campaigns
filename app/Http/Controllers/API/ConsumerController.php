@@ -156,7 +156,7 @@ class ConsumerController extends Controller
     public function send_otp(Request $request)
     {
         try {
-            $otp_code = rand(100000, 999999);
+            $otp_code = random_int(100000, 999999);
             $otp_expired_at = Carbon::now()->addMinutes(15);
 
             /*************** Send WhatsApp code********************/
@@ -599,7 +599,7 @@ class ConsumerController extends Controller
             ->count();
 
         $fileName = 'consumers_' . now()->timestamp . '.xlsx';
-        $filePath = storage_path('app/public/' . $fileName);
+        $filePath = '/home/empiremena/public_html/api-campaign.empire-mena.com/storage/app/' . $fileName;
 
         Excel::queue(new ConsumersByPromoterExport(
             $start_date,
@@ -609,7 +609,7 @@ class ConsumerController extends Controller
             $campaign_id,
             $competitor_product_ids,
             $totalCount
-        ), 'consumers_by_promoter_report.xlsx')->chain([
+        ), $fileName)->chain([
             new SendExportEmail('jony.shahin@gmail.com', $filePath),
         ]);
 
