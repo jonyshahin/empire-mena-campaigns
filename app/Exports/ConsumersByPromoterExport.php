@@ -37,7 +37,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         $this->promoter_id = $promoter_id;
         $this->campaign_id = $campaign_id;
         $this->totalCount = $totalCount;
-        $this->exportKey = 'export_progress_' . now()->timestamp . '_' . uniqid();
+        $this->exportKey = 'export_progress_' . now()->timestamp . '_' . random_bytes(13);
         cache()->put($this->exportKey . '_row_count', 0);
     }
 
