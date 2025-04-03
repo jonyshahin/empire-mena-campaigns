@@ -6,12 +6,14 @@ use App\Models\Consumer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class ConsumersImport implements ToCollection, WithHeadingRow
 {
+    protected int $rowCurrent = 1;
     /**
      * @param array $row
      *
@@ -19,6 +21,8 @@ class ConsumersImport implements ToCollection, WithHeadingRow
      */
     public function collection(Collection $rows)
     {
+        ++$this->rowCurrent;
+
         foreach ($rows as $row) {
             $user_id = $row['user_id'];
             $outlet_id = $row['outlet_id'];
@@ -51,16 +55,18 @@ class ConsumersImport implements ToCollection, WithHeadingRow
         }
     }
 
-    private function parseDate($value)
+    private function parseDate(?string $date): ?string
     {
-        if (empty($value)) return null;
-
-        // Try Excel number to date
-        if (is_numeric($value)) {
-            return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
+        if (empty($date)) {
+            return null; // Return null if date is empty
         }
 
-        // Try to parse as normal datetime string
-        return Carbon::parse($value);
+        try {
+            // Try to parse the date using Carbon
+            return Carbon::parse($date)->format('Y-m-d'); // Convert to standard 'Y-m-d' format
+        } catch (\Exception $e) {
+            Log::error("Invalid date format in row {$this->rowCurrent}: {$date}");
+            return null; // Return null if date parsing fails
+        }
     }
 }
