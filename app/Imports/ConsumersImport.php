@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Consumer;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -41,12 +42,25 @@ class ConsumersImport implements ToCollection, WithHeadingRow
                 'nationality_id' => $row['nationality_id'],
                 'gender' => $row['gender'],
                 'campaign_id' => $campaign_id,
-                'created_at' => $row['created_at'] ?? null,
-                'updated_at' => $row['updated_at'] ?? null,
+                'created_at' => $this->parseDate($row['created_at']),
+                'updated_at' => $this->parseDate($row['updated_at']),
                 'selected_products' => $selected_products,
                 'competitor_product_id' => $row['competitor_product_id'],
                 'dynamic_incentives' => json_decode($row['dynamic_incentives'], true),
             ]);
         }
+    }
+
+    private function parseDate($value)
+    {
+        if (empty($value)) return null;
+
+        // Try Excel number to date
+        if (is_numeric($value)) {
+            return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
+        }
+
+        // Try to parse as normal datetime string
+        return Carbon::parse($value);
     }
 }
