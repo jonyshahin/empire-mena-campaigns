@@ -112,6 +112,7 @@ Route::prefix('consumer')->group(function () {
         Route::post('show', [ConsumerController::class, 'show']);
         Route::post('update', [ConsumerController::class, 'update']);
         Route::post('delete', [ConsumerController::class, 'destroy']);
+        Route::post('import', [ConsumerController::class, 'import']);
         Route::middleware('role:admin|team_leader')->group(function () {
             Route::get('report', [ConsumerController::class, 'report']);
             Route::get('consumers-by-promoter', [ConsumerController::class, 'consumersByPromoter']);

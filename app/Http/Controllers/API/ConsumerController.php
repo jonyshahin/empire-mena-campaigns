@@ -7,6 +7,7 @@ use App\Exports\ConsumersReportExport;
 use App\Exports\PromoterDailyFeedback;
 use App\Exports\PromotersCountByDayExport;
 use App\Http\Controllers\Controller;
+use App\Imports\ConsumersImport;
 use App\Jobs\SendExportEmail;
 use App\Models\AttendanceRecord;
 use App\Models\Consumer;
@@ -810,6 +811,21 @@ class ConsumerController extends Controller
             return Excel::download(new PromoterDailyFeedback($startDate, $endDate, $districtIds, $campaign_id), 'promoters_daily_feedback_report.xlsx');
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
+        }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            Excel::import(new ConsumersImport, $request->file('file'));
+
+            return custom_success(200, 'Consumers imported successfully.', []);
+        } catch (\Throwable $e) {
+            return custom_error(500, 'Import failed: ' . $e->getMessage());
         }
     }
 }
