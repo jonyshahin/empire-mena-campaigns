@@ -599,8 +599,10 @@ class ConsumerController extends Controller
             })
             ->count();
 
-        $fileName = 'consumers_' . now()->timestamp . '.xlsx';
-        $filePath = '/home/empiremena/public_html/api-campaign.empire-mena.com/storage/app/' . $fileName;
+        $fileName = 'exports/consumers_' . now()->timestamp . '.xlsx';
+
+        // $fileName = 'consumers_' . now()->timestamp . '.xlsx';
+        // $filePath = '/home/empiremena/public_html/api-campaign.empire-mena.com/storage/app/' . $fileName;
 
         Excel::queue(new ConsumersByPromoterExport(
             $start_date,
