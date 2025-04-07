@@ -22,3 +22,4 @@ response.json
 # Allow tracking of storage/app/public for Laravel Cloud
 !storage/app/
 !storage/app/public/
+storage/app/public/
