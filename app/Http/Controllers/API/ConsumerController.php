@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Traversable;
@@ -613,8 +614,8 @@ class ConsumerController extends Controller
             $competitor_product_ids,
             $totalCount
         ), $fileName)->chain([
-            new SendExportEmail('hannasaad923@gmail.com', $filePath),
-            new SendExportEmail('jony.shahin@gmail.com', $filePath),
+            new SendExportEmail('hannasaad923@gmail.com', Storage::url($fileName)),
+            new SendExportEmail('jony.shahin@gmail.com', Storage::url($fileName)),
         ]);
 
         return custom_success(200, 'Export started. You will receive an email once it is ready.', []);
