@@ -16,9 +16,8 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     use Exportable;
 
     protected int $rowCount = 0;
-    protected ?int $chunkStartId = null;
-    protected ?int $chunkEndId = null;
-
+    protected static ?int $chunkStartId = null;
+    protected static ?int $chunkEndId = null;
     protected $start_date;
     protected $end_date;
     protected $district_ids;
@@ -74,12 +73,12 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         }
 
         // Capture first ID in chunk
-        if ($this->chunkStartId === null) {
-            $this->chunkStartId = $consumer->id;
+        if (self::$chunkStartId === null) {
+            self::$chunkStartId = $consumer->id;
         }
 
         // Keep updating the end ID
-        $this->chunkEndId = $consumer->id;
+        self::$chunkEndId = $consumer->id;
 
         // Log progress at every 1000th row
         if ($rowCount % $this->chunkSize() === 0 || $rowCount === $this->totalCount) {
@@ -91,8 +90,8 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
             Log::info("✅ Chunk processed: IDs " . self::$chunkStartId . ' to ' . self::$chunkEndId);
 
             // Reset for next chunk
-            $this->chunkStartId = null;
-            $this->chunkEndId = null;
+            self::$chunkStartId = null;
+            self::$chunkEndId = null;
         }
 
         return [
