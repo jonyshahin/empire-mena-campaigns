@@ -16,8 +16,9 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     use Exportable;
 
     protected int $rowCount = 0;
-    protected static ?int $chunkStartId = null;
-    protected static ?int $chunkEndId = null;
+    protected ?int $chunkStartId = null;
+    protected ?int $chunkEndId = null;
+
     protected $start_date;
     protected $end_date;
     protected $district_ids;
@@ -28,8 +29,15 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     protected $exportKey;
 
 
-    public function __construct($start_date = null, $end_date = null, $district_ids = null, $promoter_id = null, $campaign_id = null, $competitor_product_ids = null, $totalCount = 0)
-    {
+    public function __construct(
+        ?string $start_date = null,
+        ?string $end_date = null,
+        ?array $district_ids = null,
+        ?int $promoter_id = null,
+        ?int $campaign_id = null,
+        ?array $competitor_product_ids = null,
+        int $totalCount = 0
+    ) {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->district_ids = $district_ids;
@@ -66,12 +74,12 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         }
 
         // Capture first ID in chunk
-        if (self::$chunkStartId === null) {
-            self::$chunkStartId = $consumer->id;
+        if ($this->chunkStartId === null) {
+            $this->chunkStartId = $consumer->id;
         }
 
         // Keep updating the end ID
-        self::$chunkEndId = $consumer->id;
+        $this->chunkEndId = $consumer->id;
 
         // Log progress at every 1000th row
         if ($rowCount % $this->chunkSize() === 0 || $rowCount === $this->totalCount) {
@@ -83,8 +91,8 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
             Log::info("✅ Chunk processed: IDs " . self::$chunkStartId . ' to ' . self::$chunkEndId);
 
             // Reset for next chunk
-            self::$chunkStartId = null;
-            self::$chunkEndId = null;
+            $this->chunkStartId = null;
+            $this->chunkEndId = null;
         }
 
         return [
