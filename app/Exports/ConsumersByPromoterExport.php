@@ -67,6 +67,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         return Consumer::query()
             ->select([
                 'id',
+                'campaign_id',
                 'user_id',
                 'outlet_id',
                 'name',
