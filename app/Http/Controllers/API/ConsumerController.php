@@ -577,28 +577,28 @@ class ConsumerController extends Controller
             $competitor_product_ids = $request->input('competitor_product_ids');
         }
 
-        // $totalCount = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
-        //     ->when($campaign_id, function ($query, $campaign_id) {
-        //         return $query->where('campaign_id', $campaign_id);
-        //     })
-        //     ->when($competitor_product_ids, function ($query, $competitor_product_ids) {
-        //         return $query->whereIn('competitor_product_id', $competitor_product_ids);
-        //     })
-        //     ->when($start_date, function ($query, $date) {
-        //         return $query->whereDate('created_at', '>=', $date);
-        //     })
-        //     ->when($end_date, function ($query, $date) {
-        //         return $query->whereDate('created_at', '<=', $date);
-        //     })
-        //     ->when($districtIds, function ($query, $districtIds) {
-        //         return $query->whereHas('outlet', function ($query) use ($districtIds) {
-        //             $query->whereIn('district_id', $districtIds);
-        //         });
-        //     })
-        //     ->when($promoterId, function ($query, $promoterId) {
-        //         return $query->where('user_id', $promoterId);
-        //     })
-        //     ->count();
+        $totalCount = Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
+            ->when($campaign_id, function ($query, $campaign_id) {
+                return $query->where('campaign_id', $campaign_id);
+            })
+            ->when($competitor_product_ids, function ($query, $competitor_product_ids) {
+                return $query->whereIn('competitor_product_id', $competitor_product_ids);
+            })
+            ->when($start_date, function ($query, $date) {
+                return $query->whereDate('created_at', '>=', $date);
+            })
+            ->when($end_date, function ($query, $date) {
+                return $query->whereDate('created_at', '<=', $date);
+            })
+            ->when($districtIds, function ($query, $districtIds) {
+                return $query->whereHas('outlet', function ($query) use ($districtIds) {
+                    $query->whereIn('district_id', $districtIds);
+                });
+            })
+            ->when($promoterId, function ($query, $promoterId) {
+                return $query->where('user_id', $promoterId);
+            })
+            ->count();
 
         $fileName = 'exports/consumers_' . now()->timestamp . '.xlsx';
 
@@ -611,7 +611,8 @@ class ConsumerController extends Controller
             $districtIds,
             $promoterId,
             $campaign_id,
-            $competitor_product_ids
+            $competitor_product_ids,
+            $totalCount
         ), $fileName)->chain([
             new SendExportEmail('hannasaad923@gmail.com', Storage::url($fileName)),
             new SendExportEmail('jony.shahin@gmail.com', Storage::url($fileName)),
