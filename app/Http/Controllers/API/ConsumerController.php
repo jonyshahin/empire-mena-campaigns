@@ -618,7 +618,7 @@ class ConsumerController extends Controller
             new SendExportEmail('jony.shahin@gmail.com', Storage::url($fileName)),
         ]);
 
-        return custom_success(200, 'Export started. You will receive an email once it is ready.', []);
+        return custom_success(200, 'Export started. You will receive an email once it is ready.', ['total_count' => $totalCount]);
 
         // return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
     }
