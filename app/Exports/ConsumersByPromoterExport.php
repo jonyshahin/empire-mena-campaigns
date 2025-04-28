@@ -51,9 +51,48 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     /**
      * @return \Illuminate\Support\Collection
      */
+    // public function query()
+    // {
+    //     return Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
+    //         ->when($this->campaign_id, fn($query) => $query->where('campaign_id', $this->campaign_id))
+    //         ->when($this->competitor_product_ids, fn($query) => $query->whereIn('competitor_product_id', $this->competitor_product_ids))
+    //         ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date))
+    //         ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date))
+    //         ->when($this->district_ids, fn($query) => $query->whereHas('outlet', fn($query) => $query->whereIn('district_id', $this->district_ids)))
+    //         ->when($this->promoter_id, fn($query) => $query->where('user_id', $this->promoter_id));
+    // }
+
     public function query()
     {
-        return Consumer::with('promoter', 'outlet.district', 'competitorBrand', 'refusedReasons')
+        return Consumer::query()
+            ->select([
+                'id',
+                'user_id',
+                'outlet_id',
+                'name',
+                'telephone',
+                'gender',
+                'age',
+                'nationality_id',
+                'packs',
+                'incentives',
+                'franchise',
+                'did_he_switch',
+                'competitor_product_id',
+                'selected_products',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'promoter:id,name',
+                'outlet:id,name,code,zone_id,channel,district_id',
+                'outlet.zone:id,name',
+                'outlet.district:id,name',
+                'nationality:id,name',
+                'competitorProduct:id,brand_id,name',
+                'competitorProduct.brand:id,name',
+                'refusedReasons:id,name',
+            ])
             ->when($this->campaign_id, fn($query) => $query->where('campaign_id', $this->campaign_id))
             ->when($this->competitor_product_ids, fn($query) => $query->whereIn('competitor_product_id', $this->competitor_product_ids))
             ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date))
@@ -61,6 +100,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
             ->when($this->district_ids, fn($query) => $query->whereHas('outlet', fn($query) => $query->whereIn('district_id', $this->district_ids)))
             ->when($this->promoter_id, fn($query) => $query->where('user_id', $this->promoter_id));
     }
+
 
     public function map($consumer): array
     {
