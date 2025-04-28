@@ -600,27 +600,50 @@ class ConsumerController extends Controller
             })
             ->count();
 
-        $fileName = 'exports/consumers_' . now()->timestamp . '.xlsx';
+        if ($totalCount <= 5000) {
 
-        // $fileName = 'consumers_' . now()->timestamp . '.xlsx';
-        // $filePath = '/home/empiremena/public_html/api-campaign.empire-mena.com/storage/app/' . $fileName;
+            $fileName = 'exports/consumers_' . now()->timestamp . '.xlsx';
 
-        Excel::queue(new ConsumersByPromoterExport(
-            $start_date,
-            $end_date,
-            $districtIds,
-            $promoterId,
-            $campaign_id,
-            $competitor_product_ids,
-            $totalCount
-        ), $fileName)->chain([
-            new SendExportEmail('hannasaad923@gmail.com', Storage::url($fileName)),
-            new SendExportEmail('jony.shahin@gmail.com', Storage::url($fileName)),
-        ]);
+            // $fileName = 'consumers_' . now()->timestamp . '.xlsx';
+            // $filePath = '/home/empiremena/public_html/api-campaign.empire-mena.com/storage/app/' . $fileName;
+
+            Excel::queue(new ConsumersByPromoterExport(
+                $start_date,
+                $end_date,
+                $districtIds,
+                $promoterId,
+                $campaign_id,
+                $competitor_product_ids,
+                $totalCount
+            ), $fileName)->chain([
+                new SendExportEmail('hannasaad923@gmail.com', Storage::url($fileName)),
+                new SendExportEmail('jony.shahin@gmail.com', Storage::url($fileName)),
+            ]);
+        } else {
+            // Split export into multiple files
+            $batchSize = 5000;
+            $batches = ceil($totalCount / $batchSize);
+
+            for ($i = 0; $i < $batches; $i++) {
+                $offset = $i * $batchSize;
+                $batchFileName = 'exports/consumers_batch_' . ($i + 1) . '_' . now()->timestamp . '.xlsx';
+
+                Excel::queue(new ConsumersByPromoterExport(
+                    $start_date,
+                    $end_date,
+                    $districtIds,
+                    $promoterId,
+                    $campaign_id,
+                    $competitor_product_ids,
+                    $batchSize
+                )->forPage($offset, $batchSize), $batchFileName)->chain([
+                    new SendExportEmail('hannasaad923@gmail.com', Storage::url($batchFileName)),
+                    new SendExportEmail('jony.shahin@gmail.com', Storage::url($batchFileName)),
+                ]);
+            }
+        }
 
         return custom_success(200, 'Export started. You will receive an email once it is ready.', ['total_count' => $totalCount]);
-
-        // return Excel::download(new ConsumersByPromoterExport($start_date, $end_date, $districtIds, $promoterId, $campaign_id, $competitor_product_ids), 'consumers_by_promoter_report.xlsx');
     }
 
     public function promotersCountByDay(Request $request)

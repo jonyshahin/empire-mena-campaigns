@@ -26,6 +26,8 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     protected $campaign_id;
     protected $totalCount;
     protected $exportKey;
+    protected $offset = null;
+    protected $limit = null;
 
 
     public function __construct(
@@ -48,12 +50,19 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         cache()->put($this->exportKey . '_row_count', 0);
     }
 
+    public function forPage($offset, $limit)
+    {
+        $this->offset = $offset;
+        $this->limit = $limit;
+        return $this;
+    }
+
     /**
      * @return \Illuminate\Support\Collection
      */
     public function query()
     {
-        return Consumer::select([
+        $query = Consumer::select([
             'id',
             'campaign_id',
             'user_id',
@@ -90,6 +99,12 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
             ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date))
             ->when($this->district_ids, fn($query) => $query->whereHas('outlet', fn($query) => $query->whereIn('district_id', $this->district_ids)))
             ->when($this->promoter_id, fn($query) => $query->where('user_id', $this->promoter_id));
+
+        if ($this->offset !== null && $this->limit !== null) {
+            $query->skip($this->offset)->take($this->limit);
+        }
+
+        return $query;
     }
 
 
