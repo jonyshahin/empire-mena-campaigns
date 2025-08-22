@@ -85,6 +85,8 @@ class ConsumerController extends Controller
                     'nullable',
                     'string',
                     'max:255',
+                    // 'regex:/^[0-9]+$/',
+                    'digits_between:8,15',
                     Rule::unique('consumers')->where(function ($query) use ($campaign_id) {
                         return $query->where('campaign_id', $campaign_id);
                     }),
