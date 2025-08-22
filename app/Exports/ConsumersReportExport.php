@@ -33,6 +33,7 @@ class ConsumersReportExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'ID',
             'District',
             'Zone',
             'Outlet',
@@ -125,6 +126,7 @@ class ConsumersReportExport implements FromCollection, WithHeadings
                     }),
                     'outlets' => $outlets->map(function ($outlet) use ($timezone) {
                         return [
+                            'id' => $outlet->id,
                             'district' => $outlet->district->name,
                             'zone' => $outlet->zone->name,
                             'outlet' => $outlet->name,
