@@ -141,6 +141,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
         }
 
         return [
+            $consumer->id ?? 'N/A',
             $consumer->promoter->name ?? 'N/A',
             $consumer->outlet->name ?? 'N/A',
             $consumer->outlet->code ?? 'N/A',
@@ -168,6 +169,7 @@ class ConsumersByPromoterExport implements FromQuery, WithHeadings, WithMapping,
     public function headings(): array
     {
         return [
+            'Consumer ID',
             'Promoter',
             'Outlet',
             'Outlet Code',

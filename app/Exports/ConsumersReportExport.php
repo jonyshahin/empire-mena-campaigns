@@ -33,7 +33,7 @@ class ConsumersReportExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'ID',
+            'Outlet ID',
             'District',
             'Zone',
             'Outlet',
