@@ -103,7 +103,7 @@ class ProductCategory extends Model implements HasMedia
      * @param Media|null $media
      * @return void
      */
-    public function registerMediaConversions(Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this
             ->addMediaConversion('preview')

@@ -78,7 +78,7 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(ProductCategory::class);
     }
 
-    public function registerMediaConversions(Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this
             ->addMediaConversion('preview')
