@@ -10,6 +10,7 @@ use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\IncentiveController;
 use App\Http\Controllers\API\IndustryController;
+use App\Http\Controllers\API\IssueController;
 use App\Http\Controllers\API\NationalityController;
 use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\ProductController;
@@ -379,6 +380,24 @@ Route::prefix('receipts')->group(function () {
             Route::post('post',    [ReceiptController::class, 'post']);
             Route::post('cancel',  [ReceiptController::class, 'cancel']);
             Route::post('delete',  [ReceiptController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('issues')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // Read
+        Route::get('/',      [IssueController::class, 'index']);
+        Route::post('show',  [IssueController::class, 'show']);
+
+        // Mutations (admin only)
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create',  [IssueController::class, 'store']);
+            Route::post('update',  [IssueController::class, 'update']);
+            Route::post('submit',  [IssueController::class, 'submit']);
+            Route::post('post',    [IssueController::class, 'post']);
+            Route::post('cancel',  [IssueController::class, 'cancel']);
+            Route::post('delete',  [IssueController::class, 'destroy']);
         });
     });
 });

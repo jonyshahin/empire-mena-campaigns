@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\IssueStatus;
 use App\Enums\MovementType;
 use App\Enums\ReceiptStatus;
+use App\Models\Issue;
+use App\Models\IssueItem;
 use App\Models\Receipt;
 use App\Models\ReceiptItem;
 use App\Models\StockMovement;
@@ -95,5 +98,40 @@ class InventoryService
         });
 
         return $receipt->fresh(['items', 'warehouse']);
+    }
+
+    /**
+     * Post (apply) an Issue: OUT movements for each item.
+     * Decrements on_hand and writes stock_movements.
+     */
+    public function postIssue(Issue $issue): Issue
+    {
+        if ($issue->status !== IssueStatus::Submitted) {
+            throw new \DomainException('Issue must be in Submitted state to post.');
+        }
+
+        DB::transaction(function () use ($issue) {
+            $issue->loadMissing('items');
+
+            foreach ($issue->items as $line) {
+                /** @var IssueItem $line */
+                $this->adjust(
+                    warehouseId: $issue->warehouse_id,
+                    productId: $line->product_id,
+                    type: MovementType::OUT,
+                    qty: (float)$line->quantity,
+                    reference: $line,
+                    uom: $line->uom,
+                    remarks: 'Issue posted: ' . $issue->number
+                );
+            }
+
+            $issue->update([
+                'status'    => IssueStatus::Posted,
+                'posted_at' => now(),
+            ]);
+        });
+
+        return $issue->fresh(['items', 'warehouse']);
     }
 }
