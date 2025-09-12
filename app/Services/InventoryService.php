@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\MovementType;
+use App\Enums\ReceiptStatus;
 use App\Models\Receipt;
 use App\Models\ReceiptItem;
 use App\Models\StockMovement;
@@ -67,7 +68,7 @@ class InventoryService
      */
     public function postReceipt(Receipt $receipt): Receipt
     {
-        if ($receipt->status !== 'Submitted') {
+        if ($receipt->status !== ReceiptStatus::Submitted) {
             throw new \DomainException('Receipt must be in Submitted state to post.');
         }
 
@@ -88,7 +89,7 @@ class InventoryService
             }
 
             $receipt->update([
-                'status'    => 'Posted',
+                'status'    => ReceiptStatus::Posted,
                 'posted_at' => now(),
             ]);
         });
