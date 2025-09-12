@@ -20,6 +20,7 @@ use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingController;
 use App\Http\Controllers\API\TeamLeaderController;
 use App\Http\Controllers\API\WarehouseController;
+use App\Http\Controllers\API\WarehouseItemController;
 use App\Http\Controllers\API\ZoneController;
 use Illuminate\Support\Facades\Route;
 
@@ -331,6 +332,18 @@ Route::prefix('warehouse')->group(function () {
             Route::post('show',   [WarehouseController::class, 'show']);
             Route::post('update', [WarehouseController::class, 'update']);
             Route::post('delete', [WarehouseController::class, 'destroy']);
+        });
+    });
+});
+
+Route::prefix('warehouse-items')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [WarehouseItemController::class, 'index']); // admin/team_leader? up to you
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [WarehouseItemController::class, 'store']);
+            Route::post('show',   [WarehouseItemController::class, 'show']);   // or move outside admin if read is open
+            Route::post('update', [WarehouseItemController::class, 'update']);
+            Route::post('delete', [WarehouseItemController::class, 'destroy']);
         });
     });
 });
