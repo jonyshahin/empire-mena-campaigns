@@ -23,4 +23,9 @@ class District extends Model
     {
         return $this->hasMany(Outlet::class);
     }
+
+    public function warehouses(): HasMany
+    {
+        return $this->hasMany(Warehouse::class);
+    }
 }

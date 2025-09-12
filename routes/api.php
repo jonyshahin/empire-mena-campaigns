@@ -19,6 +19,7 @@ use App\Http\Controllers\API\RefusedReasonController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingController;
 use App\Http\Controllers\API\TeamLeaderController;
+use App\Http\Controllers\API\WarehouseController;
 use App\Http\Controllers\API\ZoneController;
 use Illuminate\Support\Facades\Route;
 
@@ -311,4 +312,25 @@ Route::prefix('reports')->group(function () {
             });
         }
     );
+});
+
+Route::prefix('warehouse')->group(function () {
+    // Public listing (match your District/Product list style)
+    Route::get('/', [WarehouseController::class, 'index']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        // Read helpers (restrict to admin | team_leader as they’re operational views)
+        Route::middleware('role:admin|team_leader')->group(function () {
+            Route::get('items', [WarehouseController::class, 'items']);           // ?warehouse_id=#&per_page=#
+            Route::get('movements', [WarehouseController::class, 'movements']);   // ?warehouse_id=#&type=&from=&to=&per_page=#
+        });
+
+        // CRUD (admin only — consistent with your pattern)
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create', [WarehouseController::class, 'store']);
+            Route::post('show',   [WarehouseController::class, 'show']);
+            Route::post('update', [WarehouseController::class, 'update']);
+            Route::post('delete', [WarehouseController::class, 'destroy']);
+        });
+    });
 });
