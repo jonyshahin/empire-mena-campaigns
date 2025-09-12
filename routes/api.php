@@ -18,6 +18,7 @@ use App\Http\Controllers\API\PromoterTrackingController;
 use App\Http\Controllers\API\RefusedReasonController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingController;
+use App\Http\Controllers\API\StockMovementController;
 use App\Http\Controllers\API\TeamLeaderController;
 use App\Http\Controllers\API\WarehouseController;
 use App\Http\Controllers\API\WarehouseItemController;
@@ -345,5 +346,20 @@ Route::prefix('warehouse-items')->group(function () {
             Route::post('update', [WarehouseItemController::class, 'update']);
             Route::post('delete', [WarehouseItemController::class, 'destroy']);
         });
+    });
+});
+
+Route::prefix('stock-movements')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // Read-only for ops roles (adjust as needed)
+        Route::middleware('role:admin|team_leader')->group(function () {
+            Route::get('/',       [StockMovementController::class, 'index']);
+            Route::post('show',   [StockMovementController::class, 'show']);
+        });
+
+        // Explicitly block direct mutations (optional)
+        Route::post('create',  [StockMovementController::class, 'store']);
+        Route::post('update',  [StockMovementController::class, 'update']);
+        Route::post('delete',  [StockMovementController::class, 'destroy']);
     });
 });
