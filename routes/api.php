@@ -15,6 +15,7 @@ use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\PromoterController;
 use App\Http\Controllers\API\PromoterTrackingController;
+use App\Http\Controllers\API\ReceiptController;
 use App\Http\Controllers\API\RefusedReasonController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingController;
@@ -361,5 +362,23 @@ Route::prefix('stock-movements')->group(function () {
         Route::post('create',  [StockMovementController::class, 'store']);
         Route::post('update',  [StockMovementController::class, 'update']);
         Route::post('delete',  [StockMovementController::class, 'destroy']);
+    });
+});
+
+Route::prefix('receipts')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // Read
+        Route::get('/',        [ReceiptController::class, 'index']);
+        Route::post('show',    [ReceiptController::class, 'show']);
+
+        // Mutations (admin only)
+        Route::middleware('role:admin')->group(function () {
+            Route::post('create',  [ReceiptController::class, 'store']);
+            Route::post('update',  [ReceiptController::class, 'update']);
+            Route::post('submit',  [ReceiptController::class, 'submit']);
+            Route::post('post',    [ReceiptController::class, 'post']);
+            Route::post('cancel',  [ReceiptController::class, 'cancel']);
+            Route::post('delete',  [ReceiptController::class, 'destroy']);
+        });
     });
 });
