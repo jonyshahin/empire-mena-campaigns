@@ -22,6 +22,11 @@ class WarehouseController extends Controller
             $user = User::find(Auth::id());
 
             $models = QueryBuilder::for(Warehouse::class)
+                ->with([
+                    'district:id,name',
+                    'zone:id,name',
+                    'manager:id,name',
+                ])
                 ->allowedFilters([
                     'name',
                     'code',
