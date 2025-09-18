@@ -75,7 +75,16 @@ class WarehouseController extends Controller
             ]);
 
             $model = Warehouse::query()
-                ->with(['district', 'zone', 'manager'])
+                ->with([
+                    'district:id,name',
+                    'zone:id,name',
+                    'manager:id,name,email',
+                    // Eager-load items and their product
+                    'items' => function ($q) {
+                        $q->with(['product:id,name,sku,price'])
+                            ->orderByDesc('id');
+                    },
+                ])
                 ->find($request->warehouse_id);
 
             if (!$model) {
