@@ -5,11 +5,14 @@ namespace App\Services;
 use App\Enums\IssueStatus;
 use App\Enums\MovementType;
 use App\Enums\ReceiptStatus;
+use App\Exceptions\InsufficientStockException;
 use App\Models\Issue;
 use App\Models\IssueItem;
+use App\Models\Product;
 use App\Models\Receipt;
 use App\Models\ReceiptItem;
 use App\Models\StockMovement;
+use App\Models\Warehouse;
 use App\Models\WarehouseItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +47,13 @@ class InventoryService
 
             // 3) guard against negative stock
             if (($wi->on_hand + $delta) < 0) {
-                throw new \DomainException('Insufficient stock for product_id=' . $productId . ' in warehouse_id=' . $warehouseId);
+                $product   = Product::find($productId);
+                $warehouse = Warehouse::find($warehouseId);
+                // throw new \DomainException('Insufficient stock for product_id=' . $productId . ' in warehouse_id=' . $warehouseId);
+                throw new InsufficientStockException(
+                    "Insufficient stock of '{$product?->name}' in warehouse '{$warehouse?->name}'. " .
+                        "Available: {$wi->on_hand}, Requested: {$qty}."
+                );
             }
 
             // 4) persist new quantity

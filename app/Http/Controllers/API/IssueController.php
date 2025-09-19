@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\IssueStatus;
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Issue;
 use App\Models\IssueItem;
@@ -240,8 +241,8 @@ class IssueController extends Controller
             $posted = $svc->postIssue($issue);
 
             return custom_success(200, 'Issue Posted Successfully', $posted);
-        } catch (\DomainException $e) {
-            return custom_error(422, $e->getMessage());
+        } catch (InsufficientStockException $e) {
+            return custom_error(422, $e->getMessage()); // User-friendly
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }

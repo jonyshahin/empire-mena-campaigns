@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\ReceiptStatus;
+use App\Exceptions\InsufficientStockException;
 use App\Http\Controllers\Controller;
 use App\Models\Receipt;
 use App\Models\ReceiptItem;
@@ -230,8 +231,8 @@ class ReceiptController extends Controller
             $posted = $svc->postReceipt($receipt);
 
             return custom_success(200, 'Receipt Posted Successfully', $posted);
-        } catch (\DomainException $e) {
-            return custom_error(422, $e->getMessage());
+        } catch (InsufficientStockException $e) {
+            return custom_error(422, $e->getMessage()); // User-friendly
         } catch (\Throwable $th) {
             return custom_error(500, $th->getMessage());
         }
